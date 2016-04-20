@@ -5,8 +5,7 @@ PIP=$(ENV)/pip
 MANAGE=$(PYTHON) manage.py
 
 collect_static:
-	mkdir collected_static
-	$(MANAGE)collected_static collectstatic
+	$(MANAGE) collectstatic --noinput --clear --link
 
 flake8:
 	$(ENV)/flake8

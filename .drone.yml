@@ -22,10 +22,10 @@ deploy:
     when:
         branch: master
     commands:
-      - cd /usr/local/www/aspargesgaarden.no
+      - cd /usr/local/www/p0sx.fap.no
       - git pull
-      - export DJANGO_SETTINGS_MODULE=aspargesgaarden.settings.prod
+      - export DJANGO_SETTINGS_MODULE=p0sx.settings.prod
       - make env
       - make prod
       - make migrate
-      - supervisorctl restart uwsgi_aspargesgaarden.no
+      - supervisorctl restart uwsgi_p0sx.fap.no

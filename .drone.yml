@@ -28,4 +28,5 @@ deploy:
       - make env
       - make prod
       - make migrate
+      - make collect_static
       - supervisorctl restart uwsgi_p0sx.fap.no

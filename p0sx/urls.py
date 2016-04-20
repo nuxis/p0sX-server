@@ -1,5 +1,7 @@
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.core.urlresolvers import reverse_lazy
+from django.views.generic.base import RedirectView
 
 from pos.views.shift import ShiftViewSet
 from pos.views.stock import CategoryViewSet, IngredientViewSet, ItemViewSet, OrderLineViewSet, OrderViewSet, PurchaseViewSet
@@ -18,6 +20,7 @@ router.register(r'orders', OrderViewSet)
 router.register(r'shifts', ShiftViewSet)
 router.register(r'purchases', PurchaseViewSet, 'purchase')
 urlpatterns = [
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('admin:index'))),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include(router.urls)),
 ]

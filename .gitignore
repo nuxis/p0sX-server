@@ -1,4 +1,6 @@
 env/
+collected_static/
+prod.py
 # Created by https://www.gitignore.io/api/django,osx,linux,windows,idea,intellj,pycharm,vim,visualstudio
 
 ### Django ###

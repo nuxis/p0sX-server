@@ -5,8 +5,7 @@ PIP=$(ENV)/pip
 MANAGE=$(PYTHON) manage.py
 
 collect_static:
-	mkdir collected_static
-	$(MANAGE)collected_static collectstatic
+	$(MANAGE) collectstatic --noinput --clear --link
 
 flake8:
 	$(ENV)/flake8
@@ -18,7 +17,7 @@ dev:
 	$(PIP) install -r requirements/development.txt --upgrade
 
 prod:
-	$(PIP) install -r requirements/prodduction.txt --upgrade
+	$(PIP) install -r requirements/production.txt --upgrade
 
 env:
 	virtualenv -p `which python3` env

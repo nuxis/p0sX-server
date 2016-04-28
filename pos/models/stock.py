@@ -24,7 +24,7 @@ class Item(models.Model):
     price = models.IntegerField()
     stock = models.IntegerField()
     barcode = models.CharField(max_length=255)
-    # image = models.ImageField()
+    image = models.ImageField(blank=True, upload_to='')
     category = models.ForeignKey(Category)
     can_have_ingredients = models.BooleanField(blank=False, default=False)
 

@@ -3,6 +3,9 @@
 
 Point of sale system for LAN parties.
 
+## Contributing
+
+Please read the [guidelines](https://github.com/nuxis/p0sX-server/blob/master/.github/CONTRIBUTING.md) before contributing.
 
 ## Development
 

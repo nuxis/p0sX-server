@@ -12,7 +12,7 @@
 ### Branch naming
 Branches should be named accuratly and follow the following convention:
 
-feature|bug-description-owner
+(feature|bug)-description-owner
 
 Example: feature-imagegallery-kradalby
 

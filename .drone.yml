@@ -4,15 +4,18 @@ build:
     environment:
       - DJANGO_SETTINGS_MODULE=init_django.settings.prod
     commands:
-      - tox
+        - make env
+        - make dev
+        - make flake8
+        - tox
 
 notify:
-  email:
-    from: drone@fap.no
-    host: smtp.stud.ntnu.no
-    port: 25
-    recipients:
-      - kradalby@kradalby.no
+    slack:
+        webhook_url: https://hooks.slack.com/services/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
+        channel: teknisk-dev
+        username: drone
+        when:
+            branch: master
 
 deploy:
   ssh:

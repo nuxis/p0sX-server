@@ -18,7 +18,7 @@ class Shift(models.Model):
 #     incomming_balance = models.IntegerField()
 #     revenue = models.IntegerField()
 #     outgoing_balance = models.IntegerField()
- 
+#
 #     @property
 #     def difference(self):
 #         return self.outgoing_balance - self.incomming_balance - self.revenue

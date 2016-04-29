@@ -52,12 +52,13 @@ class PurchaseViewSet(viewsets.ViewSet):
     def create(self, request):
         serializer = PurchaseSerializer(data=request.data)
 
-        if serializer.is_valid():
-            print(serializer.validated_data)
-
-            p = serializer.create(serializer.validated_data)
-            print(p)
-        else:
-            print('w00t')
+        # if serializer.is_valid():
+        #     print(serializer.validated_data)
+        #
+        #     p = serializer.create(serializer.validated_data)
+        #     print(p)
+        # else:
+        #     print('w00t')
+        #     pass
 
         return Response(serializer.data)

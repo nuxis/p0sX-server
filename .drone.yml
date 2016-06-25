@@ -17,19 +17,29 @@ notify:
         when:
             branch: master
 
-deploy:
-  ssh:
-    host: onyx.fap.no
-    user: www
-    port: 22
+publish:
+  docker:
+    registry: gengar.l.fap.no:5000
+    repo: p0sx/p0sx
+    tag: latest
+    insecure: true
     when:
         branch: master
+    load: docker/image.tar
+    save:
+      destination: docker/image.tar
+      tag: latest
+
+deploy:
+  ssh:
+    host:
+     - gengar.l.fap.no
+    user: root
+    port: 22
+    sleep: 2
     commands:
-      - cd /usr/local/www/p0sx.fap.no
-      - git pull
-      - export DJANGO_SETTINGS_MODULE=p0sx.settings.prod
-      - make env
-      - make prod
-      - make migrate
-      - make collect_static
-      - supervisorctl restart uwsgi_p0sx.fap.no
+      - docker pull registry.fap.no/p0sx/p0sx:latest
+      - docker-compose -f /srv/docker/p0sx/docker-compose.yml stop
+      - docker-compose -f /srv/docker/p0sx/docker-compose.yml up -d
+    when:
+        branch: master

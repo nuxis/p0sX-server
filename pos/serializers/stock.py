@@ -1,4 +1,5 @@
-from pos.models.stock import *
+from pos.models.stock import Category, Ingredient, Item, Order, OrderLine, Purchase
+from pos.models.user import User
 
 from rest_framework import serializers
 

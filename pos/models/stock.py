@@ -2,6 +2,22 @@ from django.db import models
 
 from .user import User
 
+ORDER_STATE = (
+    (0, 'OPEN'),
+    (1, 'IN_PROGRESS'),
+    (2, 'DELIVERED')
+)
+
+PAYMENT_METHOD = (
+    (0, 'CASH'),
+    (1, 'CREW'),
+    (2, 'CARD'),
+    (3, 'VIPPS'),
+    (4, 'MCASH'),
+    (5, 'MOBILEPAY'),
+    (6, 'IZETTLE')
+)
+
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
@@ -27,6 +43,7 @@ class Item(models.Model):
     image = models.ImageField(upload_to='', blank=False)
     category = models.ForeignKey(Category)
     can_have_ingredients = models.BooleanField(blank=False, default=False)
+    created_in_the_kitchen = models.BooleanField(blank=False, default=False)
 
     def __str__(self):
         return self.name
@@ -35,6 +52,8 @@ class Item(models.Model):
 class Order(models.Model):
     customer = models.ForeignKey(User, blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
+    state = models.SmallIntegerField(default=0, choices=ORDER_STATE)
+    payment_method = models.SmallIntegerField(default=0, choices=PAYMENT_METHOD)
 
     def __str__(self):
         return str(self.customer) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')

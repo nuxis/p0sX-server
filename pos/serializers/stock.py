@@ -31,7 +31,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ('id', 'customer', 'date')
+        fields = ('id', 'customer', 'date', 'state', 'payment_method')
 
 
 class PurchaseSerializer(serializers.Serializer):
@@ -45,10 +45,22 @@ class PurchaseSerializer(serializers.Serializer):
         else:
             order = Order.create(None)
         order.save()
+
+        prepared_order = False
+
         for line in validated_data.get('lines'):
             l = OrderLine.create(line.get('item'), order)
             l.save()
             for ingredient in line.get('ingredients'):
                 l.ingredients.add(ingredient)
             l.save()
+
+            if l.item.created_in_the_kitchen:
+                prepared_order = True
+
+        # Set the order to DONE if its not going to the kitchen
+        if not prepared_order:
+            order.state = 2
+            order.save()
+
         return Purchase(order)

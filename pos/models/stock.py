@@ -4,8 +4,8 @@ from .user import User
 
 ORDER_STATE = (
     (0, 'OPEN'),
-    (1, 'IN_PROGRESS'),
-    (2, 'DELIVERED')
+    (1, 'DONE'),
+    (2, 'ARCHIVED')
 )
 
 PAYMENT_METHOD = (

@@ -1,8 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Category, Ingredient, Item, Order, OrderLine, Purchase
-
-from pos.serializers.stock import CategorySerializer, IngredientSerializer, ItemSerializer, OrderLineSerializer, OrderSerializer, PurchaseSerializer
+from pos.serializers.stock import *
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -59,4 +57,20 @@ class PurchaseViewSet(viewsets.ViewSet):
             print('w00t')
             pass
 
+        return Response(serializer.data)
+
+
+class CreditCheckViewSet(viewsets.ViewSet):
+    @staticmethod
+    def retrieve(request, pk=None):
+        users = User.objects.all()
+        user = get_object_or_404(users, card=pk)
+        orders = Order.objects.filter(customer=user)
+        orderlines = OrderLine.objects.filter(order__in=orders)
+
+        total = sum(ol.price for ol in orderlines)
+        credit_limit = user.max_credit
+
+        queryset = CreditCheck(total, credit_limit)
+        serializer = CreditCheckSerializer(queryset)
         return Response(serializer.data)

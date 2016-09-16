@@ -101,3 +101,10 @@ class Purchase:
             s += '\n' + str(line)
 
         return s
+
+
+class CreditCheck:
+    def __init__(self, used, credit_limit):
+        self.used = used
+        self.credit_limit = credit_limit
+        self.left = credit_limit - used

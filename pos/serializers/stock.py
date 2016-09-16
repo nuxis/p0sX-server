@@ -32,6 +32,18 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ('id', 'customer', 'date', 'state', 'payment_method')
 
 
+class CreditCheckSerializer(serializers.Serializer):
+    used = serializers.IntegerField()
+    credit_limit = serializers.IntegerField()
+    left = serializers.IntegerField()
+
+    def update(self, instance, validated_data):
+        pass
+
+    def create(self, validated_data):
+        pass
+
+
 class PurchaseSerializer(serializers.Serializer):
     payment_method = serializers.IntegerField(required=True)
     card = serializers.IntegerField(required=False)

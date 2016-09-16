@@ -33,26 +33,32 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class PurchaseSerializer(serializers.Serializer):
+    payment_method = serializers.IntegerField(required=True)
     card = serializers.IntegerField(required=False)
     lines = OrderLineSerializer(many=True)
 
     def create(self, validated_data):
         card = validated_data.get('card')
+        payment_method = validated_data.get('payment_method')
         if card:
-            order = Order.create(User.objects.get(card=card))
+            order = Order.create(User.objects.get(card=card), payment_method)
         else:
-            order = Order.create(None)
+            order = Order.create(None, payment_method)
         order.save()
 
         prepared_order = False
 
-        for line in validated_data.get('lines'):
-            l = OrderLine.create(line.get('item'), order)
-            l.save()
-            l.ingredients.add(*(validated_data.get('ingredients') or []))
-            l.save()
+        for line_dict in validated_data.get('lines'):
+            ingredients = line_dict.get('ingredients')
+            item = line_dict.get('item')
+            price = item.price + sum(i.price for i in ingredients)
 
-            if l.item.created_in_the_kitchen:
+            line = OrderLine.create(item, order, price)
+            line.save()
+            line.ingredients.add(*ingredients)
+            line.save()
+
+            if line.item.created_in_the_kitchen:
                 prepared_order = True
 
         # Set the order to DONE if its not going to the kitchen

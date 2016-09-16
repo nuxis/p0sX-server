@@ -21,7 +21,7 @@ PAYMENT_METHOD = (
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
-    price = models.CharField(max_length=255)
+    price = models.SmallIntegerField()
     stock = models.IntegerField()
 
     def __str__(self):
@@ -38,13 +38,14 @@ class Category(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=255)
     price = models.IntegerField()
-    stock = models.IntegerField()
+    stock = models.IntegerField(default=0)
     barcode = models.CharField(max_length=255)
     active = models.BooleanField(blank=False, default=True)
     image = models.ImageField(upload_to='', blank=False)
     category = models.ForeignKey(Category)
     can_have_ingredients = models.BooleanField(blank=False, default=False)
     created_in_the_kitchen = models.BooleanField(blank=False, default=False)
+    default_ingredients = models.ManyToManyField(Ingredient, blank=True)
 
     def __str__(self):
         return self.name
@@ -60,8 +61,8 @@ class Order(models.Model):
         return str(self.customer) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')
 
     @classmethod
-    def create(cls, customer):
-        order = cls(customer=customer)
+    def create(cls, customer, payment_method):
+        order = cls(customer=customer, payment_method=payment_method)
 
         return order
 
@@ -69,6 +70,7 @@ class Order(models.Model):
 class OrderLine(models.Model):
     ingredients = models.ManyToManyField(Ingredient, blank=True)
     item = models.ForeignKey(Item)
+    price = models.IntegerField()
     order = models.ForeignKey(Order)
 
     def __str__(self):
@@ -81,8 +83,8 @@ class OrderLine(models.Model):
         return s
 
     @classmethod
-    def create(cls, item, order):
-        line = cls(item=item, order=order)
+    def create(cls, item, order, price):
+        line = cls(item=item, order=order, price=price)
         return line
 
 
@@ -91,6 +93,7 @@ class Purchase:
         self.order = order
         self.user = order.customer_id
         self.lines = OrderLine.objects.filter(order=order)
+        self.payment_method = order.payment_method
 
     def __str__(self):
         s = str(self.order)

@@ -1,6 +1,4 @@
-from pos.models.stock import Category, Ingredient, Item, Order, OrderLine, Purchase
-from pos.models.user import User
-
+from pos.models.stock import *
 from rest_framework import serializers
 
 
@@ -35,13 +33,13 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class PurchaseSerializer(serializers.Serializer):
-    user = serializers.IntegerField(required=False)
+    card = serializers.IntegerField(required=False)
     lines = OrderLineSerializer(many=True)
 
     def create(self, validated_data):
-        user = validated_data.get('user')
-        if user:
-            order = Order.create(User.objects.get(pk=user))
+        card = validated_data.get('card')
+        if card:
+            order = Order.create(User.objects.get(card=card))
         else:
             order = Order.create(None)
         order.save()
@@ -51,8 +49,7 @@ class PurchaseSerializer(serializers.Serializer):
         for line in validated_data.get('lines'):
             l = OrderLine.create(line.get('item'), order)
             l.save()
-            for ingredient in line.get('ingredients'):
-                l.ingredients.add(ingredient)
+            l.ingredients.add(*(validated_data.get('ingredients') or []))
             l.save()
 
             if l.item.created_in_the_kitchen:
@@ -64,3 +61,6 @@ class PurchaseSerializer(serializers.Serializer):
             order.save()
 
         return Purchase(order)
+
+    def update(self, instance, validated_data):
+        pass

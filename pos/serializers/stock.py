@@ -31,7 +31,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ('id', 'customer', 'date', 'state', 'payment_method')
+        fields = ('id', 'customer', 'date', 'state', 'payment_method', 'message')
 
 
 class PurchaseSerializer(serializers.Serializer):

@@ -1,3 +1,5 @@
+from django.shortcuts import get_object_or_404
+
 from pos.models.stock import *
 from rest_framework import serializers
 
@@ -48,14 +50,17 @@ class PurchaseSerializer(serializers.Serializer):
     payment_method = serializers.IntegerField(required=True)
     card = serializers.IntegerField(required=False)
     lines = OrderLineSerializer(many=True)
+    message = serializers.CharField(required=False, allow_blank=True)
 
     def create(self, validated_data):
         card = validated_data.get('card')
         payment_method = validated_data.get('payment_method')
+        message = validated_data.get('message')
         if card:
-            order = Order.create(User.objects.get(card=card), payment_method)
+            user = get_object_or_404(User.objects.all(), card=card)
+            order = Order.create(user, payment_method, message)
         else:
-            order = Order.create(None, payment_method)
+            order = Order.create(None, payment_method, message)
         order.save()
 
         prepared_order = False

@@ -56,13 +56,14 @@ class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     state = models.SmallIntegerField(default=0, choices=ORDER_STATE)
     payment_method = models.SmallIntegerField(default=0, choices=PAYMENT_METHOD)
+    message = models.CharField(max_length=64, blank=True)
 
     def __str__(self):
         return str(self.customer) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')
 
     @classmethod
-    def create(cls, customer, payment_method):
-        order = cls(customer=customer, payment_method=payment_method)
+    def create(cls, customer, payment_method, message):
+        order = cls(customer=customer, payment_method=payment_method, message=message)
 
         return order
 

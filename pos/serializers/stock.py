@@ -41,15 +41,19 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class OrderLineSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = OrderLine
         fields = ('id', 'ingredients', 'item')
+        depth = 1
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    orderlines = OrderLineSerializer(many=True, read_only=True)
+
     class Meta:
         model = Order
-        fields = ('id', 'customer', 'date', 'state', 'payment_method')
+        fields = ('id', 'customer', 'date', 'state', 'payment_method', 'orderlines')
 
 
 class CreditCheckSerializer(serializers.Serializer):

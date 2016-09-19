@@ -65,7 +65,8 @@ class Order(models.Model):
     customer = models.ForeignKey(User, blank=True, null=True)
     date = models.DateTimeField(auto_now_add=True)
     state = models.SmallIntegerField(default=0, choices=ORDER_STATE)
-    payment_method = models.SmallIntegerField(default=0, choices=PAYMENT_METHOD)
+    payment_method = models.SmallIntegerField(
+        default=0, choices=PAYMENT_METHOD)
     message = models.CharField(max_length=64, blank=True)
 
     def __str__(self):
@@ -73,7 +74,8 @@ class Order(models.Model):
 
     @classmethod
     def create(cls, customer, payment_method, message):
-        order = cls(customer=customer, payment_method=payment_method, message=message)
+        order = cls(customer=customer,
+                    payment_method=payment_method, message=message)
 
         return order
 
@@ -82,14 +84,15 @@ class OrderLine(models.Model):
     ingredients = models.ManyToManyField(Ingredient, blank=True)
     item = models.ForeignKey(Item)
     price = models.IntegerField()
-    order = models.ForeignKey(Order)
+    order = models.ForeignKey(Order, related_name='orderlines')
 
     def __str__(self):
         s = self.item.name
 
         if len(self.ingredients.all()) > 0:
             s += ' med '
-            s += ', '.join([str(item).lower() for item in self.ingredients.all()])
+            s += ', '.join([str(item).lower()
+                            for item in self.ingredients.all()])
 
         return s
 
@@ -100,6 +103,7 @@ class OrderLine(models.Model):
 
 
 class Purchase:
+
     def __init__(self, order):
         self.order = order
         self.user = order.customer_id
@@ -115,6 +119,7 @@ class Purchase:
 
 
 class CreditCheck:
+
     def __init__(self, used, credit_limit):
         self.used = used
         self.credit_limit = credit_limit

@@ -41,14 +41,24 @@ class Item(models.Model):
     stock = models.IntegerField(default=0)
     barcode = models.CharField(max_length=255)
     active = models.BooleanField(blank=False, default=True)
-    image = models.ImageField(upload_to='', blank=False)
+    image = models.ImageField(upload_to='', blank=True)
     category = models.ForeignKey(Category)
-    can_have_ingredients = models.BooleanField(blank=False, default=False)
     created_in_the_kitchen = models.BooleanField(blank=False, default=False)
-    default_ingredients = models.ManyToManyField(Ingredient, blank=True)
 
     def __str__(self):
         return self.name
+
+
+class ItemIngredients(models.Model):
+    item = models.ForeignKey(Item)
+    ingredient = models.ForeignKey(Ingredient)
+    default = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.item.name + (' has ' if self.default else ' can have ') + self.ingredient.name
+
+    def __str__(self):
+        return self.item.name + (' has ' if self.default else ' can have ') + self.ingredient.name
 
 
 class Order(models.Model):

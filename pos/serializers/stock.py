@@ -1,7 +1,7 @@
 # coding=utf-8
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Purchase, OrderLine, Order, Ingredient, Item, Category
+from pos.models.stock import Purchase, OrderLine, Order, Ingredient, Item, Category, ItemIngredients
 from rest_framework import serializers
 
 from pos.models.user import User
@@ -13,10 +13,32 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
+class ItemIngredientsSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    price = serializers.ReadOnlyField(source='ingredient.price')
+    stock = serializers.ReadOnlyField(source='ingredient.stock')
+
+    class Meta:
+        model = ItemIngredients
+        fields = ('id', 'default', 'name', 'price', 'stock')
+
+
 class ItemSerializer(serializers.ModelSerializer):
+    ingredients = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_ingredients(obj):
+        item_ingredients = ItemIngredients.objects.filter(item=obj.pk)
+        if item_ingredients:
+            serializer = ItemIngredientsSerializer(item_ingredients, many=True)
+            return serializer.data
+        else:
+            return []
+
     class Meta:
         model = Item
-        fields = ('id', 'name', 'price', 'stock', 'barcode', 'category', 'can_have_ingredients', 'image')
+        fields = ('id', 'name', 'price', 'stock', 'barcode', 'category', 'image', 'ingredients')
 
 
 class OrderLineSerializer(serializers.ModelSerializer):

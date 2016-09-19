@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 
+from pos.models.stock import CreditCheck
 from pos.serializers.stock import *
 
 from rest_framework import viewsets

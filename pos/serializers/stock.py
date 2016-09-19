@@ -1,7 +1,10 @@
+# coding=utf-8
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import *
+from pos.models.stock import Purchase, OrderLine, Order, Ingredient, Item, Category
 from rest_framework import serializers
+
+from pos.models.user import User
 
 
 class CategorySerializer(serializers.ModelSerializer):

@@ -1,10 +1,9 @@
-# coding=utf-8
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Purchase, OrderLine, Order, Ingredient, Item, Category, ItemIngredient
-from rest_framework import serializers
-
+from pos.models.stock import Category, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase
 from pos.models.user import User
+
+from rest_framework import serializers
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -97,8 +96,9 @@ class PurchaseSerializer(serializers.Serializer):
 
             line = OrderLine.create(item, order, price)
             line.save()
-            line.ingredients.add(*ingredients)
-            line.save()
+            if len(ingredients):
+                line.ingredients.set((i.pk for i in ingredients))
+                line.save()
 
             if line.item.created_in_the_kitchen:
                 prepared_order = True

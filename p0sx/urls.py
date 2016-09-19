@@ -7,7 +7,8 @@ from django.views.generic.base import RedirectView
 
 
 from pos.views.shift import ShiftViewSet
-from pos.views.stock import CategoryViewSet, IngredientViewSet, ItemViewSet, OrderLineViewSet, OrderViewSet, PurchaseViewSet, CreditCheckViewSet
+from pos.views.stock import CategoryViewSet, CreditCheckViewSet, IngredientViewSet, ItemViewSet, OrderLineViewSet, \
+    OrderViewSet, PurchaseViewSet
 from pos.views.user import UserViewSet
 
 from rest_framework import routers

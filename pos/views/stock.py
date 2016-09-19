@@ -1,7 +1,9 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import CreditCheck
-from pos.serializers.stock import *
+from pos.models.stock import Category, CreditCheck, Ingredient, Item, OrderLine, Purchase
+from pos.models.user import User
+from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, IngredientSerializer, ItemSerializer, \
+    Order, OrderLineSerializer, OrderSerializer, PurchaseSerializer
 
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -53,9 +55,7 @@ class PurchaseViewSet(viewsets.ViewSet):
 
         if serializer.is_valid():
             serializer.create(serializer.validated_data)
-            print('Good')
         else:
-            print('w00t')
             pass
 
         return Response(serializer.data)

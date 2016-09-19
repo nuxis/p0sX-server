@@ -49,7 +49,7 @@ class Item(models.Model):
         return self.name
 
 
-class ItemIngredients(models.Model):
+class ItemIngredient(models.Model):
     item = models.ForeignKey(Item)
     ingredient = models.ForeignKey(Ingredient)
     default = models.BooleanField(default=False)

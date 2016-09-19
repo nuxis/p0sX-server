@@ -1,11 +1,11 @@
 from django.contrib import admin
 
 from pos.models.shift import Shift
-from pos.models.stock import Category, Ingredient, Item, Order, OrderLine, ItemIngredients
+from pos.models.stock import Category, Ingredient, Item, Order, OrderLine, ItemIngredient
 from pos.models.user import User
 
 
-class ItemIngreientsAdmin(admin.ModelAdmin):
+class ItemIngreientAdmin(admin.ModelAdmin):
     pass
 
 
@@ -44,4 +44,4 @@ admin.site.register(Order, OrderAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(OrderLine, OrderLineAdmin)
 admin.site.register(Shift, ShiftAdmin)
-admin.site.register(ItemIngredients, ItemIngreientsAdmin)
+admin.site.register(ItemIngredient, ItemIngreientAdmin)

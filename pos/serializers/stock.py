@@ -1,7 +1,7 @@
 # coding=utf-8
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Purchase, OrderLine, Order, Ingredient, Item, Category, ItemIngredients
+from pos.models.stock import Purchase, OrderLine, Order, Ingredient, Item, Category, ItemIngredient
 from rest_framework import serializers
 
 from pos.models.user import User
@@ -20,7 +20,7 @@ class ItemIngredientsSerializer(serializers.ModelSerializer):
     stock = serializers.ReadOnlyField(source='ingredient.stock')
 
     class Meta:
-        model = ItemIngredients
+        model = ItemIngredient
         fields = ('id', 'default', 'name', 'price', 'stock')
 
 
@@ -29,7 +29,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def get_ingredients(obj):
-        item_ingredients = ItemIngredients.objects.filter(item=obj.pk)
+        item_ingredients = ItemIngredient.objects.filter(item=obj.pk)
         if item_ingredients:
             serializer = ItemIngredientsSerializer(item_ingredients, many=True)
             return serializer.data

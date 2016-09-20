@@ -1,7 +1,6 @@
 from django.shortcuts import get_object_or_404
-import django_filters
 
-from pos.models.stock import Category, CreditCheck, Ingredient, Item, OrderLine, Purchase
+from pos.models.stock import Category, CreditCheck, Item, OrderLine, Purchase
 from pos.models.user import User
 from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, ItemSerializer, \
     Order, OrderLineSerializer, OrderSerializer, PurchaseSerializer

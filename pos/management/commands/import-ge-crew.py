@@ -1,18 +1,19 @@
-from django.core.management.base import BaseCommand, CommandError
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.management.base import BaseCommand
 from pos.models.user import User
 from pyGE import GE
+
 
 class Command(BaseCommand):
     help = 'Import crewmembers from Geekevents'
 
     def add_arguments(self, parser):
         parser.add_argument('--party', dest='party', nargs=1,
-            help='Party on GeekEvents')
+                            help='Party on GeekEvents')
         parser.add_argument('--username', dest='username', nargs=1,
-            help='GE API username')
+                            help='GE API username')
         parser.add_argument('--password', dest='password', nargs=1,
-            help='GE API password')
+                            help='GE API password')
 
     def handle(self, *args, **options):
         party = options['party'][0]
@@ -24,7 +25,7 @@ class Command(BaseCommand):
             user=username,
             password=password
         )
-        
+
         crew = ge.get_crew()
 
         for id, data in crew.items():
@@ -45,4 +46,3 @@ class Command(BaseCommand):
                 )
                 user.save()
                 print('Added new user {} {}'.format(data['first_name'], data['last_name']))
-

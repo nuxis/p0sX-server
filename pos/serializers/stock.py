@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Category, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase
+from pos.models.stock import Category, Item, ItemIngredient, Order, OrderLine, Purchase
 from pos.models.user import User
 
 from rest_framework import serializers
@@ -41,7 +41,7 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class OrderLineSerializer(serializers.ModelSerializer):
-    
+
     class Meta:
         model = OrderLine
         fields = ('id', 'ingredients', 'item')

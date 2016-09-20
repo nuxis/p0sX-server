@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+import django_filters
 
 from pos.models.stock import Category, CreditCheck, Ingredient, Item, OrderLine, Purchase
 from pos.models.user import User
@@ -27,6 +28,7 @@ class ItemViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    filter_fields = ('state',)
 
 
 class PurchaseViewSet(viewsets.ViewSet):

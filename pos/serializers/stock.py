@@ -41,11 +41,10 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class OrderLineSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = OrderLine
         fields = ('id', 'ingredients', 'item')
-        depth = 1
+        depth = 0
 
 
 class OrderSerializer(serializers.ModelSerializer):

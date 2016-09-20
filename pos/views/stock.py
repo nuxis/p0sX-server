@@ -1,11 +1,16 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Category, CreditCheck, Discount, Item, OrderLine, Purchase
-from pos.models.user import User
-from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, DiscountSerializer, ItemSerializer, \
-    Order, OrderLineSerializer, OrderSerializer, PurchaseSerializer
-
 from rest_framework import status, viewsets
+from pos.models.stock import Category, CreditCheck, Discount, Item, Order, OrderLine, Purchase
+from pos.serializers.stock import (CategorySerializer,
+                                   CreditCheckSerializer,
+                                   DiscountSerializer,
+                                   ItemSerializer,
+                                   OrderLineSerializer,
+                                   OrderSerializer,
+                                   PurchaseSerializer)
+from pos.models.crew import Crew
+from rest_framework import viewsets
 from rest_framework.response import Response
 
 
@@ -36,6 +41,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
 
 class PurchaseViewSet(viewsets.ViewSet):
+
     def list(self, request):
         orders = Order.objects.all()
         queryset = []
@@ -64,15 +70,16 @@ class PurchaseViewSet(viewsets.ViewSet):
 
 
 class CreditCheckViewSet(viewsets.ViewSet):
+
     @staticmethod
     def retrieve(request, pk=None):
-        users = User.objects.all()
-        user = get_object_or_404(users, card=pk)
-        orders = Order.objects.filter(customer=user)
+        crews = Crew.objects.all()
+        crew = get_object_or_404(crews, card=pk)
+        orders = Order.objects.filter(crew=crew)
         orderlines = OrderLine.objects.filter(order__in=orders)
 
         total = sum(ol.price for ol in orderlines)
-        credit_limit = user.credit
+        credit_limit = crew.credit
 
         queryset = CreditCheck(total, credit_limit)
         serializer = CreditCheckSerializer(queryset)

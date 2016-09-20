@@ -1,6 +1,7 @@
 from django.db import models
+from django.contrib.auth.models import User
 
-from .user import User
+from .crew import Crew
 
 ORDER_STATE = (
     (0, 'OPEN'),
@@ -63,7 +64,8 @@ class ItemIngredient(models.Model):
 
 
 class Order(models.Model):
-    customer = models.ForeignKey(User, blank=True, null=True)
+    crew = models.ForeignKey(Crew)
+    authenticated_user = models.ForeignKey(User)
     date = models.DateTimeField(auto_now_add=True)
     state = models.SmallIntegerField(default=0, choices=ORDER_STATE)
     payment_method = models.SmallIntegerField(
@@ -71,12 +73,15 @@ class Order(models.Model):
     message = models.CharField(max_length=64, blank=True)
 
     def __str__(self):
-        return str(self.customer) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')
+        return str(self.crew) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')
 
     @classmethod
-    def create(cls, customer, payment_method, message):
-        order = cls(customer=customer,
-                    payment_method=payment_method, message=message)
+    def create(cls, crew, authenticated_user, payment_method, message):
+        order = cls(crew=crew,
+                    authenticated_user=authenticated_user,
+                    payment_method=payment_method,
+                    message=message
+                )
 
         return order
 
@@ -107,7 +112,7 @@ class Purchase:
     def __init__(self, order, card, undo):
         self.id = order.pk
         self.order = order
-        self.user = order.customer_id
+        self.crew = order.crew_id
         self.lines = OrderLine.objects.filter(order=order)
         self.payment_method = order.payment_method
         self.message = order.message

@@ -1,12 +1,12 @@
 from django.db import models
 
-from .user import User
+from .crew import Crew
 
 
 class Shift(models.Model):
     start = models.DateTimeField(auto_now_add=True, blank=False)
     end = models.DateTimeField(blank=True, null=True)
-    leader = models.ForeignKey(User)
+    leader = models.ForeignKey(Crew)
 
     def __str__(self):
         return 'Skift ledet av ' + str(self.leader) + ' som startet ' + self.start.strftime('%Y-%m-%d %H:%M:%S')

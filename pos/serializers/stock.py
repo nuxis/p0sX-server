@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase
-from pos.models.user import User
+from pos.models.crew import Crew
 
 from rest_framework import serializers
 
@@ -18,6 +18,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Category
         fields = ('id', 'name')
@@ -48,7 +49,8 @@ class ItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ('id', 'name', 'price', 'stock', 'barcode', 'category', 'image', 'ingredients')
+        fields = ('id', 'name', 'price', 'stock', 'barcode',
+                  'category', 'image', 'ingredients')
 
 
 class SimpleItemSerializer(serializers.ModelSerializer):
@@ -89,7 +91,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'customer', 'date', 'state', 'payment_method', 'orderlines')
+        fields = ('id', 'crew', 'date', 'state',
+                  'payment_method', 'orderlines')
 
 
 class CreditCheckSerializer(serializers.Serializer):
@@ -112,16 +115,22 @@ class PurchaseSerializer(serializers.Serializer):
     id = serializers.IntegerField(required=False)
     undo = serializers.BooleanField()
 
-    def create(self, validated_data):
+    def create(self, validated_data, request):
         card = validated_data.get('card')
         payment_method = validated_data.get('payment_method')
         message = validated_data.get('message')
+<<<<<<< HEAD
         undo = validated_data.get('undo')
         if card:
             user = get_object_or_404(User.objects.all(), card=card)
             order = Order.create(user, payment_method, message)
         else:
             order = Order.create(None, payment_method, message)
+=======
+
+        crew = get_object_or_404(Crew.objects.all(), card=card)
+        order = Order.create(crew, request.user, payment_method, message)
+>>>>>>> renames user/customer to crew
         order.save()
 
         prepared_order = False

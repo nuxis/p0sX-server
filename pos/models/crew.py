@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class User(models.Model):
+class Crew(models.Model):
     card = models.CharField(max_length=255, unique=True, primary_key=True)
     credit = models.IntegerField()
     first_name = models.CharField(max_length=255)

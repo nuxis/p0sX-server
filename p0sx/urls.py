@@ -9,13 +9,13 @@ from django.views.generic.base import RedirectView
 from pos.views.shift import ShiftViewSet
 from pos.views.stock import CategoryViewSet, CreditCheckViewSet, DiscountViewSet, ItemViewSet, OrderLineViewSet, \
     OrderViewSet, PurchaseViewSet
-from pos.views.user import UserViewSet
+from pos.views.crew import CrewViewSet
 
 from rest_framework import routers
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.SimpleRouter()
-router.register(r'users', UserViewSet)
+router.register(r'crew', CrewViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'orderlines', OrderLineViewSet)
 router.register(r'items', ItemViewSet)

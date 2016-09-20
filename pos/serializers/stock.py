@@ -46,12 +46,6 @@ class OrderLineSerializer(serializers.ModelSerializer):
         fields = ('id', 'ingredients', 'item')
 
 
-class IngredientSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ingredient
-        fields = ('id', 'name', 'stock', 'price')
-
-
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order

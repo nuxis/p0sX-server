@@ -2,16 +2,11 @@ from django.shortcuts import get_object_or_404
 
 from pos.models.stock import Category, CreditCheck, Ingredient, Item, OrderLine, Purchase
 from pos.models.user import User
-from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, IngredientSerializer, ItemSerializer, \
+from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, ItemSerializer, \
     Order, OrderLineSerializer, OrderSerializer, PurchaseSerializer
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-
-
-class IngredientViewSet(viewsets.ModelViewSet):
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):

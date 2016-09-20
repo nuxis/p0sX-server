@@ -7,7 +7,7 @@ from django.views.generic.base import RedirectView
 
 
 from pos.views.shift import ShiftViewSet
-from pos.views.stock import CategoryViewSet, CreditCheckViewSet, IngredientViewSet, ItemViewSet, OrderLineViewSet, \
+from pos.views.stock import CategoryViewSet, CreditCheckViewSet, ItemViewSet, OrderLineViewSet, \
     OrderViewSet, PurchaseViewSet
 from pos.views.user import UserViewSet
 
@@ -18,7 +18,6 @@ router = routers.SimpleRouter()
 router.register(r'users', UserViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'orderlines', OrderLineViewSet)
-router.register(r'ingredients', IngredientViewSet)
 router.register(r'items', ItemViewSet)
 router.register(r'orders', OrderViewSet)
 router.register(r'shifts', ShiftViewSet)

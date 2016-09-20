@@ -9,6 +9,7 @@ ENV LIBRARY_PATH=/lib:/usr/lib
 
 RUN apk update
 RUN apk add postgresql-dev \
+        git \
         mailcap \
         build-base \
         python3-dev \

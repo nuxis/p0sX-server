@@ -36,7 +36,7 @@ deploy:
      - gengar.l.fap.no
     user: root
     port: 22
-    sleep: 2
+    sleep: 3
     commands:
       - docker pull registry.fap.no/p0sx/p0sx:latest
       - docker-compose -f /srv/docker/p0sx/docker-compose.yml stop

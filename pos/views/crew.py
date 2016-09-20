@@ -9,3 +9,4 @@ from rest_framework import viewsets
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+    filter_fields = ('card',)

@@ -1,16 +1,12 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Category, Ingredient, Item, Order, OrderLine, Purchase
-
-from pos.serializers.stock import CategorySerializer, IngredientSerializer, ItemSerializer, OrderLineSerializer, OrderSerializer, PurchaseSerializer
+from pos.models.stock import Category, CreditCheck, Ingredient, Item, OrderLine, Purchase
+from pos.models.user import User
+from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, ItemSerializer, \
+    Order, OrderLineSerializer, OrderSerializer, PurchaseSerializer
 
 from rest_framework import viewsets
 from rest_framework.response import Response
-
-
-class IngredientViewSet(viewsets.ModelViewSet):
-    queryset = Ingredient.objects.all()
-    serializer_class = IngredientSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
@@ -24,7 +20,7 @@ class OrderLineViewSet(viewsets.ModelViewSet):
 
 
 class ItemViewSet(viewsets.ModelViewSet):
-    queryset = Item.objects.all()
+    queryset = Item.objects.filter(active=True)
     serializer_class = ItemSerializer
 
 
@@ -52,13 +48,25 @@ class PurchaseViewSet(viewsets.ViewSet):
     def create(self, request):
         serializer = PurchaseSerializer(data=request.data)
 
-        # if serializer.is_valid():
-        #     print(serializer.validated_data)
-        #
-        #     p = serializer.create(serializer.validated_data)
-        #     print(p)
-        # else:
-        #     print('w00t')
-        #     pass
+        if serializer.is_valid():
+            serializer.create(serializer.validated_data)
+        else:
+            pass
 
+        return Response(serializer.data)
+
+
+class CreditCheckViewSet(viewsets.ViewSet):
+    @staticmethod
+    def retrieve(request, pk=None):
+        users = User.objects.all()
+        user = get_object_or_404(users, card=pk)
+        orders = Order.objects.filter(customer=user)
+        orderlines = OrderLine.objects.filter(order__in=orders)
+
+        total = sum(ol.price for ol in orderlines)
+        credit_limit = user.max_credit
+
+        queryset = CreditCheck(total, credit_limit)
+        serializer = CreditCheckSerializer(queryset)
         return Response(serializer.data)

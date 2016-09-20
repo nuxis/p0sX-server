@@ -21,7 +21,7 @@ PAYMENT_METHOD = (
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
-    price = models.CharField(max_length=255)
+    price = models.SmallIntegerField()
     stock = models.IntegerField()
 
     def __str__(self):
@@ -38,15 +38,27 @@ class Category(models.Model):
 class Item(models.Model):
     name = models.CharField(max_length=255)
     price = models.IntegerField()
-    stock = models.IntegerField()
+    stock = models.IntegerField(default=0)
     barcode = models.CharField(max_length=255)
-    image = models.ImageField(upload_to='', blank=False)
+    active = models.BooleanField(blank=False, default=True)
+    image = models.ImageField(upload_to='', blank=True)
     category = models.ForeignKey(Category)
-    can_have_ingredients = models.BooleanField(blank=False, default=False)
     created_in_the_kitchen = models.BooleanField(blank=False, default=False)
 
     def __str__(self):
         return self.name
+
+
+class ItemIngredient(models.Model):
+    item = models.ForeignKey(Item)
+    ingredient = models.ForeignKey(Ingredient)
+    default = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return self.item.name + (' has ' if self.default else ' can have ') + self.ingredient.name
+
+    def __str__(self):
+        return self.item.name + (' has ' if self.default else ' can have ') + self.ingredient.name
 
 
 class Order(models.Model):
@@ -54,13 +66,14 @@ class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     state = models.SmallIntegerField(default=0, choices=ORDER_STATE)
     payment_method = models.SmallIntegerField(default=0, choices=PAYMENT_METHOD)
+    message = models.CharField(max_length=64, blank=True)
 
     def __str__(self):
         return str(self.customer) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')
 
     @classmethod
-    def create(cls, customer):
-        order = cls(customer=customer)
+    def create(cls, customer, payment_method, message):
+        order = cls(customer=customer, payment_method=payment_method, message=message)
 
         return order
 
@@ -68,6 +81,7 @@ class Order(models.Model):
 class OrderLine(models.Model):
     ingredients = models.ManyToManyField(Ingredient, blank=True)
     item = models.ForeignKey(Item)
+    price = models.IntegerField()
     order = models.ForeignKey(Order)
 
     def __str__(self):
@@ -80,8 +94,8 @@ class OrderLine(models.Model):
         return s
 
     @classmethod
-    def create(cls, item, order):
-        line = cls(item=item, order=order)
+    def create(cls, item, order, price):
+        line = cls(item=item, order=order, price=price)
         return line
 
 
@@ -90,6 +104,7 @@ class Purchase:
         self.order = order
         self.user = order.customer_id
         self.lines = OrderLine.objects.filter(order=order)
+        self.payment_method = order.payment_method
 
     def __str__(self):
         s = str(self.order)
@@ -97,3 +112,10 @@ class Purchase:
             s += '\n' + str(line)
 
         return s
+
+
+class CreditCheck:
+    def __init__(self, used, credit_limit):
+        self.used = used
+        self.credit_limit = credit_limit
+        self.left = credit_limit - used

@@ -103,7 +103,6 @@ class OrderLine(models.Model):
 
 
 class Purchase:
-
     def __init__(self, order):
         self.order = order
         self.user = order.customer_id
@@ -119,8 +118,13 @@ class Purchase:
 
 
 class CreditCheck:
-
     def __init__(self, used, credit_limit):
         self.used = used
         self.credit_limit = credit_limit
         self.left = credit_limit - used
+
+
+class Discount(models.Model):
+    payment_method = models.SmallIntegerField(choices=PAYMENT_METHOD, default=0)
+    item = models.ForeignKey(Item)
+    expression = models.TextField()

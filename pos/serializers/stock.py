@@ -1,9 +1,14 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Category, Item, ItemIngredient, Order, OrderLine, Purchase
+from pos.models.stock import Category, Discount, Item, ItemIngredient, Order, OrderLine, Purchase
 from pos.models.user import User
 
 from rest_framework import serializers
+
+
+class DiscountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Discount
 
 
 class CategorySerializer(serializers.ModelSerializer):

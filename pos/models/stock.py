@@ -64,7 +64,9 @@ class ItemIngredient(models.Model):
 
 
 class Order(models.Model):
-    crew = models.ForeignKey(Crew)
+    crew = models.ForeignKey(
+        Crew, related_name='purchasing_crew', blank=True, null=True)
+    cashier = models.ForeignKey(Crew, related_name='cashier')
     authenticated_user = models.ForeignKey(User)
     date = models.DateTimeField(auto_now_add=True)
     state = models.SmallIntegerField(default=0, choices=ORDER_STATE)
@@ -76,12 +78,13 @@ class Order(models.Model):
         return str(self.crew) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')
 
     @classmethod
-    def create(cls, crew, authenticated_user, payment_method, message):
+    def create(cls, crew, cashier, authenticated_user, payment_method, message):
         order = cls(crew=crew,
+                    cashier=cashier,
                     authenticated_user=authenticated_user,
                     payment_method=payment_method,
                     message=message
-                )
+                    )
 
         return order
 
@@ -128,6 +131,7 @@ class Purchase:
 
 
 class CreditCheck:
+
     def __init__(self, used, credit_limit):
         self.used = used
         self.credit_limit = credit_limit
@@ -135,6 +139,7 @@ class CreditCheck:
 
 
 class Discount(models.Model):
-    payment_method = models.SmallIntegerField(choices=PAYMENT_METHOD, default=0)
+    payment_method = models.SmallIntegerField(
+        choices=PAYMENT_METHOD, default=0)
     item = models.ForeignKey(Item)
     expression = models.TextField()

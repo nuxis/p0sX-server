@@ -1,3 +1,5 @@
+from django.contrib.auth.models import User
+
 from django.db import models
 
 
@@ -13,3 +15,10 @@ class Crew(models.Model):
 
     def __str__(self):
         return '{} {}'.format(self.first_name, self.last_name)
+
+
+class CrewSession(models.Model):
+    start = models.DateTimeField(auto_now_add=True)
+    end = models.DateTimeField()
+    crew = models.ForeignKey(Crew)
+    user = models.ForeignKey(User)

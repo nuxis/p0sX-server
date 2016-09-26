@@ -1,8 +1,12 @@
 from django.contrib import admin
 
 from pos.models.shift import Shift
-from pos.models.stock import Category, Ingredient, Item, ItemIngredient, Order, OrderLine
+from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
 from pos.models.user import User
+
+
+class DiscountAdmin(admin.ModelAdmin):
+    pass
 
 
 class ItemIngreientAdmin(admin.ModelAdmin):
@@ -61,3 +65,4 @@ admin.site.register(OrderLine, OrderLineAdmin)
 admin.site.register(Category, CategoryAdmin)
 admin.site.register(Shift, ShiftAdmin)
 admin.site.register(ItemIngredient, ItemIngreientAdmin)
+admin.site.register(Discount, DiscountAdmin)

@@ -1,12 +1,17 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Category, CreditCheck, Item, OrderLine, Purchase
+from pos.models.stock import Category, CreditCheck, Discount, Item, OrderLine, Purchase
 from pos.models.user import User
-from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, ItemSerializer, \
+from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, DiscountSerializer, ItemSerializer, \
     Order, OrderLineSerializer, OrderSerializer, PurchaseSerializer
 
 from rest_framework import viewsets
 from rest_framework.response import Response
+
+
+class DiscountViewSet(viewsets.ModelViewSet):
+    queryset = Discount.objects.all()
+    serializer_class = DiscountSerializer
 
 
 class CategoryViewSet(viewsets.ModelViewSet):

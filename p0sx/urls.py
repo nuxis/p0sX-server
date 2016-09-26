@@ -7,7 +7,7 @@ from django.views.generic.base import RedirectView
 
 
 from pos.views.shift import ShiftViewSet
-from pos.views.stock import CategoryViewSet, CreditCheckViewSet, ItemViewSet, OrderLineViewSet, \
+from pos.views.stock import CategoryViewSet, CreditCheckViewSet, DiscountViewSet, ItemViewSet, OrderLineViewSet, \
     OrderViewSet, PurchaseViewSet
 from pos.views.user import UserViewSet
 
@@ -23,6 +23,7 @@ router.register(r'orders', OrderViewSet)
 router.register(r'shifts', ShiftViewSet)
 router.register(r'purchases', PurchaseViewSet, 'purchase')
 router.register(r'credit', CreditCheckViewSet, 'credit')
+router.register(r'discounts', DiscountViewSet, 'discount')
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url=reverse_lazy('admin:index'))),
     url(r'^admin/', include(admin.site.urls)),

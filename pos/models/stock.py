@@ -19,6 +19,7 @@ PAYMENT_METHOD = (
     (7, 'UNDO')
 )
 
+
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
     price = models.SmallIntegerField()

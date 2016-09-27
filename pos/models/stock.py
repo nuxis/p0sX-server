@@ -104,13 +104,14 @@ class OrderLine(models.Model):
 
 
 class Purchase:
-    def __init__(self, order):
+    def __init__(self, order, card):
         self.id = order.pk
         self.order = order
         self.user = order.customer_id
         self.lines = OrderLine.objects.filter(order=order)
         self.payment_method = order.payment_method
         self.message = order.message
+        self.card = card
 
     def __str__(self):
         s = str(self.order)

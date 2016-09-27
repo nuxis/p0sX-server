@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Category, Discount, Item, ItemIngredient, Order, OrderLine, Purchase
+from pos.models.stock import Category, Discount, Item, ItemIngredient, Ingredient, Order, OrderLine, Purchase
 from pos.models.user import User
 
 from rest_framework import serializers
@@ -9,6 +9,12 @@ from rest_framework import serializers
 class DiscountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Discount
+
+
+class IngredientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ingredient
+        fields = ('id', 'name')
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -45,11 +51,37 @@ class ItemSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'price', 'stock', 'barcode', 'category', 'image', 'ingredients')
 
 
+class SimpleItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Item
+        fields = ('id', 'name')
+
+
+class ItemField(serializers.Field):
+    def to_representation(self, obj):
+        serializer = SimpleItemSerializer(obj)
+        return serializer.data
+
+    def to_internal_value(self, data):
+        return Item.objects.get(pk=data)
+
+
+class IngredientField(serializers.Field):
+    def to_representation(self, obj):
+        serializer = IngredientSerializer(obj, many=True)
+        return serializer.data
+
+    def to_internal_value(self, data):
+        return Ingredient.objects.filter(pk__in=data)
+
+
 class OrderLineSerializer(serializers.ModelSerializer):
+    item = ItemField()
+    ingredients = IngredientField()
+
     class Meta:
         model = OrderLine
         fields = ('id', 'ingredients', 'item')
-        depth = 0
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -74,9 +106,10 @@ class CreditCheckSerializer(serializers.Serializer):
 
 class PurchaseSerializer(serializers.Serializer):
     payment_method = serializers.IntegerField(required=True)
-    card = serializers.IntegerField(required=False)
+    card = serializers.CharField(required=False)
     lines = OrderLineSerializer(many=True)
     message = serializers.CharField(required=False, allow_blank=True)
+    id = serializers.IntegerField(required=False)
 
     def create(self, validated_data):
         card = validated_data.get('card')
@@ -95,6 +128,7 @@ class PurchaseSerializer(serializers.Serializer):
             ingredients = line_dict.get('ingredients')
             item = line_dict.get('item')
             price = item.price + sum(i.price for i in ingredients)
+            price = price * -1 if payment_method == 7 else price
 
             line = OrderLine.create(item, order, price)
             line.save()

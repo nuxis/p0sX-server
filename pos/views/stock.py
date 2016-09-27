@@ -55,9 +55,10 @@ class PurchaseViewSet(viewsets.ViewSet):
         serializer = PurchaseSerializer(data=request.data)
 
         if serializer.is_valid():
-            serializer.create(serializer.validated_data)
+            purchase = serializer.create(serializer.validated_data)
+            serializer = PurchaseSerializer(purchase)
         else:
-            pass
+            print(serializer.errors)
 
         return Response(serializer.data)
 
@@ -71,7 +72,7 @@ class CreditCheckViewSet(viewsets.ViewSet):
         orderlines = OrderLine.objects.filter(order__in=orders)
 
         total = sum(ol.price for ol in orderlines)
-        credit_limit = user.max_credit
+        credit_limit = user.credit
 
         queryset = CreditCheck(total, credit_limit)
         serializer = CreditCheckSerializer(queryset)

@@ -15,9 +15,9 @@ PAYMENT_METHOD = (
     (3, 'VIPPS'),
     (4, 'MCASH'),
     (5, 'MOBILEPAY'),
-    (6, 'IZETTLE')
+    (6, 'IZETTLE'),
+    (7, 'UNDO')
 )
-
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=255)
@@ -104,10 +104,12 @@ class OrderLine(models.Model):
 
 class Purchase:
     def __init__(self, order):
+        self.id = order.pk
         self.order = order
         self.user = order.customer_id
         self.lines = OrderLine.objects.filter(order=order)
         self.payment_method = order.payment_method
+        self.message = order.message
 
     def __str__(self):
         s = str(self.order)

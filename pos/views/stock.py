@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework import status, viewsets
+
+from pos.models.crew import Crew
 from pos.models.stock import Category, CreditCheck, Discount, Item, Order, OrderLine, Purchase
 from pos.serializers.stock import (CategorySerializer,
                                    CreditCheckSerializer,
@@ -9,8 +10,8 @@ from pos.serializers.stock import (CategorySerializer,
                                    OrderLineSerializer,
                                    OrderSerializer,
                                    PurchaseSerializer)
-from pos.models.crew import Crew
-from rest_framework import viewsets
+
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 

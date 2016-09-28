@@ -1,13 +1,10 @@
-from django.utils import timezone
-from rest_framework.response import Response
-
-from datetime import datetime
 
 from pos.models.shift import Shift
 
-from pos.serializers.shift import ShiftSerializer, NewShiftSerializer
+from pos.serializers.shift import NewShiftSerializer, ShiftSerializer
 
 from rest_framework import viewsets
+from rest_framework.response import Response
 
 
 class ShiftViewSet(viewsets.ModelViewSet):
@@ -29,7 +26,6 @@ class NewShiftViewSet(viewsets.ViewSet):
 
     def create(self, request, *args, **kwargs):
 
-        print(request.data)
         serializer = NewShiftSerializer(data=request.data)
         serializer.is_valid()
         serializer.create(serializer.validated_data, request)

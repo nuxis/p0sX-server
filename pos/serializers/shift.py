@@ -1,8 +1,8 @@
+from django.utils.timezone import now
+
+from pos.models.crew import Crew
 from pos.models.shift import Shift
 from pos.models.stock import Order
-from pos.models.crew import Crew
-
-from django.utils.timezone import now
 
 from rest_framework import serializers
 

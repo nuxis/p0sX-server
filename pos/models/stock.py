@@ -1,5 +1,5 @@
-from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
 
 from .crew import Crew
 
@@ -116,6 +116,7 @@ class OrderLine(models.Model):
 
 
 class Purchase:
+
     def __init__(self, order, card, undo, cashier_card):
         self.id = order.pk
         self.order = order

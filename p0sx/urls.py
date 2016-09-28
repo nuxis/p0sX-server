@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import RedirectView
 
 from pos.views.crew import CrewViewSet
-from pos.views.shift import CurrentShiftViewSet, ShiftViewSet, NewShiftViewSet
+from pos.views.shift import CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
                              DiscountViewSet,

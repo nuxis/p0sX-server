@@ -1,8 +1,8 @@
 from django.contrib import admin
 
+from pos.models.crew import Crew
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
-from pos.models.crew import Crew
 
 
 class DiscountAdmin(admin.ModelAdmin):

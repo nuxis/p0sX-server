@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand
-from pos.models.user import User
+from pos.models.crew import Crew
 from pyGE import GE
 
 
@@ -30,11 +30,11 @@ class Command(BaseCommand):
 
         for id, data in crew.items():
             try:
-                user = User.objects.get(card=data['user_card'])
+                crew = Crew.objects.get(card=data['user_card'])
             except ObjectDoesNotExist:
                 if not data['user_card']:
                     continue
-                user = User(
+                crew = Crew(
                     card=data['user_card'],
                     first_name=data['first_name'],
                     last_name=data['last_name'],
@@ -42,7 +42,7 @@ class Command(BaseCommand):
                     crew=data['crew'],
                     role=data['role'],
                     email=data['email'],
-                    max_credit=0
+                    credit=0
                 )
-                user.save()
+                crew.save()
                 print('Added new user {} {}'.format(data['first_name'], data['last_name']))

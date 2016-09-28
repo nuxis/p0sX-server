@@ -1,8 +1,8 @@
 from django.contrib import admin
 
+from pos.models.crew import Crew
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
-from pos.models.user import User
 
 
 class DiscountAdmin(admin.ModelAdmin):
@@ -13,7 +13,7 @@ class ItemIngreientAdmin(admin.ModelAdmin):
     pass
 
 
-class CustomerAdmin(admin.ModelAdmin):
+class CrewAdmin(admin.ModelAdmin):
     pass
 
 
@@ -45,7 +45,7 @@ class OrderLineInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = ('customer', 'payment_method', 'message')
+    readonly_fields = ('crew', 'payment_method', 'message')
     inlines = [OrderLineInline]
 
 
@@ -57,7 +57,7 @@ class ShiftAdmin(admin.ModelAdmin):
     pass
 
 
-admin.site.register(User, CustomerAdmin)
+admin.site.register(Crew, CrewAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Order, OrderAdmin)

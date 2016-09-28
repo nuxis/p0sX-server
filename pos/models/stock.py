@@ -104,7 +104,7 @@ class OrderLine(models.Model):
 
 
 class Purchase:
-    def __init__(self, order, card):
+    def __init__(self, order, card, undo):
         self.id = order.pk
         self.order = order
         self.user = order.customer_id
@@ -112,6 +112,7 @@ class Purchase:
         self.payment_method = order.payment_method
         self.message = order.message
         self.card = card
+        self.undo = undo
 
     def __str__(self):
         s = str(self.order)

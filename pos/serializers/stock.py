@@ -106,15 +106,17 @@ class CreditCheckSerializer(serializers.Serializer):
 
 class PurchaseSerializer(serializers.Serializer):
     payment_method = serializers.IntegerField(required=True)
-    card = serializers.CharField(required=False)
+    card = serializers.CharField(required=False, allow_null=True, allow_blank=True)
     lines = OrderLineSerializer(many=True)
     message = serializers.CharField(required=False, allow_blank=True)
     id = serializers.IntegerField(required=False)
+    undo = serializers.BooleanField()
 
     def create(self, validated_data):
         card = validated_data.get('card')
         payment_method = validated_data.get('payment_method')
         message = validated_data.get('message')
+        undo = validated_data.get('undo')
         if card:
             user = get_object_or_404(User.objects.all(), card=card)
             order = Order.create(user, payment_method, message)
@@ -128,7 +130,7 @@ class PurchaseSerializer(serializers.Serializer):
             ingredients = line_dict.get('ingredients')
             item = line_dict.get('item')
             price = item.price + sum(i.price for i in ingredients)
-            price = price * -1 if payment_method == 7 else price
+            price = price * -1 if undo else price
 
             line = OrderLine.create(item, order, price)
             line.save()
@@ -144,7 +146,7 @@ class PurchaseSerializer(serializers.Serializer):
             order.state = 2
             order.save()
 
-        return Purchase(order, card)
+        return Purchase(order, card, undo)
 
     def update(self, instance, validated_data):
         pass

@@ -1,6 +1,8 @@
 from pos.models.shift import Shift
 from pos.models.stock import Order
 
+from django.utils.timezone import now
+
 from rest_framework import serializers
 
 
@@ -51,3 +53,19 @@ class ShiftSerializer(serializers.ModelSerializer):
 
     def get_undo(self, obj):
         return self.accumulate_sum(obj, 7)
+
+
+class NewShiftSerializer(serializers.Serializer):
+
+    def create(self, request):
+        open_shifts = Shift.objects.filter(
+            authenticated_user=request.user).filter(end__isnull=True)
+
+        for shift in open_shifts:
+            shift.end = now()
+            shift.save()
+
+        new_shift = Shift(authenticated_user=request.user)
+        new_shift.save()
+
+        return new_shift

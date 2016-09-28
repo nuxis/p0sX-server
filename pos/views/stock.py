@@ -5,7 +5,7 @@ from pos.models.user import User
 from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, DiscountSerializer, ItemSerializer, \
     Order, OrderLineSerializer, OrderSerializer, PurchaseSerializer
 
-from rest_framework import viewsets
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 
@@ -57,10 +57,10 @@ class PurchaseViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             purchase = serializer.create(serializer.validated_data)
             serializer = PurchaseSerializer(purchase)
+            return Response(serializer.data)
         else:
-            print(serializer.errors)
-
-        return Response(serializer.data)
+            error = {'detail': 'Invalid data'}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CreditCheckViewSet(viewsets.ViewSet):

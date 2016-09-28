@@ -144,7 +144,7 @@ class PurchaseSerializer(serializers.Serializer):
             order.state = 2
             order.save()
 
-        return Purchase(order)
+        return Purchase(order, card)
 
     def update(self, instance, validated_data):
         pass

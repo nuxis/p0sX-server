@@ -5,7 +5,7 @@ from pos.models.user import User
 from pos.serializers.stock import CategorySerializer, CreditCheckSerializer, DiscountSerializer, ItemSerializer, \
     Order, OrderLineSerializer, OrderSerializer, PurchaseSerializer
 
-from rest_framework import viewsets, status
+from rest_framework import status, viewsets
 from rest_framework.response import Response
 
 

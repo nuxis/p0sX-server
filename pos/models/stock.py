@@ -88,6 +88,10 @@ class Order(models.Model):
 
         return order
 
+    @property
+    def sum(self):
+        return sum(line.price for line in self.orderlines.all())
+
 
 class OrderLine(models.Model):
     ingredients = models.ManyToManyField(Ingredient, blank=True)

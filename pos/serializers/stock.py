@@ -13,6 +13,7 @@ class DiscountSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Ingredient
         fields = ('id', 'name')
@@ -55,12 +56,14 @@ class ItemSerializer(serializers.ModelSerializer):
 
 
 class SimpleItemSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Item
         fields = ('id', 'name')
 
 
 class ItemField(serializers.Field):
+
     def to_representation(self, obj):
         serializer = SimpleItemSerializer(obj)
         return serializer.data
@@ -70,6 +73,7 @@ class ItemField(serializers.Field):
 
 
 class IngredientField(serializers.Field):
+
     def to_representation(self, obj):
         serializer = IngredientSerializer(obj, many=True)
         return serializer.data
@@ -165,7 +169,7 @@ class PurchaseSerializer(serializers.Serializer):
             order.state = 2
             order.save()
 
-        return Purchase(order, card, undo)
+        return Purchase(order, card, undo, cashier_card)
 
     def update(self, instance, validated_data):
         pass

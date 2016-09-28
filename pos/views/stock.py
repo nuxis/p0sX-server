@@ -61,7 +61,7 @@ class PurchaseViewSet(viewsets.ViewSet):
         serializer = PurchaseSerializer(data=request.data)
 
         if serializer.is_valid():
-            purchase = serializer.create(serializer.validated_data)
+            purchase = serializer.create(serializer.validated_data, request)
             serializer = PurchaseSerializer(purchase)
             return Response(serializer.data)
         else:

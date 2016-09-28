@@ -20,11 +20,6 @@ class ShiftSerializer(serializers.ModelSerializer):
         read_only_fiels = ('end')
 
     def accumulate_sum(self, obj, payment_method):
-        print('derp', obj)
-        print(obj.start)
-        print(obj.end)
-        print(obj.authenticated_user)
-
         if obj.end:
             orders = Order.objects.filter(
                 date__gte=obj.start).filter(date__lte=obj.end).filter(authenticated_user=obj.authenticated_user)

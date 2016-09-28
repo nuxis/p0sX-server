@@ -1,5 +1,6 @@
 from pos.models.shift import Shift
 from pos.models.stock import Order
+from pos.models.crew import Crew
 
 from django.utils.timezone import now
 
@@ -56,8 +57,13 @@ class ShiftSerializer(serializers.ModelSerializer):
 
 
 class NewShiftSerializer(serializers.Serializer):
+    card = serializers.CharField(required=True)
 
-    def create(self, request):
+    def create(self, validated_data, request):
+
+        card = validated_data.get('card')
+        crew = Crew.objects.get(card=card)
+
         open_shifts = Shift.objects.filter(
             authenticated_user=request.user).filter(end__isnull=True)
 
@@ -65,7 +71,7 @@ class NewShiftSerializer(serializers.Serializer):
             shift.end = now()
             shift.save()
 
-        new_shift = Shift(authenticated_user=request.user)
+        new_shift = Shift(authenticated_user=request.user, crew=crew)
         new_shift.save()
 
         return new_shift

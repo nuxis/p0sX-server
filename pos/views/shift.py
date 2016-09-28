@@ -29,8 +29,9 @@ class NewShiftViewSet(viewsets.ViewSet):
 
     def create(self, request, *args, **kwargs):
 
+        print(request.data)
         serializer = NewShiftSerializer(data=request.data)
         serializer.is_valid()
-        serializer.create(request)
+        serializer.create(serializer.validated_data, request)
 
         return Response(serializer.data)

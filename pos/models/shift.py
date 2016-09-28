@@ -1,15 +1,14 @@
+from django.contrib.auth.models import User
 from django.db import models
-
-from .crew import Crew
 
 
 class Shift(models.Model):
     start = models.DateTimeField(auto_now_add=True, blank=False)
     end = models.DateTimeField(blank=True, null=True)
-    leader = models.ForeignKey(Crew)
+    authenticated_user = models.ForeignKey(User)
 
     def __str__(self):
-        return 'Skift ledet av ' + str(self.leader) + ' som startet ' + self.start.strftime('%Y-%m-%d %H:%M:%S')
+        return 'Kasse: ' + str(self.authenticated_user) + ' som startet ' + self.start.strftime('%Y-%m-%d %H:%M:%S')
 
 
 # class Declaration(models.Model):

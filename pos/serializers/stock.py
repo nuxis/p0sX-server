@@ -52,7 +52,7 @@ class ItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Item
         fields = ('id', 'name', 'price', 'stock', 'barcode',
-                  'category', 'image', 'ingredients')
+                  'category', 'image', 'ingredients', 'created_in_the_kitchen')
 
 
 class SimpleItemSerializer(serializers.ModelSerializer):

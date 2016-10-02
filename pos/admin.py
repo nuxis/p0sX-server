@@ -45,7 +45,7 @@ class OrderLineInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = ('crew', 'payment_method', 'message')
+    readonly_fields = ('crew', 'payment_method', 'cashier', 'authenticated_user')
     inlines = [OrderLineInline]
 
 

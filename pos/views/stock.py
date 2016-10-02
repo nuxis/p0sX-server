@@ -21,7 +21,7 @@ class DiscountViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.filter(hidden=False)
     serializer_class = CategorySerializer
 
 

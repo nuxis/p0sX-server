@@ -45,4 +45,4 @@ class Command(BaseCommand):
                     credit=0
                 )
                 crew.save()
-                print('Added new user {} {}'.format(data['first_name'], data['last_name']))
+                # print('Added new user {} {}'.format(data['first_name'], data['last_name']))

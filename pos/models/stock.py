@@ -1,8 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-from .crew import Crew
-
 ORDER_STATE = (
     (0, 'OPEN'),
     (1, 'DONE'),
@@ -66,8 +64,8 @@ class ItemIngredient(models.Model):
 
 class Order(models.Model):
     crew = models.ForeignKey(
-        Crew, related_name='purchasing_crew', blank=True, null=True)
-    cashier = models.ForeignKey(Crew, related_name='cashier')
+        'Crew', related_name='purchasing_crew', blank=True, null=True)
+    cashier = models.ForeignKey('Crew', related_name='cashier')
     authenticated_user = models.ForeignKey(User)
     date = models.DateTimeField(auto_now_add=True)
     state = models.SmallIntegerField(default=0, choices=ORDER_STATE)

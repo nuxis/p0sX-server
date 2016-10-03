@@ -1,0 +1,29 @@
+{% extends "base.djhtml" %} {% block content %}
+    <h1>Scan card to check credit!</h1>
+    
+    <form action="" method="post">{% csrf_token %}
+        {{ form.as_p }}
+    </form>
+
+    {% if table %}
+    <table>
+        <tr>
+            <td>Credit</td>
+            <td>{{ credit }}</td>
+        </tr>
+        <tr>
+            <td>Used</td>
+            <td>{{ used }}</td>
+        </tr>
+        <tr>
+            <td>Left</td>
+            <td>{{ left }}</td>
+        </tr>
+    </table>
+    {% endif %}
+
+    <script>
+        field = document.getElementById('id_card')
+        field.focus()
+    </script>
+{% endblock content %}

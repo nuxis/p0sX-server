@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import RedirectView
 
 from pos.views.crew import CrewViewSet
+from pos.views.littleadmin import check_credit, credit_edit, credit_overview
 from pos.views.shift import CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
@@ -15,7 +16,16 @@ from pos.views.stock import (CategoryViewSet,
                              OrderViewSet,
                              PurchaseViewSet)
 
+
 from rest_framework import routers
+
+littleadmin_url = [
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('littleadmin:overview'))),
+    url(r'check/', check_credit, name='check'),
+    url(r'overview/', credit_overview, name='overview'),
+    url(r'edit/(?P<card>\w+)', credit_edit, name='edit')
+]
+
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.SimpleRouter()
@@ -35,4 +45,5 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(url=reverse_lazy('admin:index'))),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include(router.urls)),
+    url(r'littleadmin/', include(littleadmin_url, namespace='littleadmin'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

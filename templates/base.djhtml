@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
+    <title>{% block title %}{% endblock title %}</title>
+</head>
+
+<body>
+    {% if user.is_authenticated %}
+    <nav>
+        <div class="nav-wrapper">
+            <a href="#" class="brand-logo">p0sX a little admin</a>
+            <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="{% url 'littleadmin:check' %}">Check credit</a></li>
+                <li><a href="{% url 'littleadmin:overview' %}">Credit overview</a></li>
+                <li>
+                    <a href="collapsible.html"></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    {% endif %}
+
+    <div class="container">
+        {% block content %}{% endblock content %}
+    </div>
+
+</body>
+
+</html>

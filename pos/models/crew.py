@@ -2,6 +2,8 @@ from django.contrib.auth.models import User
 
 from django.db import models
 
+from .stock import Order
+
 
 class Crew(models.Model):
     card = models.CharField(max_length=255, unique=True, primary_key=True)
@@ -12,6 +14,15 @@ class Crew(models.Model):
     crew = models.CharField(max_length=255)
     role = models.CharField(max_length=255)
     email = models.EmailField()
+
+    @property
+    def used(self):
+        orders = Order.objects.filter(crew_id=self.card)
+        return sum([order.sum for order in orders])
+
+    @property
+    def left(self):
+        return self.credit - self.used
 
     def __str__(self):
         return '{} {}'.format(self.first_name, self.last_name)

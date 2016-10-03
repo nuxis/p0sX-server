@@ -29,6 +29,17 @@ publish:
     save:
       destination: docker/image.tar
       tag: latest
+  docker:
+    registry: gengar.l.fap.no:5000
+    repo: p0sx/p0sx
+    tag: $$TAG
+    insecure: true
+    when:
+        event: tag
+    load: docker/image.tar
+    save:
+      destination: docker/image.tar
+      tag: latest
 
 deploy:
   ssh:

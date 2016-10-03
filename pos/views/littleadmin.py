@@ -28,6 +28,8 @@ def check_credit(request):
                 'credit': crew.credit,
                 'left': crew.left
             })
+        else:
+            return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
     else:
         return render(request, 'pos/credit_check.djhtml', {
             'form': CheckCreditForm(),

@@ -29,7 +29,7 @@ def check_credit(request):
                 'left': crew.left
             })
     else:
-        return render(request, 'pos/check.djhtml', {
+        return render(request, 'pos/credit_check.djhtml', {
             'form': CheckCreditForm(),
             'table': False,
         })

@@ -39,7 +39,7 @@ def check_credit(request):
 
 @login_required
 def credit_overview(request):
-    crew_list = Crew.objects.all()
+    crew_list = Crew.objects.all().order_by('last_name', 'first_name')
 
     context = {
         'crew_list': crew_list

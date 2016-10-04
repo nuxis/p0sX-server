@@ -6,7 +6,7 @@
     </form>
 
     {% if table %}
-    <table>
+    <table id="table">
         <tr>
             <td>Credit</td>
             <td>{{ credit }}</td>
@@ -25,5 +25,13 @@
     <script>
         field = document.getElementById('id_card')
         field.focus()
+
+        table = document.getElementById('table')
+        if (table) {
+            setTimeout(function () {
+                table.style.display = "none"
+            }, 10000)
+        }
+
     </script>
 {% endblock content %}

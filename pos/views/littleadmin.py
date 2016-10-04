@@ -14,12 +14,10 @@ def check_credit(request):
         if form.is_valid():
             card = form.cleaned_data['card']
 
-            crew = get_object_or_404(Crew, card=card)
+            crew = Crew.objects.filter(card=card)
 
-            print(crew)
-            print(crew.used)
-            print(crew.credit)
-            print(crew.left)
+            if not crew:
+                return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
 
             return render(request, 'pos/credit_check.djhtml', {
                 'form': CheckCreditForm(),

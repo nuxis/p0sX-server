@@ -3,6 +3,7 @@
 <table>
     <tr>
         <th>Name:</th>
+        <th>Card:</th>
         <th>Used:</th>
         <th>Left:</th>
         <th>Credit:</th>
@@ -15,6 +16,9 @@
             <a href="{% url 'littleadmin:edit' crew.card %}">
                 {{ crew.first_name }} {{ crew.last_name }}
             </a>
+        </td>
+        <td>
+            {{ crew.card }}
         </td>
         <td>
             {{ crew.used }}

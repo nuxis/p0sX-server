@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import RedirectView
 
 from pos.views.crew import CrewViewSet
-from pos.views.littleadmin import check_credit, credit_edit, credit_overview
+from pos.views.littleadmin import check_credit, credit_edit, credit_overview, sale_overview
 from pos.views.shift import CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
@@ -19,13 +19,18 @@ from pos.views.stock import (CategoryViewSet,
 
 from rest_framework import routers
 
+sale_url = [
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('littleadmin:sale:overview'))),
+    url(r'overview', sale_overview, name='overview')
+]
+
 littleadmin_url = [
     url(r'^$', RedirectView.as_view(url=reverse_lazy('littleadmin:overview'))),
     url(r'check/', check_credit, name='check'),
     url(r'overview/', credit_overview, name='overview'),
-    url(r'edit/(?P<card>\w+)', credit_edit, name='edit')
+    url(r'edit/(?P<card>\w+)', credit_edit, name='edit'),
+    url(r'sale/', include(sale_url, namespace='sale'))
 ]
-
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.SimpleRouter()

@@ -5,6 +5,7 @@ from django.urls import reverse_lazy
 
 from ..forms import ChangeCreditForm, CheckCreditForm
 from ..models.crew import Crew
+from ..models.stock import OrderLine
 
 
 def check_credit(request):
@@ -62,3 +63,27 @@ def credit_edit(request, card=None):
         form = ChangeCreditForm(instance=crew)
 
         return render(request, 'pos/credit_edit.djhtml', {'form': form, 'crew': crew})
+
+
+@login_required
+def sale_overview(request):
+    order_lines = OrderLine.objects.all()
+
+    overview = {}
+    for order_line in order_lines:
+        if order_line.item in overview.keys():
+            overview[order_line.item]['price'] += order_line.price
+            overview[order_line.item]['sum'] += 1
+        else:
+            overview[order_line.item] = {}
+            overview[order_line.item]['price'] = order_line.price
+            overview[order_line.item]['sum'] = 1
+
+    splitted_by_category = {}
+    for item, acc in overview.items():
+        if item.category in splitted_by_category.keys():
+            splitted_by_category[item.category].append((item, acc))
+        else:
+            splitted_by_category[item.category] = [(item, acc)]
+
+    return render(request, 'pos/sale_overview.djhtml', {'category_with_items': splitted_by_category})

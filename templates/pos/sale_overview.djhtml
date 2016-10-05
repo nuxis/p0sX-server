@@ -1,0 +1,22 @@
+{% extends "base.djhtml" %} {% block content %} 
+
+<table>
+{% for category, items in category_with_items.items %}
+    <tr>
+        <th colspan="3"><h5>{{ category.name }}</h5></th>
+    </tr>
+    <tr>
+        <th>Item:</th>
+        <th>Accumulated Sum</th>
+        <th>Accumulated Price</th>
+    </tr>
+    {% for item, acc in items %}
+    <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ acc.sum }}</td>
+        <td>{{ acc.price }} ,-</td>
+    </tr>
+    {% endfor %}
+{% endfor %}
+</table>
+ {% endblock content %}

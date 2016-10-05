@@ -5,7 +5,7 @@ if [ -z "$1" ]; then
     exit 1
 fi
 
-echo "VERSION = $1" > version.py
+echo "VERSION = '$1'" > version.py
 git add version.py
 git commit -m "Releases version $1"
 git tag $1

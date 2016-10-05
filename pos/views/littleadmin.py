@@ -67,17 +67,27 @@ def credit_edit(request, card=None):
 
 @login_required
 def sale_overview(request):
+    def add_from_order_line(overview, order_line):
+        if order_line.order.payment_method == 0:
+            overview[order_line.item]['cash'] += order_line.price
+        elif order_line.order.payment_method == 1:
+            overview[order_line.item]['crew'] += order_line.price
+        overview[order_line.item]['total'] += order_line.price
+        overview[order_line.item]['sold'] += 1
+
     order_lines = OrderLine.objects.all()
 
     overview = {}
     for order_line in order_lines:
         if order_line.item in overview.keys():
-            overview[order_line.item]['price'] += order_line.price
-            overview[order_line.item]['sum'] += 1
+            add_from_order_line(overview, order_line)
         else:
             overview[order_line.item] = {}
-            overview[order_line.item]['price'] = order_line.price
-            overview[order_line.item]['sum'] = 1
+            overview[order_line.item]['cash'] = 0
+            overview[order_line.item]['crew'] = 0
+            overview[order_line.item]['total'] = 0
+            overview[order_line.item]['sold'] = 0
+            add_from_order_line(overview, order_line)
 
     splitted_by_category = {}
     for item, acc in overview.items():

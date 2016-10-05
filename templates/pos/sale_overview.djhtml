@@ -7,14 +7,18 @@
     </tr>
     <tr>
         <th>Item:</th>
-        <th>Accumulated Sum</th>
-        <th>Accumulated Price</th>
+        <th>Sold</th>
+        <th>Cash</th>
+        <th>Crew</th>
+        <th>Total</th>
     </tr>
     {% for item, acc in items %}
     <tr>
         <td>{{ item.name }}</td>
-        <td>{{ acc.sum }}</td>
-        <td>{{ acc.price }} ,-</td>
+        <td>{{ acc.sold }}</td>
+        <td>{{ acc.cash }} ,-</td>
+        <td>{{ acc.crew }} ,-</td>
+        <td>{{ acc.total }} ,-</td>
     </tr>
     {% endfor %}
 {% endfor %}

@@ -24,7 +24,7 @@
                 <li><a href="{% url 'littleadmin:check' %}">Check credit</a></li>
                 <li><a href="{% url 'littleadmin:overview' %}">Credit overview</a></li>
                 <li>
-                    <a href="collapsible.html"></a>
+                    <a href="{% url 'littleadmin:sale:overview' %}">Sale overview</a>
                 </li>
             </ul>
         </div>

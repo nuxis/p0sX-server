@@ -23,9 +23,9 @@ def check_credit(request):
             return render(request, 'pos/credit_check.djhtml', {
                 'form': CheckCreditForm(),
                 'table': True,
-                'used': crew.used,
-                'credit': crew.credit,
-                'left': crew.left
+                'used': crew[0].used,
+                'credit': crew[0].credit,
+                'left': crew[0].left
             })
         else:
             return HttpResponseRedirect(reverse_lazy('littleadmin:check'))

@@ -1,37 +1,50 @@
-{% extends "base.djhtml" %} {% block content %}
+{% extends "base.djhtml" %} 
+{% load static %} 
+{% block script %}
+<script src="{% static "js/jquery.tablesort.min.js" %}"></script> 
+
+{% endblock script %} 
+
+{% block content %}
 
 <table>
-    <tr>
-        <th>Name:</th>
-        <th>Card:</th>
-        <th>Used:</th>
-        <th>Left:</th>
-        <th>Credit:</th>
-    </tr>
+    <thead>
+        <tr>
+            <th class="">Name:</th>
+            <th class="">Card:</th>
+            <th class="">Used:</th>
+            <th class="">Left:</th>
+            <th class="">Credit:</th>
+        </tr>
+    </thead>
 
-    {% for crew in crew_list %}
+    <tbody>
+        {% for crew in crew_list %}
 
-    <tr>
-        <td>
-            <a href="{% url 'littleadmin:edit' crew.card %}">
+        <tr>
+            <td>
+                <a href="{% url 'littleadmin:edit' crew.card %}">
                 {{ crew.first_name }} {{ crew.last_name }}
             </a>
-        </td>
-        <td>
-            {{ crew.card }}
-        </td>
-        <td>
-            {{ crew.used }}
-        </td>
-        <td>
-            {{ crew.left }}
-        </td>
-        <td>
-            {{ crew.credit }}
-        </td>
-    </tr>
+            </td>
+            <td>
+                {{ crew.card }}
+            </td>
+            <td>
+                {{ crew.used }}
+            </td>
+            <td>
+                {{ crew.left }}
+            </td>
+            <td>
+                {{ crew.credit }}
+            </td>
+        </tr>
 
-    {% endfor %}
+        {% endfor %}
+    </tbody>
 </table>
 
-{% endblock content %}
+<script>
+    $('table').tablesort();
+</script> {% endblock content %}

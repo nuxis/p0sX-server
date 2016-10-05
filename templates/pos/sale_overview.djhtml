@@ -3,7 +3,7 @@
 <table>
 {% for category, items in category_with_items.items %}
     <tr>
-        <th colspan="3"><h5>{{ category.name }}</h5></th>
+        <th colspan="5"><h5>{{ category.name }}</h5></th>
     </tr>
     <tr>
         <th>Item:</th>
@@ -16,9 +16,9 @@
     <tr>
         <td>{{ item.name }}</td>
         <td>{{ acc.sold }}</td>
-        <td>{{ acc.cash }} ,-</td>
-        <td>{{ acc.crew }} ,-</td>
-        <td>{{ acc.total }} ,-</td>
+        <td>{{ acc.cash }}</td>
+        <td>{{ acc.crew }}</td>
+        <td>{{ acc.total }}</td>
     </tr>
     {% endfor %}
 {% endfor %}

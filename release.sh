@@ -6,5 +6,7 @@ if [ -z "$1" ]; then
 fi
 
 echo "VERSION = $1" > version.py
+git add version.py
+git commit -m "Releases version $1"
 git tag $1
 git push origin $1

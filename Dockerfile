@@ -34,7 +34,7 @@ RUN apk del build-base \
 # Copy project files
 COPY . $DIR
 
-RUN mkdir static media
+RUN mkdir collected_static media
 ENV DJANGO_SETTINGS_MODULE=$NAME.settings.dev
 RUN python3 manage.py collectstatic --noinput --clear
 

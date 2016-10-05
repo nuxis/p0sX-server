@@ -1,3 +1,5 @@
+{% load settings %}
+
 <!DOCTYPE html>
 <html>
 
@@ -7,10 +9,22 @@
 
     <!-- Compiled and minified JavaScript -->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script>
-
-    {% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script> 
+    
+    {% block script%}
     {% endblock script %}
+
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+    </style>
 
     <title>{% block title %}{% endblock title %}</title>
 </head>
@@ -30,11 +44,21 @@
         </div>
     </nav>
     {% endif %}
+    <main>
+        <div class="container">
+            {% block content %}{% endblock content %}
+        </div>
+    </main>
+    <footer class="page-footer">
+        <div class="footer-copyright">
+            <div class="container">
+                © <script type="text/javascript">
+  document.write(new Date().getFullYear());
+</script> Nuxis, Version: {% version %}
+            </div>
+        </div>
 
-    <div class="container">
-        {% block content %}{% endblock content %}
-    </div>
-
+    </footer>
 </body>
 
 </html>

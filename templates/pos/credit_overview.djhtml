@@ -11,6 +11,7 @@
     <thead>
         <tr>
             <th class="">Name:</th>
+            <th class="">Phone:</th>
             <th class="">Card:</th>
             <th class="">Used:</th>
             <th class="">Left:</th>
@@ -26,6 +27,9 @@
                 <a href="{% url 'littleadmin:edit' crew.card %}">
                 {{ crew.first_name }} {{ crew.last_name }}
             </a>
+            </td>
+            <td>
+                {{ crew.phone }}
             </td>
             <td>
                 {{ crew.card }}

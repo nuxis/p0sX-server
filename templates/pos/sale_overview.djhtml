@@ -1,26 +1,35 @@
-{% extends "base.djhtml" %} {% block content %} 
+{% extends "base.djhtml" %} {% block content %}
 
 <table>
-{% for category, items in category_with_items.items %}
-    <tr>
-        <th colspan="5"><h5>{{ category.name }}</h5></th>
-    </tr>
-    <tr>
-        <th>Item:</th>
-        <th>Sold</th>
-        <th>Cash</th>
-        <th>Crew</th>
-        <th>Total</th>
-    </tr>
-    {% for item, acc in items %}
-    <tr>
-        <td>{{ item.name }}</td>
-        <td>{{ acc.sold }}</td>
-        <td>{{ acc.cash }}</td>
-        <td>{{ acc.crew }}</td>
-        <td>{{ acc.total }}</td>
-    </tr>
+    {% for category, items in category_with_items.items %}
+    <thead>
+        <tr>
+            <th colspan="5">
+                <h5>{{ category.name }}</h5>
+            </th>
+        </tr>
+        <tr>
+            <th>Item:</th>
+            <th>Sold</th>
+            <th>Cash</th>
+            <th>Crew</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item, acc in items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ acc.sold }}</td>
+            <td>{{ acc.cash }}</td>
+            <td>{{ acc.crew }}</td>
+            <td>{{ acc.total }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+
+    </tfoot>
     {% endfor %}
-{% endfor %}
 </table>
- {% endblock content %}
+{% endblock content %}

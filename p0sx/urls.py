@@ -7,7 +7,7 @@ from django.views.generic.base import RedirectView
 
 from pos.views.crew import CrewViewSet
 from pos.views.littleadmin import check_credit, credit_edit, credit_overview, sale_overview
-from pos.views.shift import CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
+from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
                              DiscountViewSet,
@@ -42,6 +42,8 @@ router.register(r'orders', OrderViewSet)
 router.register(r'shifts', ShiftViewSet)
 router.register(r'current_shift', CurrentShiftViewSet,
                 base_name='current_shift')
+router.register(r'all_shifts', AllShiftsViewSet,
+                base_name='all_shifts')
 router.register(r'create_shift', NewShiftViewSet, base_name='create_shift')
 router.register(r'purchases', PurchaseViewSet, 'purchase')
 router.register(r'credit', CreditCheckViewSet, 'credit')

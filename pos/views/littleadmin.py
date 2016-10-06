@@ -73,7 +73,11 @@ def sale_overview(request):
         elif order_line.order.payment_method == 1:
             overview[order_line.item]['crew'] += order_line.price
         overview[order_line.item]['total'] += order_line.price
-        overview[order_line.item]['sold'] += 1
+
+        if order_line.price > 0:
+            overview[order_line.item]['sold'] += 1
+        else:
+            overview[order_line.item]['sold'] -= 1
 
     order_lines = OrderLine.objects.all()
 

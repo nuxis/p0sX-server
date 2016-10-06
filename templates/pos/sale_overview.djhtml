@@ -1,5 +1,6 @@
 {% extends "base.djhtml" %} {% block content %}
 
+<h4>Items</h4>
 <table>
     {% for category, items in category_with_items.items %}
     <thead>
@@ -32,4 +33,40 @@
     </tfoot>
     {% endfor %}
 </table>
-{% endblock content %}
+
+<h4>Shift/Total</h4>
+<table>
+    <tr>
+        <th colspan="4"><h5>Shifts</h5></th>
+    </tr>
+    <tr>
+        <th>Shift:</th>
+        <th>Cash</th>
+        <th>Crew</th>
+        <th>Total</th>
+    </tr>
+    {% for shift in shifts %}
+    <tr>
+        <td>{{ shift.shift_name }}</td>
+        <td>{{ shift.cash }}</td>
+        <td>{{ shift.crew }}</td>
+        <td>{{ shift.crew|add:shift.cash }}</td>
+    </tr>
+    {% endfor %}
+    <tr>
+         <th colspan="4"><h5>Total</h5></th>
+    </tr>
+    <tr>
+        <th></th>
+        <th>Cash</th>
+        <th>Crew</th>
+        <th>Total</th>
+    </tr>
+    <tr>
+        <th></th>
+        <td>{{ total.cash }}</td>
+        <td>{{ total.crew }}</td>
+        <td>{{ total.total }}</td>
+    </tr>
+</table>
+ {% endblock content %}

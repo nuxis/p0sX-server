@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.utils.timezone import now
 
 from pos.models.crew import Crew
@@ -16,6 +18,7 @@ class ShiftSerializer(serializers.ModelSerializer):
     mobilepay = serializers.SerializerMethodField()
     izettle = serializers.SerializerMethodField()
     undo = serializers.SerializerMethodField()
+    shift_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Shift
@@ -30,6 +33,10 @@ class ShiftSerializer(serializers.ModelSerializer):
             orders = Order.objects.filter(
                 date__gte=obj.start).filter(authenticated_user=obj.authenticated_user)
         return sum([order.sum for order in orders if order.payment_method == payment_method])
+
+    def get_shift_name(self, obj):
+        local_start = obj.start + timedelta(hours=2)
+        return obj.authenticated_user.username + ' - ' + local_start.strftime('%A %H:%M:%S')
 
     def get_cash(self, obj):
         return self.accumulate_sum(obj, 0)

@@ -22,6 +22,15 @@ class CurrentShiftViewSet(viewsets.ReadOnlyModelViewSet):
         return shifts
 
 
+class AllShiftsViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ShiftSerializer
+
+    def get_queryset(self):
+        shifts = Shift.objects.all()
+
+        return shifts
+
+
 class NewShiftViewSet(viewsets.ViewSet):
 
     def create(self, request, *args, **kwargs):

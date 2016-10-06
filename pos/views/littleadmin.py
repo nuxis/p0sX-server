@@ -5,7 +5,9 @@ from django.urls import reverse_lazy
 
 from ..forms import ChangeCreditForm, CheckCreditForm
 from ..models.crew import Crew
+from ..models.shift import Shift
 from ..models.stock import OrderLine
+from ..serializers.shift import ShiftSerializer
 
 
 def check_credit(request):
@@ -79,7 +81,7 @@ def sale_overview(request):
         else:
             overview[order_line.item]['sold'] -= 1
 
-    order_lines = OrderLine.objects.all()
+    order_lines = OrderLine.objects.all().prefetch_related('item')
 
     overview = {}
     for order_line in order_lines:
@@ -94,10 +96,25 @@ def sale_overview(request):
             add_from_order_line(overview, order_line)
 
     splitted_by_category = {}
+
+    total = {'cash': 0, 'crew': 0, 'total': 0, 'sold': 0}
+    shifts = ShiftSerializer(Shift.objects.all(), many=True)
+    print(shifts.data[1])
     for item, acc in overview.items():
+        total['cash'] += acc['cash']
+        total['crew'] += acc['crew']
+        total['total'] += acc['total']
+        total['sold'] += acc['sold']
+
+        # Probably only rebates will have negative sold values so flip it.
+        # Possible bug if orders are undone multiple times.
+        if acc['sold'] < 0:
+            acc['sold'] *= -1
+
         if item.category in splitted_by_category.keys():
             splitted_by_category[item.category].append((item, acc))
         else:
             splitted_by_category[item.category] = [(item, acc)]
 
-    return render(request, 'pos/sale_overview.djhtml', {'category_with_items': splitted_by_category})
+    return render(request, 'pos/sale_overview.djhtml', {'category_with_items': splitted_by_category,
+                                                        'shifts': shifts.data, 'total': total})

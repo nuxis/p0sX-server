@@ -36,7 +36,7 @@ class ShiftSerializer(serializers.ModelSerializer):
 
     def get_shift_name(self, obj):
         local_start = obj.start + timedelta(hours=2)
-        return obj.authenticated_user.username + ' - ' + local_start.strftime('%A %H:%M:%S')
+        return obj.authenticated_user.username + ' - Started: ' + local_start.strftime('%A %H:%M:%S')
 
     def get_cash(self, obj):
         return self.accumulate_sum(obj, 0)
@@ -67,7 +67,6 @@ class NewShiftSerializer(serializers.Serializer):
     card = serializers.CharField(required=True)
 
     def create(self, validated_data, request):
-
         card = validated_data.get('card')
         crew = Crew.objects.get(card=card)
 

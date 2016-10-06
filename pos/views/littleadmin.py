@@ -99,7 +99,6 @@ def sale_overview(request):
 
     total = {'cash': 0, 'crew': 0, 'total': 0, 'sold': 0}
     shifts = ShiftSerializer(Shift.objects.all(), many=True)
-    print(shifts.data[1])
     for item, acc in overview.items():
         total['cash'] += acc['cash']
         total['crew'] += acc['crew']

@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -40,7 +41,17 @@ def check_credit(request):
 
 @login_required
 def credit_overview(request):
-    crew_list = Crew.objects.all().order_by('last_name', 'first_name')
+    bought = OrderLine.objects.all().exclude(order__crew__isnull=True).values('order__crew').annotate(used=Sum('price'))
+    crew_list = Crew.objects.all().values()
+
+    for crew in crew_list:
+        for b in bought:
+            crew['used'] = 0
+            crew['left'] = 0
+            if b['order__crew'] == crew['card']:
+                crew['used'] = b['used']
+                crew['left'] = crew['credit'] - crew['used']
+                break
 
     context = {
         'crew_list': crew_list

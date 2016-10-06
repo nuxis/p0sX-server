@@ -6,7 +6,8 @@ from .stock import Order
 
 
 class Crew(models.Model):
-    card = models.CharField(max_length=255, unique=True, primary_key=True)
+    card = models.CharField(max_length=255, unique=True,
+                            primary_key=True, db_index=True)
     credit = models.IntegerField()
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)

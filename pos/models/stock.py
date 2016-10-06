@@ -41,7 +41,7 @@ class Item(models.Model):
     price = models.IntegerField()
     stock = models.IntegerField(default=0)
     barcode = models.CharField(max_length=255)
-    active = models.BooleanField(blank=False, default=True)
+    active = models.BooleanField(blank=False, default=True, db_index=True)
     image = models.ImageField(upload_to='', blank=True)
     category = models.ForeignKey(Category)
     created_in_the_kitchen = models.BooleanField(blank=False, default=False)
@@ -64,13 +64,13 @@ class ItemIngredient(models.Model):
 
 class Order(models.Model):
     crew = models.ForeignKey(
-        'Crew', related_name='purchasing_crew', blank=True, null=True)
+        'Crew', related_name='purchasing_crew', blank=True, null=True, db_index=True)
     cashier = models.ForeignKey('Crew', related_name='cashier')
     authenticated_user = models.ForeignKey(User)
     date = models.DateTimeField(auto_now_add=True)
     state = models.SmallIntegerField(default=0, choices=ORDER_STATE)
     payment_method = models.SmallIntegerField(
-        default=0, choices=PAYMENT_METHOD)
+        default=0, choices=PAYMENT_METHOD, db_index=True)
     message = models.CharField(max_length=64, blank=True)
 
     def __str__(self):
@@ -94,9 +94,9 @@ class Order(models.Model):
 
 class OrderLine(models.Model):
     ingredients = models.ManyToManyField(Ingredient, blank=True)
-    item = models.ForeignKey(Item)
+    item = models.ForeignKey(Item, db_index=True)
     price = models.IntegerField()
-    order = models.ForeignKey(Order, related_name='orderlines')
+    order = models.ForeignKey(Order, related_name='orderlines', db_index=True)
 
     def __str__(self):
         s = self.item.name

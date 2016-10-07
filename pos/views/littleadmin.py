@@ -81,10 +81,13 @@ def credit_edit(request, card=None):
 @login_required
 def sale_overview(request):
     order_lines = OrderLine.objects.all().values('item__id', 'order__payment_method')\
-        .annotate(total=Sum('price'), sold=Sum(Case(When(price__gt=1, then=1), default=-1, output_field=IntegerField())))
+        .annotate(total=Sum('price'), sold=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
 
     items = Item.objects.all().values('name', 'category__name', 'id', 'price')
     total = {'cash': 0, 'crew': 0, 'total': 0}
+
+    overview = {}
+
     for item in items:
         per_payment_method = order_lines.filter(item_id=item['id'])
         try:
@@ -103,10 +106,15 @@ def sale_overview(request):
         if item['price'] < 0:
             item['sold'] *= -1
 
+        if item['category__name'] in overview.keys():
+            overview[item['category__name']].append(item)
+        else:
+            overview[item['category__name']] = [item]
+
         total['cash'] += item['cash']
         total['crew'] += item['crew']
         total['total'] += item['total']
 
     shifts = ShiftSerializer(Shift.objects.all(), many=True)
 
-    return render(request, 'pos/sale_overview.djhtml', {'items': items, 'shifts': shifts.data, 'total': total})
+    return render(request, 'pos/sale_overview.djhtml', {'overview': overview, 'shifts': shifts.data, 'total': total})

@@ -2,9 +2,14 @@
 
 <h4>Items</h4>
 <table>
+    {% for category, items in overview.items %}
     <thead>
         <tr>
-            <th>Category:</th>
+            <th colspan="5">
+                <h5>{{ category }}</h5>
+            </th>
+        </tr>
+        <tr>
             <th>Item:</th>
             <th>Sold</th>
             <th>Cash</th>
@@ -13,19 +18,20 @@
         </tr>
     </thead>
     <tbody>
-    {% for item in items %}
+        {% for item in items %}
         <tr>
-            <td>{{ item.category__name }}</td>
             <td>{{ item.name }}</td>
             <td>{{ item.sold }}</td>
             <td>{{ item.cash }}</td>
             <td>{{ item.crew }}</td>
             <td>{{ item.total }}</td>
         </tr>
-    {% endfor %}
+        {% endfor %}
     </tbody>
     <tfoot>
+
     </tfoot>
+    {% endfor %}
 </table>
 
 <h4>Shift/Total</h4>

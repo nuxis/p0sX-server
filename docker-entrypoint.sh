@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-python3 manage.py migrate
+python manage.py migrate
 
 
 echo Starting uwsgi.
@@ -8,6 +8,7 @@ exec uwsgi --chdir=/srv/app \
     --env DJANGO_SETTINGS_MODULE=p0sx.settings.prod \
     --master --pidfile=/tmp/project-master.pid \
     --socket=0.0.0.0:8080 \
+    --http=0.0.0.0:8081 \
     --processes=5 \
     --harakiri=20 \
     --max-requests=5000 \

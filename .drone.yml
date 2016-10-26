@@ -19,7 +19,7 @@ notify:
 
 publish:
   docker:
-    registry: gengar.l.fap.no:5000
+    registry: registry.fap.no
     repo: p0sx/p0sx
     tag: latest
     insecure: true
@@ -30,7 +30,7 @@ publish:
       destination: docker/image.tar
       tag: latest
   docker:
-    registry: gengar.l.fap.no:5000
+    registry: registry.fap.no
     repo: p0sx/p0sx
     tag: $$TAG
     insecure: true
@@ -44,13 +44,13 @@ publish:
 deploy:
   ssh:
     host:
-     - gengar.l.fap.no
+     - primeape.terra.fap.no
     user: root
     port: 22
     sleep: 3
     commands:
       - docker pull registry.fap.no/p0sx/p0sx:latest
-      - docker-compose -f /srv/docker/p0sx/docker-compose.yml stop
-      - docker-compose -f /srv/docker/p0sx/docker-compose.yml up -d
+      - docker-compose -f /srv/docker/p0sx/docker-compose.yml stop p0sx-dev
+      - docker-compose -f /srv/docker/p0sx/docker-compose.yml up -d p0sx-dev
     when:
         branch: master

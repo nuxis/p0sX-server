@@ -1,0 +1,41 @@
+{% extends "base.djhtml" %} 
+{% block title %}Crew report{% endblock title %}
+
+{% block content %}
+
+<h4>Crew report</h4>
+<table>
+<thead>
+    <tr>
+        <th colspan="3">Item</th>
+        <th>Quantity</th>
+        <th>Price</th>
+    </tr>
+</thead>
+{% for c in crew %}
+{% if c.lines %}
+<thead>
+    <tr>
+        <th colspan="5">
+            <h5>{{ c.name }}</h5>
+        </th>
+    </tr>
+</thead>
+<tbody>
+    {% for l in c.lines %}
+    <tr>
+        <td colspan="3">{{l.item__name}}</td>
+        <td>{{l.number}}</td>
+        <td>{{l.price}}</td>
+    </tr>
+    {% endfor %}
+     <tr>
+        <th colspan="3">Total</th>
+        <th></th>
+        <th>{{c.total}}</th>
+    </tr>
+</tbody>
+{% endif %}
+{% endfor %}
+</table>
+{% endblock content %}

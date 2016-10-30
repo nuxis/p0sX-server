@@ -37,9 +37,8 @@
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 <li><a href="{% url 'littleadmin:check' %}">Check credit</a></li>
                 <li><a href="{% url 'littleadmin:overview' %}">Credit overview</a></li>
-                <li>
-                    <a href="{% url 'littleadmin:sale:overview' %}">Sale overview</a>
-                </li>
+                <li><a href="{% url 'littleadmin:sale:overview' %}">Sale overview</a></li>
+                <li><a href="{% url 'littleadmin:crew_report' %}">Crew report</a></li>
             </ul>
         </div>
     </nav>

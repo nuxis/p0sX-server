@@ -67,7 +67,7 @@ def crew_report(request):
     credit_result = []
     for c in crew:
         items = OrderLine.objects.filter(order__crew=c).values('item__name')\
-            .annotate(price=Sum('price'), number=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
+            .annotate(total=Sum('price'), number=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
 
         total = items.values('price').aggregate(total=Sum('price'))
         credit_result.append({'card': c.card, 'lines': items, 'name': c.first_name + ' ' + c.last_name, 'total': total['total']})

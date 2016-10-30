@@ -26,7 +26,7 @@
     <tr>
         <td colspan="3">{{l.item__name}}</td>
         <td>{{l.number}}</td>
-        <td>{{l.price}}</td>
+        <td>{{l.total}}</td>
     </tr>
     {% endfor %}
      <tr>

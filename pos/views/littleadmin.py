@@ -69,8 +69,8 @@ def crew_report(request):
         items = OrderLine.objects.filter(order__crew=c).values('item__name')\
             .annotate(total=Sum('price'), number=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
 
-        total = items.values('price').aggregate(total=Sum('price'))
-        credit_result.append({'card': c.card, 'lines': items, 'name': c.first_name + ' ' + c.last_name, 'total': total['total']})
+        total = sum(map(lambda x: x['total'], items))
+        credit_result.append({'card': c.card, 'lines': items, 'name': c.first_name + ' ' + c.last_name, 'total': total})
 
     return render(request, 'pos/crew_report.djhtml', {'crew': credit_result})
 

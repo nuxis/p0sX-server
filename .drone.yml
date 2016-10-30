@@ -19,7 +19,7 @@ notify:
 
 publish:
   docker:
-    registry: gengar.l.fap.no:5000
+    registry: registry.fap.no
     repo: p0sx/p0sx
     tag: latest
     insecure: true
@@ -30,7 +30,7 @@ publish:
       destination: docker/image.tar
       tag: latest
   docker:
-    registry: gengar.l.fap.no:5000
+    registry: registry.fap.no
     repo: p0sx/p0sx
     tag: $$TAG
     insecure: true

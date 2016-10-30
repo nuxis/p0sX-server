@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import RedirectView
 
 from pos.views.crew import CrewViewSet
-from pos.views.littleadmin import check_credit, credit_edit, credit_overview, sale_overview, crew_report
+from pos.views.littleadmin import check_credit, credit_edit, credit_overview, crew_report, sale_overview
 from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
@@ -30,7 +30,7 @@ littleadmin_url = [
     url(r'overview/', credit_overview, name='overview'),
     url(r'edit/(?P<card>\w+)', credit_edit, name='edit'),
     url(r'sale/', include(sale_url, namespace='sale')),
-    url(r'crew_report/', crew_report, name="crew_report")
+    url(r'crew_report/', crew_report, name='crew_report')
 ]
 
 # Routers provide an easy way of automatically determining the URL conf.

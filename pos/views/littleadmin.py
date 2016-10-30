@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models import Case, IntegerField, Sum, When, Count
+from django.db.models import Case, IntegerField, Sum, When
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
@@ -59,19 +59,21 @@ def credit_overview(request):
 
     return render(request, 'pos/credit_overview.djhtml', context)
 
+
 @login_required
 def crew_report(request):
     crew = Crew.objects.all()
 
     credit_result = []
     for c in crew:
-        items = OrderLine.objects.filter(order__crew = c).values('item__name')\
+        items = OrderLine.objects.filter(order__crew=c).values('item__name')\
             .annotate(price=Sum('price'), number=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
-        
+
         total = items.values('price').aggregate(total=Sum('price'))
         credit_result.append({'card': c.card, 'lines': items, 'name': c.first_name + ' ' + c.last_name, 'total': total['total']})
 
     return render(request, 'pos/crew_report.djhtml', {'crew': credit_result})
+
 
 @login_required
 def credit_edit(request, card=None):

@@ -7,7 +7,7 @@ ENV NAME=p0sx
 
 ENV DIR=/srv/app
 
-RUN mkdir $DIR
+RUN mkdir -p $DIR
 WORKDIR $DIR
 
 # Install requirements
@@ -17,7 +17,7 @@ RUN pip install -r requirements/production.txt --upgrade
 # Copy project files
 COPY . $DIR
 
-RUN mkdir static media
+RUN mkdir -p static media
 ENV DJANGO_SETTINGS_MODULE=$NAME.settings.base
 RUN python manage.py collectstatic --noinput --clear
 ENV DJANGO_SETTINGS_MODULE=$NAME.settings.prod

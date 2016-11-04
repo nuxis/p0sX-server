@@ -25,10 +25,6 @@ publish:
     insecure: true
     when:
         branch: master
-    load: docker/image.tar
-    save:
-      destination: docker/image.tar
-      tag: latest
   docker:
     registry: registry.fap.no
     repo: p0sx/p0sx
@@ -36,10 +32,6 @@ publish:
     insecure: true
     when:
         event: tag
-    load: docker/image.tar
-    save:
-      destination: docker/image.tar
-      tag: latest
 
 deploy:
   ssh:

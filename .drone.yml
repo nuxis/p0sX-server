@@ -1,48 +1,53 @@
-build:
-    image: kradalby/ci-tox:latest
-    pull: true
+pipeline:
+  test:
+    image: python:3.5.2
     environment:
-      - DJANGO_SETTINGS_MODULE=init_django.settings.prod
+      - DJANGO_SETTINGS_MODULE=init_django.settings.dev
     commands:
-        - make env
-        - make dev
-        - make flake8
-        - tox
+      - pip install tox
+      - make env
+      - make dev
+      - make flake8
+      - tox
 
-notify:
-    slack:
-        webhook_url: https://hooks.slack.com/services/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
-        channel: teknisk-dev
-        username: drone
-        when:
-            branch: master
-
-publish:
   docker:
-    registry: registry.fap.no
-    repo: p0sx/p0sx
-    tag: latest
+    image: plugins/docker
+    repo: registry.fap.no/p0sx/p0sx
     insecure: true
+    tags:
+        - master
     when:
         branch: master
+
   docker:
-    registry: registry.fap.no
-    repo: p0sx/p0sx
-    tag: $$TAG
+    image: plugins/docker
+    repo: registry.fap.no/p0sx/p0sx
     insecure: true
+    tags:
+        - latest
+        - $$TAG
     when:
         event: tag
 
-deploy:
   ssh:
+    image: appleboy/drone-ssh
     host:
      - primeape.terra.fap.no
     user: root
     port: 22
-    sleep: 3
-    commands:
+    script:
       - docker pull registry.fap.no/p0sx/p0sx:latest
       - docker-compose -f /srv/docker/p0sx/docker-compose.yml stop p0sx-dev
       - docker-compose -f /srv/docker/p0sx/docker-compose.yml up -d p0sx-dev
     when:
+        status: success
         branch: master
+
+  notify:
+    image: drillster/drone-email
+    host: mail.ntnu.fap.no
+    port: 25
+    from: drone@drone.fap.no
+    recipients: [ kradalby@kradalby.no ]
+    when:
+      status: [ success, changed, failure ]

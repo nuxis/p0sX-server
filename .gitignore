@@ -131,8 +131,6 @@ fabric.properties
 
 
 ### Vim ###
-[._]*.s[a-w][a-z]
-[._]s[a-w][a-z]
 *.un~
 Session.vim
 .netrwhist

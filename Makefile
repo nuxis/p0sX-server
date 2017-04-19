@@ -36,3 +36,10 @@ run:
 freeze:
 	mkdir -p requirements
 	$(PIP) freeze > requirements/base.txt
+
+
+# General
+REPO=nuxis/p0sX-server
+
+sign:
+	drone sign $(REPO)

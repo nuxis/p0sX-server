@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User as DjangoUser
 from django.db import models
 
 ORDER_STATE = (
@@ -9,7 +9,7 @@ ORDER_STATE = (
 
 PAYMENT_METHOD = (
     (0, 'CASH'),
-    (1, 'CREW'),
+    (1, 'CREDIT'),
     (2, 'CARD'),
     (3, 'VIPPS'),
     (4, 'MCASH'),
@@ -35,6 +35,9 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name_plural = "Categories"
+
 
 class Item(models.Model):
     name = models.CharField(max_length=255)
@@ -54,6 +57,7 @@ class ItemIngredient(models.Model):
     item = models.ForeignKey(Item)
     ingredient = models.ForeignKey(Ingredient)
     default = models.BooleanField(default=False)
+    exclusive = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.item.name + (' has ' if self.default else ' can have ') + self.ingredient.name
@@ -63,10 +67,10 @@ class ItemIngredient(models.Model):
 
 
 class Order(models.Model):
-    crew = models.ForeignKey(
-        'Crew', related_name='purchasing_crew', blank=True, null=True, db_index=True)
-    cashier = models.ForeignKey('Crew', related_name='cashier')
-    authenticated_user = models.ForeignKey(User)
+    user = models.ForeignKey(
+        'User', related_name='purchasing_user', blank=True, null=True, db_index=True)
+    cashier = models.ForeignKey('User', related_name='cashier')
+    authenticated_user = models.ForeignKey(DjangoUser)
     date = models.DateTimeField(auto_now_add=True)
     state = models.SmallIntegerField(default=0, choices=ORDER_STATE)
     payment_method = models.SmallIntegerField(
@@ -74,11 +78,11 @@ class Order(models.Model):
     message = models.CharField(max_length=64, blank=True)
 
     def __str__(self):
-        return str(self.crew) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')
+        return str(self.user) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')
 
     @classmethod
-    def create(cls, crew, cashier, authenticated_user, payment_method, message):
-        order = cls(crew=crew,
+    def create(cls, user, cashier, authenticated_user, payment_method, message):
+        order = cls(user=user,
                     cashier=cashier,
                     authenticated_user=authenticated_user,
                     payment_method=payment_method,
@@ -119,7 +123,7 @@ class Purchase:
     def __init__(self, order, card, undo, cashier_card):
         self.id = order.pk
         self.order = order
-        self.crew = order.crew_id
+        self.user = order.user_id
         self.lines = OrderLine.objects.filter(order=order)
         self.payment_method = order.payment_method
         self.message = order.message

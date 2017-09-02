@@ -1,11 +1,14 @@
-{% extends "base.djhtml" %} {% block content %}
+{% extends "base.djhtml" %}
+{% block title %}
+Change credit
+{% endblock title %}
+{% block content %}
 
-
-<h1>{{ crew.first_name }} {{ crew.last_name }}</h1>
+<h1>{{ target.first_name }} {{ target.last_name }}</h1>
 <form action="" method="post">
     {% csrf_token %}
     {{ form }}
-    <input type="submit" value="Save" />
+    <input type="submit" value="Save" class="waves-effect waves-light btn" />
 </form>
 
 {% endblock content %}

@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.utils.timezone import now
 
-from pos.models.crew import Crew
+from pos.models.user import User
 from pos.models.shift import Shift
 from pos.models.stock import Order
 
@@ -11,7 +11,7 @@ from rest_framework import serializers
 
 class ShiftSerializer(serializers.ModelSerializer):
     cash = serializers.SerializerMethodField()
-    crew = serializers.SerializerMethodField()
+    credit = serializers.SerializerMethodField()
     card = serializers.SerializerMethodField()
     vipps = serializers.SerializerMethodField()
     mcash = serializers.SerializerMethodField()
@@ -32,6 +32,7 @@ class ShiftSerializer(serializers.ModelSerializer):
         else:
             orders = Order.objects.filter(
                 date__gte=obj.start).filter(authenticated_user=obj.authenticated_user)
+
         return sum([order.sum for order in orders if order.payment_method == payment_method])
 
     def get_shift_name(self, obj):
@@ -41,7 +42,7 @@ class ShiftSerializer(serializers.ModelSerializer):
     def get_cash(self, obj):
         return self.accumulate_sum(obj, 0)
 
-    def get_crew(self, obj):
+    def get_credit(self, obj):
         return self.accumulate_sum(obj, 1)
 
     def get_card(self, obj):
@@ -68,7 +69,7 @@ class NewShiftSerializer(serializers.Serializer):
 
     def create(self, validated_data, request):
         card = validated_data.get('card')
-        crew = Crew.objects.get(card=card)
+        crew = User.objects.get(card=card)
 
         open_shifts = Shift.objects.filter(
             authenticated_user=request.user).filter(end__isnull=True)

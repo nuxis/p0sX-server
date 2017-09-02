@@ -1,8 +1,12 @@
-{% extends "base.djhtml" %} {% block content %}
+{% extends "base.djhtml" %}
+{% block title %}
+Check credit
+{% endblock title %}
+{% block content %}
     <h1>Scan card to check credit!</h1>
     
     <form action="" method="post">{% csrf_token %}
-        {{ form.as_p }}
+        {{ form }}
     </form>
 
     {% if table %}

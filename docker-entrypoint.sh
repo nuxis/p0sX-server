@@ -1,9 +1,10 @@
 #!/usr/bin/env sh
-python manage.py migrate
 
+python manage.py migrate
 
 echo Starting uwsgi.
 exec uwsgi --chdir=/srv/app \
+    --plugins=python3,http \
     --module=p0sx.wsgi:application \
     --env DJANGO_SETTINGS_MODULE=p0sx.settings.prod \
     --master --pidfile=/tmp/project-master.pid \

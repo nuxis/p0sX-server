@@ -4,7 +4,9 @@
 <script src="{% static "js/jquery.tablesort.min.js" %}"></script> 
 
 {% endblock script %} 
-
+{% block title %}
+Credit overview
+{% endblock title %}
 {% block content %}
 
 <table>
@@ -20,28 +22,28 @@
     </thead>
 
     <tbody>
-        {% for crew in crew_list %}
+        {% for user in users %}
 
         <tr>
             <td>
-                <a href="{% url 'littleadmin:edit' crew.card %}">
-                {{ crew.first_name }} {{ crew.last_name }}
+                <a href="{% url 'littleadmin:edit' user.card %}">
+                {{ user.first_name }} {{ user.last_name }}
             </a>
             </td>
             <td>
-                {{ crew.phone }}
+                {{ user.phone }}
             </td>
             <td>
-                {{ crew.card }}
+                {{ user.card }}
             </td>
             <td>
-                {{ crew.used }}
+                {{ user.used }}
             </td>
             <td>
-                {{ crew.left }}
+                {{ user.left }}
             </td>
             <td>
-                {{ crew.credit }}
+                {{ user.credit }}
             </td>
         </tr>
 

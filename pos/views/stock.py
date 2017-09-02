@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 
 
-from pos.models.crew import Crew
+from pos.models.user import User
 from pos.models.stock import Category, CreditCheck, Discount, Item, Order, OrderLine, Purchase
 from pos.serializers.stock import (CategorySerializer,
                                    CreditCheckSerializer,
@@ -41,6 +41,15 @@ class OrderViewSet(viewsets.ModelViewSet):
     filter_fields = ('state',)
 
 
+class PaymentMethodViewSet(viewsets.ViewSet):
+
+    @staticmethod
+    def list():
+        methods = ['Cash', 'Credit']
+        serializer = PaymentMethodSerializer(methods, many=True)
+        return Response(serializer.data)
+
+
 class PurchaseViewSet(viewsets.ViewSet):
 
     def list(self, request):
@@ -74,13 +83,13 @@ class CreditCheckViewSet(viewsets.ViewSet):
 
     @staticmethod
     def retrieve(request, pk=None):
-        crews = Crew.objects.all()
-        crew = get_object_or_404(crews, card=pk)
-        orders = Order.objects.filter(crew=crew)
+        users = User.objects.all()
+        user = get_object_or_404(users, card=pk)
+        orders = Order.objects.filter(user=user)
         orderlines = OrderLine.objects.filter(order__in=orders)
 
         total = sum(ol.price for ol in orderlines)
-        credit_limit = crew.credit
+        credit_limit = user.credit
 
         queryset = CreditCheck(total, credit_limit)
         serializer = CreditCheckSerializer(queryset)

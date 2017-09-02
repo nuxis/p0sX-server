@@ -1,14 +1,14 @@
 from django import forms
 
-from .models.crew import Crew
+from .models.user import User
 
 
 class CheckCreditForm(forms.Form):
-    card = forms.CharField(100)
+    card = forms.CharField(max_length=100, widget=forms.PasswordInput())
 
 
 class ChangeCreditForm(forms.ModelForm):
 
     class Meta:
-        model = Crew
+        model = User
         fields = ['credit']

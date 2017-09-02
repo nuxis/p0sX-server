@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.crew import Crew
+from pos.models.user import User
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase
 
 from rest_framework import serializers
@@ -34,7 +34,7 @@ class ItemIngredientsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ItemIngredient
-        fields = ('id', 'default', 'name', 'price', 'stock')
+        fields = ('id', 'default', 'exclusive', 'name', 'price', 'stock')
 
 
 class ItemSerializer(serializers.ModelSerializer):
@@ -96,7 +96,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('id', 'crew', 'date', 'state',
+        fields = ('id', 'user', 'date', 'state',
                   'payment_method', 'orderlines')
 
 
@@ -126,7 +126,7 @@ class PurchaseSerializer(serializers.Serializer):
         card = validated_data.get('card')
 
         cashier_card = validated_data.get('cashier_card')
-        cashier = Crew.objects.get(card=cashier_card)
+        cashier = User.objects.get(card=cashier_card)
 
         authenticated_user = request.user
 
@@ -135,7 +135,7 @@ class PurchaseSerializer(serializers.Serializer):
         undo = validated_data.get('undo')
 
         if card:
-            crew = get_object_or_404(Crew.objects.all(), card=card)
+            crew = get_object_or_404(User.objects.all(), card=card)
             order = Order.create(
                 crew, cashier, authenticated_user, payment_method, message)
         else:

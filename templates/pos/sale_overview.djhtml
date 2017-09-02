@@ -1,4 +1,8 @@
-{% extends "base.djhtml" %} {% block content %}
+{% extends "base.djhtml" %}
+{% block title %}
+Sale overview
+{% endblock title %}
+{% block content %}
 
 <h4>Items</h4>
 <table>
@@ -13,7 +17,7 @@
             <th>Item:</th>
             <th>Sold</th>
             <th>Cash</th>
-            <th>Crew</th>
+            <th>Credit</th>
             <th>Total</th>
         </tr>
     </thead>
@@ -23,7 +27,7 @@
             <td>{{ item.name }}</td>
             <td>{{ item.sold }}</td>
             <td>{{ item.cash }}</td>
-            <td>{{ item.crew }}</td>
+            <td>{{ item.credit }}</td>
             <td>{{ item.total }}</td>
         </tr>
         {% endfor %}
@@ -42,15 +46,15 @@
     <tr>
         <th>Shift:</th>
         <th>Cash</th>
-        <th>Crew</th>
+        <th>Credit</th>
         <th>Total</th>
     </tr>
     {% for shift in shifts %}
     <tr>
         <td>{{ shift.shift_name }}</td>
         <td>{{ shift.cash }}</td>
-        <td>{{ shift.crew }}</td>
-        <td>{{ shift.crew|add:shift.cash }}</td>
+        <td>{{ shift.credit }}</td>
+        <td>{{ shift.credit|add:shift.cash }}</td>
     </tr>
     {% endfor %}
     <tr>
@@ -59,13 +63,13 @@
     <tr>
         <th></th>
         <th>Cash</th>
-        <th>Crew</th>
+        <th>Credit</th>
         <th>Total</th>
     </tr>
     <tr>
         <th></th>
         <td>{{ total.cash }}</td>
-        <td>{{ total.crew }}</td>
+        <td>{{ total.credit }}</td>
         <td>{{ total.total }}</td>
     </tr>
 </table>

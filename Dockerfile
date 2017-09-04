@@ -29,9 +29,7 @@ COPY . $DIR
 RUN mkdir -p static media
 ENV DJANGO_SETTINGS_MODULE=$NAME.settings.base
 RUN python3 manage.py collectstatic --noinput --clear
-ENV DJANGO_SETTINGS_MODULE=$NAME.settings.prod
 
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 8080 8081
 
 CMD ["sh", "docker-entrypoint.sh"]

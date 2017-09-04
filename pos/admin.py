@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from pos.models.user import User
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
+from pos.models.user import User
 
 
 class DiscountAdmin(admin.ModelAdmin):

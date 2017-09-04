@@ -5,9 +5,9 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse_lazy
 
 from ..forms import ChangeCreditForm, CheckCreditForm
-from ..models.user import User
 from ..models.shift import Shift
 from ..models.stock import Item, OrderLine
+from ..models.user import User
 from ..serializers.shift import ShiftSerializer
 
 

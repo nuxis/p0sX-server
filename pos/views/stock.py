@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 
 
-from pos.models.user import User
 from pos.models.stock import Category, CreditCheck, Discount, Item, Order, OrderLine, Purchase
+from pos.models.user import User
 from pos.serializers.stock import (CategorySerializer,
                                    CreditCheckSerializer,
                                    DiscountSerializer,
@@ -39,15 +39,6 @@ class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
     filter_fields = ('state',)
-
-
-class PaymentMethodViewSet(viewsets.ViewSet):
-
-    @staticmethod
-    def list():
-        methods = ['Cash', 'Credit']
-        serializer = PaymentMethodSerializer(methods, many=True)
-        return Response(serializer.data)
 
 
 class PurchaseViewSet(viewsets.ViewSet):

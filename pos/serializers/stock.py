@@ -1,7 +1,8 @@
 from django.shortcuts import get_object_or_404
 
-from pos.models.user import User
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase
+from pos.models.user import User
+
 
 from rest_framework import serializers
 

@@ -2,9 +2,9 @@ from datetime import timedelta
 
 from django.utils.timezone import now
 
-from pos.models.user import User
 from pos.models.shift import Shift
 from pos.models.stock import Order
+from pos.models.user import User
 
 from rest_framework import serializers
 

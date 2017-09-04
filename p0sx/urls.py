@@ -6,7 +6,6 @@ from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import RedirectView
 
 from pos.views.littleadmin import check_credit, credit_edit, credit_overview, crew_report, sale_overview
-from pos.views.user import UserViewSet
 from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
@@ -15,7 +14,7 @@ from pos.views.stock import (CategoryViewSet,
                              OrderLineViewSet,
                              OrderViewSet,
                              PurchaseViewSet)
-
+from pos.views.user import UserViewSet
 
 from rest_framework import routers
 

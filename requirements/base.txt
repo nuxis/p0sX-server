@@ -1,5 +1,4 @@
 Django==1.10.1
 django-filter==0.14.0
 djangorestframework==3.4.6
-Pillow==3.3.1
 git+https://github.com/kradalby/pyGE.git@0.0.3

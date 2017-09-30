@@ -14,6 +14,7 @@ class Crew(models.Model):
     crew = models.CharField(max_length=255)
     role = models.CharField(max_length=255)
     email = models.EmailField()
+    is_cashier = models.BooleanField(default=False)
 
     @property
     def used(self):

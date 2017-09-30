@@ -34,7 +34,7 @@ littleadmin_url = [
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.SimpleRouter()
-router.register(r'crew', CrewViewSet)
+router.register(r'user', CrewViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'orderlines', OrderLineViewSet)
 router.register(r'items', ItemViewSet)

@@ -54,6 +54,7 @@ class ItemIngredient(models.Model):
     item = models.ForeignKey(Item)
     ingredient = models.ForeignKey(Ingredient)
     default = models.BooleanField(default=False)
+    exclusive = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.item.name + (' has ' if self.default else ' can have ') + self.ingredient.name

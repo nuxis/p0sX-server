@@ -7,7 +7,7 @@ class CrewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Crew
-        fields = ('first_name', 'last_name', 'credit', 'card')
+        fields = ('first_name', 'last_name', 'credit', 'card', 'is_cashier')
 
 
 class CrewSessionSerializer(serializers.ModelSerializer):

@@ -1,6 +1,5 @@
 #!/usr/bin/env sh
-python manage.py migrate
-
+python3 manage.py migrate
 
 echo Starting uwsgi.
 exec uwsgi --chdir=/srv/app \

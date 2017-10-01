@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ValidationError
 
 
 from pos.models.stock import Category, CreditCheck, Discount, Item, Order, OrderLine, Purchase
@@ -59,14 +60,18 @@ class PurchaseViewSet(viewsets.ViewSet):
         return Response(serializer.data)
 
     def create(self, request):
-        serializer = PurchaseSerializer(data=request.data)
+        try:
+            serializer = PurchaseSerializer(data=request.data)
 
-        if serializer.is_valid():
-            purchase = serializer.create(serializer.validated_data, request)
-            serializer = PurchaseSerializer(purchase)
-            return Response(serializer.data)
-        else:
-            error = {'detail': 'Invalid data'}
+            if serializer.is_valid():
+                purchase = serializer.create(serializer.validated_data, request)
+                serializer = PurchaseSerializer(purchase)
+                return Response(serializer.data)
+            else:
+                error = {'detail': 'Invalid data'}
+                return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        except ValidationError as e:
+            error = {'detail': e.message}
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 

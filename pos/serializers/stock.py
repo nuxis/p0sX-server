@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.core.exceptions import ValidationError
 
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase
 from pos.models.user import User
@@ -146,14 +147,26 @@ class PurchaseSerializer(serializers.Serializer):
 
         prepared_order = False
 
-        for line_dict in validated_data.get('lines'):
+        order_lines = validated_data.get('lines')
+
+        for order_line in order_lines:
+            item = order_line.get('item')
+            count = len([line for line in order_lines if line.get('item').id == item.id])
+            if(item.stock < count):
+                raise ValidationError("{} is not in stock".format(item.name))
+
+        for line_dict in order_lines:
             ingredients = line_dict.get('ingredients')
             item = line_dict.get('item')
+            
             price = item.price + sum(i.price for i in ingredients)
             price = price * -1 if undo else price
+            count = count * -1 if undo else count
+            item.stock -= count
 
             line = OrderLine.create(item, order, price)
             line.save()
+            item.save()
             if len(ingredients):
                 line.ingredients.set((i.pk for i in ingredients))
                 line.save()

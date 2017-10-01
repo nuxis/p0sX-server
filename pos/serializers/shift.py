@@ -69,7 +69,7 @@ class NewShiftSerializer(serializers.Serializer):
 
     def create(self, validated_data, request):
         card = validated_data.get('card')
-        crew = User.objects.get(card=card)
+        user = User.objects.get(card=card)
 
         open_shifts = Shift.objects.filter(
             authenticated_user=request.user).filter(end__isnull=True)
@@ -78,7 +78,7 @@ class NewShiftSerializer(serializers.Serializer):
             shift.end = now()
             shift.save()
 
-        new_shift = Shift(authenticated_user=request.user, crew=crew)
+        new_shift = Shift(authenticated_user=request.user, user=user)
         new_shift.save()
 
         return new_shift

@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM python:3.7.0
 
 MAINTAINER Kristoffer Dalby
 
@@ -9,26 +9,16 @@ ENV DIR=/srv/app
 RUN mkdir -p $DIR
 WORKDIR $DIR
 
-RUN apk add --update --no-cache \
-    uwsgi-python3 \
-    uwsgi-http \
-    uwsgi-corerouter \
-    py3-psycopg2 \
-    py3-pillow \
-    git
-
 # Install requirements
 COPY ./requirements $DIR/requirements
-RUN pip3 install -r requirements/production.txt --upgrade
-
-RUN apk del --no-cache git
+RUN pip install -r requirements/production.txt --upgrade
 
 # Copy project files
 COPY . $DIR
 
 RUN mkdir -p static media
 ENV DJANGO_SETTINGS_MODULE=$NAME.settings.base
-RUN python3 manage.py collectstatic --noinput --clear
+RUN python manage.py collectstatic --noinput --clear
 
 EXPOSE 8080 8081
 

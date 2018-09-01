@@ -1,10 +1,13 @@
 #!/usr/bin/env sh
+python manage.py migrate
 
-python3 manage.py migrate
+rm /tmp/project-master.pid
+
+touch /srv/app/aspargesgaarden.log
+tail -n 0 -f /srv/app/*.log &
 
 echo Starting uwsgi.
 exec uwsgi --chdir=/srv/app \
-    --plugins=python3,http \
     --module=p0sx.wsgi:application \
     --env DJANGO_SETTINGS_MODULE=p0sx.settings.prod \
     --master --pidfile=/tmp/project-master.pid \

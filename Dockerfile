@@ -19,6 +19,7 @@ COPY . $DIR
 RUN mkdir -p static media
 ENV DJANGO_SETTINGS_MODULE=$NAME.settings.base
 RUN python manage.py collectstatic --noinput --clear
+ENV DJANGO_SETTINGS_MODULE=$NAME.settings.prod
 
 EXPOSE 8080 8081
 

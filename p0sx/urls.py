@@ -5,7 +5,14 @@ from django.contrib import admin
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import RedirectView
 
-from pos.views.littleadmin import check_credit, credit_edit, credit_overview, crew_report, sale_overview
+from pos.views.littleadmin import (add_user,
+                                   check_credit,
+                                   credit_edit,
+                                   credit_overview,
+                                   crew_report,
+                                   edit_user_credit,
+                                   sale_overview,
+                                   scan_user_card)
 from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
@@ -29,7 +36,10 @@ littleadmin_url = [
     url(r'overview/', credit_overview, name='overview'),
     url(r'edit/(?P<card>\w+)', credit_edit, name='edit'),
     url(r'sale/', include(sale_url, namespace='sale')),
-    url(r'crew_report/', crew_report, name='crew_report')
+    url(r'crew_report/', crew_report, name='crew_report'),
+    url(r'scan_user_card', scan_user_card, name='scan_user_card'),
+    url(r'edit_user_credit/(?P<card>\w+)', edit_user_credit, name='edit_user_credit'),
+    url(r'add_user/(?P<card>\w+)', add_user, name='add_user')
 ]
 
 # Routers provide an easy way of automatically determining the URL conf.

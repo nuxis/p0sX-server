@@ -44,7 +44,8 @@ class Command(BaseCommand):
                     crew=data['crew'],
                     role=data['role'],
                     email=data['email'],
-                    credit=0
+                    credit=0,
+                    is_crew=True
                 )
                 crew.save()
                 # print('Added new user {} {}'.format(data['first_name'], data['last_name']))

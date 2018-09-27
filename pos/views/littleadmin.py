@@ -1,10 +1,10 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Case, IntegerField, Sum, When
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 
-from ..forms import ChangeCreditForm, CheckCreditForm
+from ..forms import AddUserForm, ChangeCreditForm, CheckCreditForm
 from ..models.shift import Shift
 from ..models.stock import Item, OrderLine
 from ..models.user import User
@@ -133,3 +133,82 @@ def sale_overview(request):
     shifts = ShiftSerializer(Shift.objects.all(), many=True)
     print(shifts.data)
     return render(request, 'pos/sale_overview.djhtml', {'overview': overview, 'shifts': shifts.data, 'total': total})
+
+
+@permission_required("user.update_credit")
+def scan_user_card(request):
+    if request.POST:
+        form = CheckCreditForm(request.POST)
+
+        if form.is_valid():
+            card = form.cleaned_data['card']
+
+            user = User.objects.filter(card=card)
+
+            if not user:
+                return redirect('littleadmin:add_user', card=card)
+
+            return redirect('littleadmin:edit_user_credit', card=card)
+        else:
+            return HttpResponseRedirect(reverse_lazy('littleadmin:scan_user_card'))
+    else:
+        return render(request, 'pos/credit_check.djhtml', {
+            'form': CheckCreditForm(),
+            'table': False,
+        })
+
+
+@permission_required('user.update_credit')
+def edit_user_credit(request, card=None):
+    if request.POST:
+        form = ChangeCreditForm(request.POST)
+        if form.is_valid():
+            credit = form.cleaned_data['credit']
+            user = get_object_or_404(User, card=card)
+
+            if user.is_crew:
+                return HttpResponseBadRequest(b'Not allowed to update crew credit')
+
+            user.credit = credit
+            user.save()
+            return redirect('littleadmin:scan_user_card')
+    else:
+        user = get_object_or_404(User, card=card)
+        form = ChangeCreditForm(instance=user)
+
+        return render(request, 'pos/credit_edit.djhtml', {'form': form, 'target': user})
+
+
+@permission_required('user.create_user')
+def add_user(request, card=None):
+    if request.POST:
+        form = AddUserForm(request.POST)
+
+        if form.is_valid():
+            card = form.cleaned_data['card']
+            credit = form.cleaned_data['credit']
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            phone = form.cleaned_data['phone']
+            email = form.cleaned_data['email']
+
+            user = User.create(card, credit, first_name, last_name, phone, email)
+
+            user.save()
+
+            return redirect('littleadmin:scan_user_card')
+        else:
+            return HttpResponseRedirect(reverse_lazy('littleadmin:add_user'))
+    else:
+        form = AddUserForm(initial={'card': card})
+        print(form['card'].value())
+        return render(request, 'pos/add_user.djhtml', {
+            'form': form
+        })
+
+
+
+
+
+
+

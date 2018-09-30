@@ -1,12 +1,13 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Case, IntegerField, Sum, When
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
+from django.contrib import messages
 
-from ..forms import AddUserForm, ChangeCreditForm, CheckCreditForm
+from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm
 from ..models.shift import Shift
-from ..models.stock import Item, OrderLine
+from ..models.stock import Item, OrderLine, Order
 from ..models.user import User
 from ..serializers.shift import ShiftSerializer
 
@@ -17,14 +18,16 @@ def check_credit(request):
 
         if form.is_valid():
             card = form.cleaned_data['card']
-
             user = User.objects.filter(card=card)
 
             if not user:
                 return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
 
+            orders = Order.objects.filter(user_id=user.id).order_by('date')[0:3]
+
             return render(request, 'pos/credit_check.djhtml', {
                 'form': CheckCreditForm(),
+                'orders': [o.info for o in orders],
                 'table': True,
                 'used': user[0].used,
                 'credit': user[0].credit,
@@ -43,7 +46,6 @@ def check_credit(request):
 def credit_overview(request):
     bought = OrderLine.objects.all().exclude(order__user__isnull=True).values('order__user').annotate(used=Sum('price'))
     users = User.objects.all().values()
-    print(bought)
     for user in users:
         for b in bought:
             user['used'] = 0
@@ -131,11 +133,10 @@ def sale_overview(request):
         total['total'] += item['total']
 
     shifts = ShiftSerializer(Shift.objects.all(), many=True)
-    print(shifts.data)
     return render(request, 'pos/sale_overview.djhtml', {'overview': overview, 'shifts': shifts.data, 'total': total})
 
 
-@permission_required("user.update_credit")
+@permission_required("pos.update_credit")
 def scan_user_card(request):
     if request.POST:
         form = CheckCreditForm(request.POST)
@@ -152,34 +153,41 @@ def scan_user_card(request):
         else:
             return HttpResponseRedirect(reverse_lazy('littleadmin:scan_user_card'))
     else:
-        return render(request, 'pos/credit_check.djhtml', {
+        return render(request, 'pos/scan_card.djhtml', {
             'form': CheckCreditForm(),
             'table': False,
         })
 
 
-@permission_required('user.update_credit')
+@permission_required('pos.update_credit')
 def edit_user_credit(request, card=None):
     if request.POST:
-        form = ChangeCreditForm(request.POST)
+        form = AddCreditForm(request.POST)
         if form.is_valid():
             credit = form.cleaned_data['credit']
             user = get_object_or_404(User, card=card)
 
             if user.is_crew:
-                return HttpResponseBadRequest(b'Not allowed to update crew credit')
+                messages.error(request, "You cannot change the credit of Crew")
+                return redirect('littleadmin:scan_user_card')
 
-            user.credit = credit
+            user.credit = user.credit + credit
             user.save()
+            messages.success(request, "Credit updated successfully")
             return redirect('littleadmin:scan_user_card')
     else:
         user = get_object_or_404(User, card=card)
-        form = ChangeCreditForm(instance=user)
 
-        return render(request, 'pos/credit_edit.djhtml', {'form': form, 'target': user})
+        if user.is_crew:
+            messages.error(request, "You cannot change the credit of Crew")
+            return redirect('littleadmin:scan_user_card')
+
+        form = AddCreditForm()
+
+        return render(request, 'pos/add_credit.djhtml', {'form': form, 'target': user})
 
 
-@permission_required('user.create_user')
+@permission_required('pos.update_credit')
 def add_user(request, card=None):
     if request.POST:
         form = AddUserForm(request.POST)
@@ -195,13 +203,13 @@ def add_user(request, card=None):
             user = User.create(card, credit, first_name, last_name, phone, email)
 
             user.save()
-
+            messages.success(request, "User added successfully")
             return redirect('littleadmin:scan_user_card')
         else:
+            messages.error(request, "Failed to add user")
             return HttpResponseRedirect(reverse_lazy('littleadmin:add_user'))
     else:
         form = AddUserForm(initial={'card': card})
-        print(form['card'].value())
         return render(request, 'pos/add_user.djhtml', {
             'form': form
         })

@@ -4,12 +4,11 @@
 <html>
 
 <head>
-    <!-- Compiled and minified CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/css/materialize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-    <!-- Compiled and minified JavaScript -->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.7/js/materialize.min.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     
     {% block script%}
     {% endblock script %}
@@ -30,34 +29,39 @@
 </head>
 
 <body>
-    {% if user.is_authenticated %}
+    {% if messages %}
+    <script>
+    {% for message in messages %}
+         M.toast({html: '{{message}}'});
+    {% endfor %}
+    </script>
+    {% endif %}
     <nav>
-        <div class="nav-wrapper">
+        <div class="nav-wrapper cyan">
             <a href="#" class="brand-logo">p0sX a little admin</a>
             <ul id="nav-mobile" class="right hide-on-med-and-down">
+                {% if user.is_staff %}
                 <li><a href="{% url 'littleadmin:check' %}">Check credit</a></li>
                 <li><a href="{% url 'littleadmin:overview' %}">Credit overview</a></li>
                 <li><a href="{% url 'littleadmin:sale:overview' %}">Sale overview</a></li>
                 <li><a href="{% url 'littleadmin:crew_report' %}">Crew report</a></li>
+                {% elif user.is_authenticated %}
+                <li><a href="{% url 'logout' %}">Logout</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>
-    {% endif %}
     <main>
         <div class="container">
             {% block content %}{% endblock content %}
         </div>
     </main>
-    <footer class="page-footer">
+    <footer class="page-footer cyan">
         <div class="footer-copyright">
             <div class="container">
-                © <script type="text/javascript">
-  document.write(new Date().getFullYear());
-</script> Nuxis, Version: {% version %}
+                © {% now "Y" %} Nuxis, Version: {% version %}
             </div>
         </div>
-
     </footer>
 </body>
-
 </html>

@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='user',
-            options={'permissions': (('create_user', 'Can add a new user to the system'), ('update_credit', 'Can update the credit limit on a user'))},
+            options={'permissions': (("update_credit", "Can update the credit limit on a user"),)},
         ),
     ]

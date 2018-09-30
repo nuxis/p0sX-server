@@ -42,8 +42,7 @@ class User(models.Model):
 
     class Meta:
         permissions = (
-            ("create_user", "Can add a new user to the system"),
-            ("update_credit", "Can update the credit limit on a user")
+            ("update_credit", "Can update the credit limit on a user"),
         )
 
 

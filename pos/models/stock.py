@@ -80,14 +80,17 @@ class Order(models.Model):
     def __str__(self):
         return str(self.user) + ' ' + self.date.strftime('%Y-%m-%d %H:%M:%S')
 
+    @property
+    def info(self):
+        return f"{self.sum} {self.date:%Y-%m-%d %H:%M:%S}"
+
     @classmethod
     def create(cls, user, cashier, authenticated_user, payment_method, message):
         order = cls(user=user,
                     cashier=cashier,
                     authenticated_user=authenticated_user,
                     payment_method=payment_method,
-                    message=message
-                    )
+                    message=message)
 
         return order
 

@@ -12,6 +12,7 @@ Credit overview
 <table>
     <thead>
         <tr>
+            <th class="">Crew:</th>
             <th class="">Name:</th>
             <th class="">Phone:</th>
             <th class="">Card:</th>
@@ -26,9 +27,16 @@ Credit overview
 
         <tr>
             <td>
-                <a href="{% url 'littleadmin:edit' user.card %}">
+                {% if user.is_crew %}
+                <i class="material-icons">check</i>
+                {% else %}
+                <i class="material-icons">close</i>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'littleadmin:edit_crew_credit' user.card %}">
                 {{ user.first_name }} {{ user.last_name }}
-            </a>
+                </a>
             </td>
             <td>
                 {{ user.phone }}

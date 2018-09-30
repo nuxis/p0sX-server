@@ -4,7 +4,7 @@ Check credit
 {% endblock title %}
 {% block content %}
     <h1>Scan card to check credit!</h1>
-    
+
     <form action="" method="post">{% csrf_token %}
         {{ form }}
     </form>
@@ -27,15 +27,11 @@ Check credit
     {% endif %}
 
     <script>
-        field = document.getElementById('id_card')
-        field.focus()
-
-        table = document.getElementById('table')
+        table = document.getElementById('table');
         if (table) {
             setTimeout(function () {
                 table.style.display = "none"
             }, 10000)
         }
-
     </script>
 {% endblock content %}

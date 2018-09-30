@@ -129,3 +129,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, '..', 'collected_static')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
 MEDIA_URL = '/media/'
+
+LOGIN_REDIRECT_URL = '/littleadmin/scan_user_card'

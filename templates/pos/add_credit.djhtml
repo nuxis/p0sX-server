@@ -1,0 +1,33 @@
+{% extends "base.djhtml" %}
+{% block title %}
+Add credit
+{% endblock title %}
+{% block content %}
+
+<h1>Add credit to {{ target.first_name }} {{ target.last_name }}</h1>
+<h3>Current credit: {{ target.left }}Kr.</h3>
+<p>
+    <button onclick="addCredit(50)" class="waves-effect waves-light btn">+50</button>
+    <button onclick="addCredit(100)" class="waves-effect waves-light btn">+100</button>
+    <button onclick="addCredit(200)" class="waves-effect waves-light btn">+200</button>
+    <button onclick="addCredit(500)" class="waves-effect waves-light btn">+500</button>
+</p>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form }}
+    <button type="submit" class="waves-effect waves-light btn">Save</button>
+</form>
+
+<script>
+    const field = document.getElementById('id_credit');
+    field.select();
+
+    function addCredit(value)
+    {
+        const current = +field.value;
+        field.value = current + value;
+        field.focus();
+    }
+</script>
+
+{% endblock content %}

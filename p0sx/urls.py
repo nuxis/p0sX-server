@@ -4,8 +4,16 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import RedirectView
+from django.contrib.auth import views as auth_views
 
-from pos.views.littleadmin import check_credit, credit_edit, credit_overview, crew_report, sale_overview
+from pos.views.littleadmin import (add_user,
+                                   check_credit,
+                                   credit_edit,
+                                   credit_overview,
+                                   crew_report,
+                                   edit_user_credit,
+                                   sale_overview,
+                                   scan_user_card)
 from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
@@ -27,9 +35,12 @@ littleadmin_url = [
     url(r'^$', RedirectView.as_view(url=reverse_lazy('littleadmin:overview'))),
     url(r'check/', check_credit, name='check'),
     url(r'overview/', credit_overview, name='overview'),
-    url(r'edit/(?P<card>\w+)', credit_edit, name='edit'),
+    url(r'edit_crew_credit/(?P<card>\w+)', credit_edit, name='edit_crew_credit'),
     url(r'sale/', include(sale_url, namespace='sale')),
-    url(r'crew_report/', crew_report, name='crew_report')
+    url(r'crew_report/', crew_report, name='crew_report'),
+    url(r'scan_user_card', scan_user_card, name='scan_user_card'),
+    url(r'edit_user_credit/(?P<card>\w+)', edit_user_credit, name='edit_user_credit'),
+    url(r'add_user/(?P<card>\w+)', add_user, name='add_user')
 ]
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -48,8 +59,11 @@ router.register(r'create_shift', NewShiftViewSet, base_name='create_shift')
 router.register(r'purchases', PurchaseViewSet, 'purchase')
 router.register(r'credit', CreditCheckViewSet, 'credit')
 router.register(r'discounts', DiscountViewSet, 'discount')
+
 urlpatterns = [
     url(r'^$', RedirectView.as_view(url=reverse_lazy('admin:index'))),
+    url(r'^login/$', auth_views.login, {'template_name': 'pos/login.djhtml'}, name='login'),
+    url(r'^logout/$', auth_views.logout, {'next_page': '/login'}, name='logout'),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include(router.urls)),
     url(r'littleadmin/', include(littleadmin_url, namespace='littleadmin'))

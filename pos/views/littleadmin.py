@@ -209,14 +209,13 @@ def add_user(request, card=None):
 
         if form.is_valid():
             card = form.cleaned_data['card']
-            credit = form.cleaned_data['credit']
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
 
             user = User.create(card, 0, first_name, last_name, '', '')
 
             user.save()
-            return redirect('littleadmin:verify_add_credit', user.id, credit)
+            return redirect('littleadmin:scan_user_card')
         else:
             messages.error(request, "Failed to add user")
             return HttpResponseRedirect(reverse_lazy('littleadmin:add_user'))

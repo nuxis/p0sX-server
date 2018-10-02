@@ -25,8 +25,8 @@ class AddUserForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'credit', 'card']
+        fields = ['first_name', 'last_name', 'card']
         widgets = {
-            'card': forms.PasswordInput(render_value=True),
+            'card': forms.HiddenInput(),
             'first_name': forms.TextInput(attrs={'autofocus': 'autofocus'})
         }

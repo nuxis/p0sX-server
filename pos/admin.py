@@ -2,7 +2,12 @@ from django.contrib import admin
 
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
-from pos.models.user import User
+from pos.models.user import User, CreditUpdate
+
+
+class CreditUpdateAdmin(admin.ModelAdmin):
+    readonly_fields = ('timestamp', 'amount', 'user', 'updated_by_user')
+    pass
 
 
 class DiscountAdmin(admin.ModelAdmin):
@@ -66,3 +71,4 @@ admin.site.register(Category, CategoryAdmin)
 admin.site.register(Shift, ShiftAdmin)
 admin.site.register(ItemIngredient, ItemIngredientAdmin)
 admin.site.register(Discount, DiscountAdmin)
+admin.site.register(CreditUpdate, CreditUpdateAdmin)

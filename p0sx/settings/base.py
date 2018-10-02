@@ -13,6 +13,9 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 from version import VERSION
+from django.conf.locale.en import formats as en_formats
+
+en_formats.DATETIME_FORMAT = "Y-m-d H:i:s"
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

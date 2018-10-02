@@ -5,6 +5,22 @@ from django.db import models
 from .stock import Order
 
 
+class CreditUpdate(models.Model):
+    user = models.ForeignKey('User', related_name='user')
+    updated_by_user = models.ForeignKey('User', related_name='updated_by_user')
+    amount = models.IntegerField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def create(cls, user, updated_by_user, amount):
+        update = cls(user=user, updated_by_user=updated_by_user, amount=amount)
+
+        return update
+
+    def __str__(self):
+        return f'{self.updated_by_user} added {self.amount} kr to {self.user}'
+
+
 class User(models.Model):
     card = models.CharField(max_length=255, unique=True, blank=False)
     credit = models.IntegerField(default=0)

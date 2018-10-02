@@ -8,11 +8,11 @@ Change credit
 <form action="" method="post">
     {% csrf_token %}
     {{ form }}
-    <button type="submit" class="waves-effect waves-light btn">Save</button>
+    <button type="submit" class="waves-effect waves-light btn cyan">Save</button>
 </form>
 
 <script>
-    field = document.getElementById('id_credit')
+    const field = document.getElementById('id_credit');
     field.select();
 </script>
 

@@ -3,10 +3,10 @@
 Check credit
 {% endblock title %}
 {% block content %}
-    <h1>Scan to update credit or add user</h1>
+<h1>Scan to add credit</h1>
 
-    <form action="" method="post">{% csrf_token %}
-        {{ form }}
-    </form>
-
+<form action="" method="post">
+{% csrf_token %}
+{{ form }}
+</form>
 {% endblock content %}

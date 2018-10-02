@@ -135,6 +135,13 @@ class PurchaseSerializer(serializers.Serializer):
         payment_method = validated_data.get('payment_method')
         message = validated_data.get('message')
         undo = validated_data.get('undo')
+        order_lines = validated_data.get('lines')
+
+        for order_line in order_lines:
+            item = order_line.get('item')
+            count = len([line for line in order_lines if line.get('item').id == item.id])
+            if item.stock < count:
+                raise ValidationError('{} is not in stock'.format(item.name))
 
         if card:
             crew = get_object_or_404(User.objects.all(), card=card)
@@ -146,14 +153,6 @@ class PurchaseSerializer(serializers.Serializer):
         order.save()
 
         prepared_order = False
-
-        order_lines = validated_data.get('lines')
-
-        for order_line in order_lines:
-            item = order_line.get('item')
-            count = len([line for line in order_lines if line.get('item').id == item.id])
-            if(item.stock < count):
-                raise ValidationError('{} is not in stock'.format(item.name))
 
         for line_dict in order_lines:
             ingredients = line_dict.get('ingredients')

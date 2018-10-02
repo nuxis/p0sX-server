@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User as DjangoUser
 from django.db import models
 
@@ -82,7 +84,8 @@ class Order(models.Model):
 
     @property
     def info(self):
-        return f"{self.sum} {self.date:%Y-%m-%d %H:%M:%S}"
+        localtime = self.date + timedelta(hours=2)
+        return f"{localtime:%Y-%m-%d %H:%M:%S} - {self.sum},-"
 
     @classmethod
     def create(cls, user, cashier, authenticated_user, payment_method, message):

@@ -11,7 +11,7 @@ from pos.views.littleadmin import (add_user,
                                    credit_edit,
                                    credit_overview,
                                    crew_report,
-                                   edit_user_credit,
+                                   add_user_credit,
                                    sale_overview,
                                    scan_user_card)
 from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
@@ -39,7 +39,7 @@ littleadmin_url = [
     url(r'sale/', include(sale_url, namespace='sale')),
     url(r'crew_report/', crew_report, name='crew_report'),
     url(r'scan_user_card', scan_user_card, name='scan_user_card'),
-    url(r'edit_user_credit/(?P<card>\w+)', edit_user_credit, name='edit_user_credit'),
+    url(r'add_user_credit/(?P<card>\w+)', add_user_credit, name='add_user_credit'),
     url(r'add_user/(?P<card>\w+)', add_user, name='add_user')
 ]
 

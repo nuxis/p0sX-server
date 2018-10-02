@@ -28,7 +28,7 @@ class Command(BaseCommand):
             password=password
         )
 
-        crew = ge.get_credit()
+        crew = ge.get_crew()
 
         for id, data in crew.items():
             try:

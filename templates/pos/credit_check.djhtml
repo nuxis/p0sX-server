@@ -1,36 +1,41 @@
 {% extends "base.djhtml" %}
 {% block title %}
-Check credit
+Check credit status
 {% endblock title %}
 {% block content %}
     <h1>Scan card to check credit!</h1>
 
-    <form action="" method="post">{% csrf_token %}
+    <form action="" method="post">
+        {% csrf_token %}
         {{ form }}
     </form>
 
     {% if table %}
-    <table id="table">
-        <tr>
-            <td>Credit</td>
-            <td>{{ credit }}</td>
-        </tr>
-        <tr>
-            <td>Used</td>
-            <td>{{ used }}</td>
-        </tr>
-        <tr>
-            <td>Left</td>
-            <td>{{ left }}</td>
-        </tr>
-    </table>
+    <div id="table">
+        <h1 style="margin-top: 5px;">You have {{ left }} kr left.</h1>
+        <h5>{{ used }} used of {{ credit }} kr total.</h5>
+    </div>
+    {% endif %}
+
+    {% if orders %}
+    <div id="orders">
+        <h4>Last three orders:</h4>
+        {{ orders | safe }}
+    </div>
     {% endif %}
 
     <script>
-        table = document.getElementById('table');
+        const table = document.getElementById('table');
+        const orders = document.getElementById('orders');
+
+        $("#id_card").focusout(() => {
+           $("#id_card").focus();
+        });
+
         if (table) {
             setTimeout(function () {
-                table.style.display = "none"
+                table.style.display = "none";
+                orders.style.display = "none";
             }, 10000)
         }
     </script>

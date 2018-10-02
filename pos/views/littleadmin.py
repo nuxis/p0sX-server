@@ -23,11 +23,11 @@ def check_credit(request):
             if not user:
                 return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
 
-            orders = Order.objects.filter(user_id=user.id).order_by('date')[0:3]
+            orders = Order.objects.filter(user_id=user[0].id).order_by('-date')[0:3]
 
             return render(request, 'pos/credit_check.djhtml', {
                 'form': CheckCreditForm(),
-                'orders': [o.info for o in orders],
+                'orders': get_order_details(orders),
                 'table': True,
                 'used': user[0].used,
                 'credit': user[0].credit,
@@ -40,6 +40,19 @@ def check_credit(request):
             'form': CheckCreditForm(),
             'table': False,
         })
+
+
+def get_order_details(orders):
+    value = "<ul>\n"
+    for order in orders:
+        value += f"<li><b>{order.info}</b>\n"
+        value += "<ul style='margin-left: 15px'>\n"
+
+        for line in order.orderlines.all():
+            value += f"<li>{line}</li>\n"
+        value += "</ul>\n"
+    value += "</ul>\n"
+    return value
 
 
 @login_required
@@ -69,7 +82,8 @@ def crew_report(request):
     credit_result = []
     for c in crew:
         items = OrderLine.objects.filter(order__user=c).values('item__name')\
-            .annotate(total=Sum('price'), number=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
+            .annotate(total=Sum('price'),
+                      number=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
 
         total = sum(map(lambda x: x['total'], items))
         credit_result.append({'card': c.card, 'lines': items, 'name': c.first_name + ' ' + c.last_name, 'total': total})
@@ -98,7 +112,8 @@ def credit_edit(request, card=None):
 @login_required
 def sale_overview(request):
     order_lines = OrderLine.objects.all().values('item__id', 'order__payment_method')\
-        .annotate(total=Sum('price'), sold=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
+        .annotate(total=Sum('price'),
+                  sold=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
 
     items = Item.objects.all().values('name', 'category__name', 'id', 'price')
     total = {'cash': 0, 'credit': 0, 'total': 0}
@@ -149,7 +164,7 @@ def scan_user_card(request):
             if not user:
                 return redirect('littleadmin:add_user', card=card)
 
-            return redirect('littleadmin:edit_user_credit', card=card)
+            return redirect('littleadmin:add_user_credit', card=card)
         else:
             return HttpResponseRedirect(reverse_lazy('littleadmin:scan_user_card'))
     else:
@@ -160,7 +175,7 @@ def scan_user_card(request):
 
 
 @permission_required('pos.update_credit')
-def edit_user_credit(request, card=None):
+def add_user_credit(request, card=None):
     if request.POST:
         form = AddCreditForm(request.POST)
         if form.is_valid():
@@ -171,9 +186,9 @@ def edit_user_credit(request, card=None):
                 messages.error(request, "You cannot change the credit of Crew")
                 return redirect('littleadmin:scan_user_card')
 
-            user.credit = user.credit + credit
+            user.credit = user.credit + int(credit)
             user.save()
-            messages.success(request, "Credit updated successfully")
+            messages.success(request, f"Credit updated successfully to {user.left}Kr.")
             return redirect('littleadmin:scan_user_card')
     else:
         user = get_object_or_404(User, card=card)
@@ -197,13 +212,11 @@ def add_user(request, card=None):
             credit = form.cleaned_data['credit']
             first_name = form.cleaned_data['first_name']
             last_name = form.cleaned_data['last_name']
-            phone = form.cleaned_data['phone']
-            email = form.cleaned_data['email']
 
-            user = User.create(card, credit, first_name, last_name, phone, email)
+            user = User.create(card, credit, first_name, last_name, '', '')
 
             user.save()
-            messages.success(request, "User added successfully")
+            messages.success(request, f"User added successfully, credit set to {user.left}")
             return redirect('littleadmin:scan_user_card')
         else:
             messages.error(request, "Failed to add user")
@@ -213,10 +226,3 @@ def add_user(request, card=None):
         return render(request, 'pos/add_user.djhtml', {
             'form': form
         })
-
-
-
-
-
-
-

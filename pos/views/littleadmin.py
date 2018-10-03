@@ -187,7 +187,16 @@ def add_user_credit(request, card=None):
                 messages.error(request, "You cannot change the credit of Crew")
                 return redirect('littleadmin:scan_user_card')
 
-            return redirect('littleadmin:verify_add_credit', user.id, credit)
+            try:
+                amount = int(credit)
+            except ValueError:
+                return redirect('littleadmin:add_user_credit', card)
+
+            if amount > 1000:
+                messages.error(request, "The maximum credit that can be added at once is 1000.<br />Add multiple times if more is needed")
+                return redirect('littleadmin:add_user_credit', card)
+
+            return redirect('littleadmin:verify_add_credit', user.id, amount)
         else:
             return redirect('littleadmin:add_user_credit', card)
     else:

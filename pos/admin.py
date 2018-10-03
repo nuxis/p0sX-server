@@ -19,6 +19,7 @@ class ItemIngredientAdmin(admin.ModelAdmin):
 
 
 class UserAdmin(admin.ModelAdmin):
+    search_fields = ('card', 'first_name', 'last_name',)
     pass
 
 

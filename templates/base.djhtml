@@ -32,7 +32,7 @@
     {% if messages %}
     <script>
     {% for message in messages %}
-         M.toast({html: '{{message}}'});
+         M.toast({html: '{{message | safe}}'});
     {% endfor %}
     </script>
     {% endif %}

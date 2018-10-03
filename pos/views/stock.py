@@ -32,7 +32,7 @@ class OrderLineViewSet(viewsets.ModelViewSet):
 
 
 class ItemViewSet(viewsets.ModelViewSet):
-    queryset = Item.objects.filter(active=True)
+    queryset = Item.objects.filter(active=True).order_by('name')
     serializer_class = ItemSerializer
 
 

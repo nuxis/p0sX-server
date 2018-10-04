@@ -8,8 +8,18 @@
 Credit overview
 {% endblock title %}
 {% block content %}
+<br />
+<div class="input-field">
+    <select id="user-filter" name="user-filter">
+        <option value="All">All</option>
+        <option value="Crew">Crew</option>
+        <option value="User">User</option>
+    </select>
+    <label>Filter</label>
+</div>
 
-<table>
+
+<table id="credit-table">
     <thead>
         <tr>
             <th class="">Crew:</th>
@@ -25,12 +35,12 @@ Credit overview
     <tbody>
         {% for user in users %}
 
-        <tr>
+        <tr class="{{ user.is_crew|yesno:'crew,user' }}">
             <td>
                 {% if user.is_crew %}
-                <i class="material-icons">check</i>
+                <span style="color: green; font-size: 20px">✔</span>
                 {% else %}
-                <i class="material-icons">close</i>
+                <span style="color: darkred; font-size: 20px">✖</span>
                 {% endif %}
             </td>
             <td>
@@ -61,4 +71,37 @@ Credit overview
 
 <script>
     $('table').tablesort();
+    $('select').formSelect();
+    $('#user-filter').change(e => {
+        console.log(e.target.selectedIndex);
+        switch (e.target.selectedIndex) {
+            case 0:
+                filterTable(true, true);
+                break;
+            case 1:
+                filterTable(true, false);
+                break;
+            case 2:
+                filterTable(false, true);
+                break;
+        }
+    });
+
+    function filterTable(showCrew, showUser) {
+        const table = document.getElementById("credit-table");
+        const tr = table.getElementsByTagName("tr");
+
+        for (let i = 0; i < tr.length; i++) {
+            const currentRow = $(tr[i]);
+            if((currentRow.parent('thead').length) ||
+               (currentRow.hasClass("crew") && showCrew) ||
+               (currentRow.hasClass("user") && showUser))
+            {
+                currentRow.css('display', 'table-row')
+            }
+            else{
+                currentRow.css('display', 'none')
+            }
+        }
+        }
 </script> {% endblock content %}

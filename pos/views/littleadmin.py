@@ -1,11 +1,14 @@
+import datetime
+import itertools
+
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db.models import Case, IntegerField, Sum, When
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from django.contrib import messages
 
-from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm
+from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm, CreditStatsForm
 from ..models.shift import Shift
 from ..models.stock import Item, OrderLine, Order
 from ..models.user import User, CreditUpdate
@@ -265,3 +268,54 @@ def verify_add_credit(request, user='', amount=''):
         return render(request, 'pos/verify_add_credit.djhtml', {
             'form': form
         })
+
+
+def group_credit_updates(date, group_by):
+    times = [
+        datetime.timedelta(hours=0),
+        datetime.timedelta(hours=6),
+        datetime.timedelta(hours=12),
+        datetime.timedelta(hours=18)
+    ]
+    seconds = (date.hour * 60 * 60) + (date.minute * 60) + date.second
+    seconds /= group_by.total_seconds()
+
+    index = int(seconds)
+
+    timestamp = datetime.datetime.combine(date.date(), datetime.datetime.min.time()) + times[index]
+
+    return timestamp
+
+
+@login_required()
+def add_credit_stats(request):
+    if request.POST:
+        form = CreditStatsForm(request.POST)
+        if not form.is_valid():
+            return redirect('littleadmin:add_credit_stats')
+
+        from_time = form.cleaned_data['from_time']
+        to_time = form.cleaned_data['to_time']
+
+        updates = CreditUpdate.objects.filter(timestamp__lte=to_time, timestamp__gte=from_time)
+        orders = Order.objects.filter(date__lte=to_time, date__gte=from_time)
+
+        total_out = sum([x.sum for x in orders])
+
+        total = sum([x.amount for x in updates])
+
+        form = CreditStatsForm(initial={'from_time': f"{from_time:%Y-%m-%dT%H:%M}", 'to_time': f"{to_time:%Y-%m-%dT%H:%M}"})
+    else:
+        total = 0
+        total_out = 0
+        updates = []
+        orders = []
+        form = CreditStatsForm()
+
+    return render(request, 'pos/add_credit_stats.djhtml', {
+        'updates': updates,
+        'orders': orders,
+        'total': total,
+        'total_out': total_out,
+        'form': form
+    })

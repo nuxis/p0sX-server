@@ -45,6 +45,7 @@
                 <li><a href="{% url 'littleadmin:overview' %}">Credit overview</a></li>
                 <li><a href="{% url 'littleadmin:sale:overview' %}">Sale overview</a></li>
                 <li><a href="{% url 'littleadmin:crew_report' %}">Crew report</a></li>
+                <li><a href="{% url 'littleadmin:add_credit_stats' %}">PolarPæng statz</a></li>
                 {% endif %}
                 {% if perms.pos.update_credit %}
                 <li><a href="{% url 'littleadmin:scan_user_card' %}">User credit</a></li>

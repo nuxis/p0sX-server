@@ -1,0 +1,87 @@
+{% extends "base.djhtml" %}
+{% load static %}
+{% block script %}
+<script src="{% static "js/jquery.tablesort.min.js" %}"></script>
+
+{% endblock script %}
+{% block title %}
+Add credit stats
+{% endblock title %}
+{% block content %}
+<style>
+    tfoot, thead {
+        font-weight: bold;
+    }
+</style>
+<h1>Add credit stats</h1>
+<form action="" method="post">
+{% csrf_token %}
+{{ form.as_p  }}
+<button type="submit" class="waves-effect waves-light btn cyan">Go!</button>
+</form>
+
+<div style="width: 45%; margin: 0; padding: 0; float: left">
+    <h4>Money in: {{ total }} Kr.</h4>
+    <table>
+    <thead>
+    <tr>
+        <th>Time</th>
+        <th>Crew</th>
+        <th>User</th>
+        <th>Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for update in updates %}
+        <tr>
+            <td>{{ update.timestamp|date:'Y-m-d H:i' }}</td>
+            <td>{{ update.updated_by_user }}</td>
+            <td>{{ update.user }}</td>
+            <td>{{ update.amount }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>Total</td>
+            <td></td>
+            <td></td>
+            <td>{{ total }}</td>
+        </tr>
+    </tfoot>
+    </table>
+</div>
+
+<div style="width: 45%; margin: 0; padding: 0; float: right">
+    <h4>Money out: {{ total_out }} Kr.</h4>
+    <table>
+    <thead>
+    <tr>
+        <th>Time</th>
+        <th>User</th>
+        <th>Amount</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for order in orders %}
+        <tr>
+            <td>{{ order.date|date:'Y-m-d H:i' }}</td>
+            <td>{{ order.user }}</td>
+            <td>{{ order.sum }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td>Total</td>
+            <td></td>
+            <td>{{ total_out }}</td>
+        </tr>
+    </tfoot>
+    </table>
+</div>
+
+<script>
+    $('table').tablesort();
+</script>
+{% endblock content %}

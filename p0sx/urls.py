@@ -7,6 +7,7 @@ from django.views.generic.base import RedirectView
 from django.contrib.auth import views as auth_views
 
 from pos.views.littleadmin import (add_user,
+                                   add_credit_stats,
                                    check_credit,
                                    credit_edit,
                                    credit_overview,
@@ -42,7 +43,8 @@ littleadmin_url = [
     url(r'scan_user_card', scan_user_card, name='scan_user_card'),
     url(r'add_user_credit/(?P<card>\w+)', add_user_credit, name='add_user_credit'),
     url(r'add_user/(?P<card>\w+)', add_user, name='add_user'),
-    url(r'verify_add_credit/(?P<user>\d+)/(?P<amount>\d+)', verify_add_credit, name='verify_add_credit')
+    url(r'verify_add_credit/(?P<user>\d+)/(?P<amount>\d+)', verify_add_credit, name='verify_add_credit'),
+    url(r'add_credit_stats', add_credit_stats, name='add_credit_stats')
 ]
 
 # Routers provide an easy way of automatically determining the URL conf.

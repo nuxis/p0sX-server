@@ -30,3 +30,8 @@ class AddUserForm(forms.ModelForm):
             'card': forms.HiddenInput(),
             'first_name': forms.TextInput(attrs={'autofocus': 'autofocus'})
         }
+
+
+class CreditStatsForm(forms.Form):
+    from_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+    to_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))

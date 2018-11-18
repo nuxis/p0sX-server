@@ -80,7 +80,7 @@ def credit_overview(request):
 
 @login_required
 def crew_report(request):
-    crew = User.objects.all()
+    crew = User.objects.filter(crew=True)
 
     credit_result = []
     for c in crew:

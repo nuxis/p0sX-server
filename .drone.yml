@@ -22,7 +22,7 @@ pipeline:
     deployment: p0sx-pp27-deployment
     repo: kradalby/p0sx
     container: p0sx-pp27-container
-    namespace: p0sx
+    namespace: p0sx-pp27
     secrets: [ kubernetes_server, kubernetes_cert, kubernetes_token ]
     tag:
       - ${DRONE_TAG} 

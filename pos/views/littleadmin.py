@@ -25,7 +25,7 @@ def check_credit(request):
 
         if form.is_valid():
             card = form.cleaned_data['card']
-            user = User.objects.filter(card=card)
+            user = User.objects.filter(card__iexact=card)
 
             if not user:
                 return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
@@ -104,13 +104,13 @@ def credit_edit(request, card=None):
         form = ChangeCreditForm(request.POST)
         if form.is_valid():
             credit = form.cleaned_data['credit']
-            user = get_object_or_404(User, card=card)
+            user = get_object_or_404(User, card__iexact=card)
 
             user.credit = credit
             user.save()
             return HttpResponseRedirect(reverse_lazy('littleadmin:overview'))
     else:
-        user = get_object_or_404(User, card=card)
+        user = get_object_or_404(User, card__iexact=card)
         form = ChangeCreditForm(instance=user)
 
         return render(request, 'pos/credit_edit.djhtml', {'form': form, 'target': user})
@@ -166,7 +166,7 @@ def scan_user_card(request):
         if form.is_valid():
             card = form.cleaned_data['card']
 
-            user = User.objects.filter(card=card)
+            user = User.objects.filter(card__iexact=card)
 
             if not user:
                 return redirect('littleadmin:add_user', card=card)
@@ -192,7 +192,7 @@ def fetch_credit_from_ge(request):
 
         verify_user = form.cleaned_data['card']
 
-        crew = User.objects.filter(card=verify_user)
+        crew = User.objects.filter(card__iexact=verify_user)
 
         if not crew or not crew[0].is_crew:
             messages.error(request, "Failed to verify, are you crew?")
@@ -214,7 +214,7 @@ def fetch_credit_from_ge(request):
                     continue
 
                 with transaction.atomic():
-                    users = User.objects.filter(card=item.badge)
+                    users = User.objects.filter(card__iexact=item.badge)
                     user = None
                     if not users or len(users) is not 1:
                         user = User.create(item.badge, item.amount, item.first_name, item.last_name, '', '')
@@ -251,7 +251,7 @@ def add_user_credit(request, card=None):
 
         if form.is_valid():
             credit = form.cleaned_data['credit']
-            user = get_object_or_404(User, card=card)
+            user = get_object_or_404(User, card__iexact=card)
 
             if user.is_crew:
                 messages.error(request, "You cannot change the credit of Crew")
@@ -270,7 +270,7 @@ def add_user_credit(request, card=None):
         else:
             return redirect('littleadmin:add_user_credit', card)
     else:
-        user = get_object_or_404(User, card=card)
+        user = get_object_or_404(User, card__iexact=card)
 
         if user.is_crew:
             messages.error(request, "You cannot change the credit of Crew")
@@ -313,7 +313,7 @@ def verify_add_credit(request, user='', amount=''):
         if form.is_valid():
             target = get_object_or_404(User, id=int(user))
             card = form.cleaned_data['card']
-            crew = User.objects.filter(card=card)
+            crew = User.objects.filter(card__iexact=card)
 
             if not crew or not crew[0].is_crew:
                 messages.error(request, "Failed to verify, are you crew?")

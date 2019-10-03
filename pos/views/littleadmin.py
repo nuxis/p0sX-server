@@ -198,7 +198,7 @@ def fetch_credit_from_ge(request):
             messages.error(request, "Failed to verify, are you crew?")
             return render(request, 'pos/import_geekevents.djhtml', {'items': [], 'form': CheckCreditForm()})
 
-        importer  = GeekEventsImporter(settings.GEEKEVENTS_TOKEN, settings.GEEKEVENTS_ITEM_ID)
+        importer = GeekEventsImporter(settings.GEEKEVENTS_TOKEN, settings.GEEKEVENTS_ITEM_ID)
         items = []
         try:
             items = importer.get_unfetched_items()
@@ -208,6 +208,11 @@ def fetch_credit_from_ge(request):
 
         for item in items:
             try:
+                existing_order = CreditUpdate.objects.filter(geekevents_id=item.order_id)
+                if existing_order and len(existing_order) > 0:
+                    importer.mark_as_fetched(item.item_id)
+                    continue
+
                 with transaction.atomic():
                     users = User.objects.filter(card=item.badge)
                     user = None
@@ -219,16 +224,14 @@ def fetch_credit_from_ge(request):
 
                     user.save()
 
-                    update = CreditUpdate.create(user, crew[0], item.amount, item.id)
+                    update = CreditUpdate.create(user, crew[0], item.amount, item.order_id)
                     update.save()
 
-                    success = importer.mark_as_fetched(item.id)
+                    success = importer.mark_as_fetched(item.item_id)
                     if not success:
                         transaction.rollback()
                         messages.error(request, f"Failed to mark the item as fetched for user {item.first_name} {item.last_name}")
                         continue
-
-                    transaction.commit()
               
                 messages.success(request, f"Imported {item.amount},- for {item.first_name} {item.last_name}")
             except:

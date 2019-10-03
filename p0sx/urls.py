@@ -15,6 +15,7 @@ from pos.views.littleadmin import (add_user,
                                    add_user_credit,
                                    sale_overview,
                                    scan_user_card,
+                                   fetch_credit_from_ge,
                                    verify_add_credit)
 from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
@@ -40,6 +41,7 @@ littleadmin_url = [
     url(r'edit_crew_credit/(?P<card>\w+)', credit_edit, name='edit_crew_credit'),
     url(r'sale/', include(sale_url, namespace='sale')),
     url(r'crew_report/', crew_report, name='crew_report'),
+    url(r'fetch_from_ge/', fetch_credit_from_ge, name='fetch_credit_from_ge'),
     url(r'scan_user_card', scan_user_card, name='scan_user_card'),
     url(r'add_user_credit/(?P<card>\w+)', add_user_credit, name='add_user_credit'),
     url(r'add_user/(?P<card>\w+)', add_user, name='add_user'),

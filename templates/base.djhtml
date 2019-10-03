@@ -9,6 +9,15 @@
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+         document.addEventListener('DOMContentLoaded', function() {
+            var elems = document.querySelectorAll('.datepicker');
+            var instances = M.Datepicker.init(elems, {});
+
+            var elems2 = document.querySelectorAll('.timepicker');
+            var instances2 = M.Timepicker.init(elems, {});
+        });
+    </script>
     
     {% block script%}
     {% endblock script %}
@@ -29,13 +38,6 @@
 </head>
 
 <body>
-    {% if messages %}
-    <script>
-    {% for message in messages %}
-         M.toast({html: '{{message | safe}}'});
-    {% endfor %}
-    </script>
-    {% endif %}
     <nav>
         <div class="nav-wrapper cyan">
             <a href="#" class="brand-logo">p0sX a little admin</a>
@@ -50,6 +52,9 @@
                 {% if perms.pos.update_credit %}
                 <li><a href="{% url 'littleadmin:scan_user_card' %}">User credit</a></li>
                 {% endif %}
+                {% if perms.pos.import_credit %}
+                <li><a href="{% url 'littleadmin:fetch_credit_from_ge' %}">Fetch PolarPæng from GE</a></li>
+                {% endif %}
                 {% if user.is_authenticated %}
                 <li><a href="{% url 'logout' %}">Logout</a></li>
                 {% endif %}
@@ -60,6 +65,16 @@
         <div class="container">
             {% block content %}{% endblock content %}
         </div>
+        {% if messages %}
+            <div class="container">
+                <ul>
+                {% for message in messages %}
+                    <li><b>{{message}}</b></li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        
     </main>
     <footer class="page-footer cyan">
         <div class="footer-copyright">

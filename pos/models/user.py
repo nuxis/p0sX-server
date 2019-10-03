@@ -9,16 +9,18 @@ class CreditUpdate(models.Model):
     user = models.ForeignKey('User', related_name='user')
     updated_by_user = models.ForeignKey('User', related_name='updated_by_user')
     amount = models.IntegerField()
+    geekevents_id = models.IntegerField(null=True, blank=True, default=None)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
-    def create(cls, user, updated_by_user, amount):
-        update = cls(user=user, updated_by_user=updated_by_user, amount=amount)
+    def create(cls, user, updated_by_user, amount, geekevents_id = None):
+        update = cls(user=user, updated_by_user=updated_by_user, amount=amount, geekevents_id=geekevents_id)
 
         return update
 
     def __str__(self):
-        return f'{self.updated_by_user} added {self.amount} kr to {self.user}'
+        extra = f' from GeekEvents item {self.geekevents_id}' if self.geekevents_id is not None else ''
+        return f'{self.updated_by_user} added {self.amount} kr to {self.user}{extra}'
 
 
 class User(models.Model):
@@ -59,6 +61,7 @@ class User(models.Model):
     class Meta:
         permissions = (
             ("update_credit", "Can update the credit limit on a user"),
+            ("import_credit", "Can import credit from GeekEvents"),
         )
 
 

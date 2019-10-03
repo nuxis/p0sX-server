@@ -2,7 +2,9 @@ import datetime
 import itertools
 
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db import transaction
 from django.db.models import Case, IntegerField, Sum, When
+from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
@@ -13,6 +15,8 @@ from ..models.shift import Shift
 from ..models.stock import Item, OrderLine, Order
 from ..models.user import User, CreditUpdate
 from ..serializers.shift import ShiftSerializer
+
+from ..ge_importer import GeekEventsImporter, GeekEventsItem
 
 
 def check_credit(request):
@@ -176,6 +180,66 @@ def scan_user_card(request):
             'table': False,
         })
 
+
+@permission_required('pos.import_credit')
+def fetch_credit_from_ge(request):
+    if request.POST:
+        form = CheckCreditForm(request.POST)
+
+        if not form.is_valid():
+            messages.error(request, "Failed to verify, are you crew?")
+            return render(request, 'pos/import_geekevents.djhtml', {'items': [], 'form': CheckCreditForm()})
+
+        verify_user = form.cleaned_data['card']
+
+        crew = User.objects.filter(card=verify_user)
+
+        if not crew or not crew[0].is_crew:
+            messages.error(request, "Failed to verify, are you crew?")
+            return render(request, 'pos/import_geekevents.djhtml', {'items': [], 'form': CheckCreditForm()})
+
+        importer  = GeekEventsImporter(settings.GEEKEVENTS_TOKEN, settings.GEEKEVENTS_ITEM_ID)
+        items = []
+        try:
+            items = importer.get_unfetched_items()
+        except:
+            messages.error(request, f"Failed to get list of items from GeekEvents")
+            return render(request, 'pos/import_geekevents.djhtml', {'items': [], 'form': CheckCreditForm()})
+
+        for item in items:
+            try:
+                with transaction.atomic():
+                    users = User.objects.filter(card=item.badge)
+                    user = None
+                    if not users or len(users) is not 1:
+                        user = User.create(item.badge, item.amount, item.first_name, item.last_name, '', '')
+                    else:
+                        user = users[0]
+                        user.credit += item.amount
+
+                    user.save()
+
+                    update = CreditUpdate.create(user, crew[0], item.amount, item.id)
+                    update.save()
+
+                    success = importer.mark_as_fetched(item.id)
+                    if not success:
+                        transaction.rollback()
+                        messages.error(request, f"Failed to mark the item as fetched for user {item.first_name} {item.last_name}")
+                        continue
+
+                    transaction.commit()
+              
+                messages.success(request, f"Imported {item.amount},- for {item.first_name} {item.last_name}")
+            except:
+                messages.error(request, f"Failed to mark the item as fetched for user {item.first_name} {item.last_name}")
+
+
+            
+
+        return render(request, 'pos/import_geekevents.djhtml', {'items': items, 'form': CheckCreditForm()})
+    else:
+        return render(request, 'pos/import_geekevents.djhtml', {'items': [], 'form': CheckCreditForm()})
 
 @permission_required('pos.update_credit')
 def add_user_credit(request, card=None):

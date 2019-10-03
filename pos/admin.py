@@ -6,7 +6,7 @@ from pos.models.user import User, CreditUpdate
 
 
 class CreditUpdateAdmin(admin.ModelAdmin):
-    readonly_fields = ('timestamp', 'amount', 'user', 'updated_by_user')
+    readonly_fields = ('timestamp', 'amount', 'user', 'updated_by_user', 'geekevents_id')
     pass
 
 
@@ -20,6 +20,11 @@ class ItemIngredientAdmin(admin.ModelAdmin):
 
 class UserAdmin(admin.ModelAdmin):
     search_fields = ('card', 'first_name', 'last_name',)
+    list_display = ('full_name', 'credit',)
+
+    def full_name(self, obj):
+        return "{} {}".format(obj.first_name, obj.last_name) 
+
     pass
 
 

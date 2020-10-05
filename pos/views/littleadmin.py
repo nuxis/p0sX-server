@@ -1,18 +1,21 @@
 import datetime
-import itertools
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
 from django.db.models import Case, IntegerField, Sum, When
 from django.conf import settings
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib import messages
+from django.views.generic import TemplateView
+from django.utils import timezone
+from django.utils.decorators import method_decorator
 
 from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm, CreditStatsForm
 from ..models.shift import Shift
 from ..models.stock import Item, OrderLine, Order
+from ..models.sumup import SumUpTransaction, SumUpAPIKey
 from ..models.user import User, CreditUpdate
 from ..serializers.shift import ShiftSerializer
 
@@ -232,13 +235,13 @@ def fetch_credit_from_ge(request):
                         transaction.rollback()
                         messages.error(request, f"Failed to mark the item as fetched for user {item.first_name} {item.last_name}")
                         continue
-              
+
                 messages.success(request, f"Imported {item.amount},- for {item.first_name} {item.last_name}")
             except:
                 messages.error(request, f"Failed to mark the item as fetched for user {item.first_name} {item.last_name}")
 
 
-            
+
 
         return render(request, 'pos/import_geekevents.djhtml', {'items': items, 'form': CheckCreditForm()})
     else:
@@ -277,8 +280,63 @@ def add_user_credit(request, card=None):
             return redirect('littleadmin:scan_user_card')
 
         form = AddCreditForm()
+        sumup_url = reverse('littleadmin:add_user_credit_sumup', kwargs={'card': card})
+        return render(request, 'pos/add_credit.djhtml', {'form': form, 'target': user, 'sumup_url': sumup_url})
 
-        return render(request, 'pos/add_credit.djhtml', {'form': form, 'target': user})
+
+class AddUserSumupCredit(TemplateView):
+    UPDATE_SECONDS = 300
+
+    template_name = 'pos/add_credit_sumup.djhtml'
+    transaction = None
+    user = None
+
+    @method_decorator(login_required)
+    @method_decorator(permission_required('pos.update_credit'))
+    def dispatch(self, *args, **kwargs):
+        self.user = get_object_or_404(User, card__iexact=kwargs.get('card', None))
+        self.transaction = SumUpTransaction.objects.all().filter(handled=False, pk=kwargs.get('transaction_id',
+                                                                                              0)).first()
+        return super().dispatch(*args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.user
+        for key in SumUpAPIKey.objects.all():
+            key.get_unhandled_transactions(self.UPDATE_SECONDS)
+        context['available'] = SumUpTransaction.objects.all().filter(
+            timestamp__gte=timezone.now() - datetime.timedelta(seconds=self.UPDATE_SECONDS),
+            status='SUCCESSFUL', handled=False
+        )
+        context['seconds'] = self.UPDATE_SECONDS
+        context['url'] = self.request.path
+        context['form'] = CheckCreditForm()
+        context['trans'] = self.transaction
+        return context
+
+    def get(self, *args, **kwargs):
+        if kwargs.get('verify', None):
+            self.template_name = 'pos/add_credit_sumup_confirm.djhtml'
+        return super().get(*args, **kwargs)
+
+
+    def post(self, *args, **kwargs):
+        if not self.transaction:
+            # Crewmember must input badge ID
+            self.transaction = get_object_or_404(
+                SumUpTransaction,
+                pk=self.request.POST.get('transaction_id', None),
+                handled=False
+            )
+            return HttpResponse(reverse('littleadmin:add_user_credit_sumup_verify', kwargs={
+                'card': self.user.card,
+                'transaction_id': self.transaction.pk,
+            }))
+        self.crew_badge_id = self.request.POST.get('card', None)
+        self.crew_member = get_object_or_404(User, card__iexact=self.crew_badge_id)
+        self.transaction.use_on_user(self.user, self.crew_member)
+        messages.success(self.request, f"Success! Credit set to {self.user.left}")
+        return redirect('littleadmin:scan_user_card')
 
 
 @permission_required('pos.update_credit')

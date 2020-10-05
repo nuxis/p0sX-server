@@ -7,29 +7,36 @@ Add credit
 <h1>Add credit to {{ target.first_name }} {{ target.last_name }}</h1>
 <h3>Current credit: {{ target.left }}Kr.</h3>
 <p>
-    <button onclick="addCredit(50)" class="waves-effect waves-light btn-large cyan">+50</button>
-    <button onclick="addCredit(100)" class="waves-effect waves-light btn-large cyan">+100</button>
-    <button onclick="addCredit(200)" class="waves-effect waves-light btn-large cyan">+200</button>
-    <button onclick="addCredit(500)" class="waves-effect waves-light btn-large cyan">+500</button>
+    <span class="manual-amount" style="display: none;">
+        <button onclick="addCredit(50)" class="waves-effect waves-light btn-large cyan">+50</button>
+        <button onclick="addCredit(100)" class="waves-effect waves-light btn-large cyan">+100</button>
+        <button onclick="addCredit(200)" class="waves-effect waves-light btn-large cyan">+200</button>
+        <button onclick="addCredit(500)" class="waves-effect waves-light btn-large cyan">+500</button>
+    </span>
+    <button onClick="$('.manual-amount').show();" class="waves-effect waves-light btn-large cyan">Manual amount</button>
+    <button onClick="window.location = '{{ sumup_url }}'" class="waves-effect waves-light btn-large cyan">SumUp</button>
 </p>
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form }}
-    <button type="submit" class="waves-effect waves-light btn cyan">Save</button>
-</form>
 
-<script>
-    const field = $("#id_credit");
+<div style="display: none" class="manual-amount">
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <button type="submit" class="waves-effect waves-light btn cyan">Save</button>
+    </form>
 
-    field.focus();
-    field.focusout(() => {
+    <script>
+        const field = $("#id_credit");
+
         field.focus();
-    });
+        field.focusout(() => {
+            field.focus();
+        });
 
-    function addCredit(value) {
-        const current = +field.val();
-        field.val(current + value);
-    }
-</script>
+        function addCredit(value) {
+            const current = +field.val();
+            field.val(current + value);
+        }
+    </script>
+</div>
 
 {% endblock content %}

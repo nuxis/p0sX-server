@@ -1,0 +1,41 @@
+{% extends "base.djhtml" %}
+{% block title %}
+    Add credit
+{% endblock title %}
+{% block content %}
+
+    <h1>Add credit to {{ user.first_name }} {{ user.last_name }} with SumUp</h1>
+    <h3>Current credit: {{ user.left }}Kr.</h3>
+
+    <div>
+        {% if available %}
+            {% for trans in available %}
+                <div data-trans-id="{{ trans.pk }}" class="waves-effect waves-light btn-large cyan goto-sumup" style="margin-bottom: 0.5em;">
+                    {{ trans.timestamp }} | {{ trans.amount }} {% if trans.summary  %}- {{ trans.summary }}{%  endif %}
+                </div>
+                <br />
+            {% endfor %}
+        {% else %}
+            No available transactions within the past {{ seconds }} seconds.
+        {% endif %}
+    </div>
+    {% csrf_token %}
+
+    <script>
+    $('.goto-sumup').on('click', e => {
+      let id = $(e.target).data('trans-id');
+      $('.goto-sumup').attr('disabled', 'disabled');
+      $.ajax({
+        'url': "{{ url }}",
+        'method': 'POST',
+        'data': {'transaction_id': id, 'csrfmiddlewaretoken': "{{ csrf_token }}"},
+        'success': ret => {
+          window.location = ret;
+        }
+      })
+    })
+    </script>
+
+
+
+{% endblock content %}

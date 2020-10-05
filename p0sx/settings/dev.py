@@ -1,6 +1,6 @@
 from p0sx.settings.base import *
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['polar.tla.wtf', 'localhost']
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'secret'
@@ -17,3 +17,5 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+SITE_URL = 'https://polar.tla.wtf'

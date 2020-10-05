@@ -1,0 +1,22 @@
+{% extends "base.djhtml" %}
+{% block title %}
+    Verify add credit
+{% endblock title %}
+{% block content %}
+    <h1>Scan crew badge to verify</h1>
+
+    <p>Adding {{ trans.amount }}kr to user {{ user }}</p>
+
+    <form action="" method="post">
+        {% csrf_token %}
+        {{ form }}
+    </form>
+    <script>
+      const field = $("#id_card");
+
+      field.focus();
+      field.focusout(() => {
+        field.focus();
+      });
+    </script>
+{% endblock content %}

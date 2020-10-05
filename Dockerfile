@@ -10,7 +10,10 @@ RUN mkdir -p $DIR
 WORKDIR $DIR
 
 # Install requirements
-COPY ./requirements $DIR/requirements
+RUN mkdir -p $DIR/requirements
+COPY ./requirements/base.txt $DIR/requirements/base.txt
+COPY ./requirements/production.txt $DIR/requirements/production.txt
+RUN pip install -r requirements/base.txt --upgrade
 RUN pip install -r requirements/production.txt --upgrade
 
 # Copy project files

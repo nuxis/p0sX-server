@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
+from pos.models.sumup import SumUpAPIKey, SumUpTerminal, SumUpTransaction
 from pos.models.user import User, CreditUpdate
 
 
@@ -23,7 +24,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('full_name', 'credit',)
 
     def full_name(self, obj):
-        return "{} {}".format(obj.first_name, obj.last_name) 
+        return "{} {}".format(obj.first_name, obj.last_name)
 
     pass
 
@@ -67,6 +68,15 @@ class CategoryAdmin(admin.ModelAdmin):
 class ShiftAdmin(admin.ModelAdmin):
     pass
 
+class SumUpAPIKeyAdmin(admin.ModelAdmin):
+    pass
+
+class SumUpTerminalAdmin(admin.ModelAdmin):
+    pass
+
+class SumUpTransactionAdmin(admin.ModelAdmin):
+    pass
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
@@ -78,3 +88,7 @@ admin.site.register(Shift, ShiftAdmin)
 admin.site.register(ItemIngredient, ItemIngredientAdmin)
 admin.site.register(Discount, DiscountAdmin)
 admin.site.register(CreditUpdate, CreditUpdateAdmin)
+
+admin.site.register(SumUpAPIKey, SumUpAPIKeyAdmin)
+admin.site.register(SumUpTerminal, SumUpTerminalAdmin)
+admin.site.register(SumUpTransaction, SumUpTransactionAdmin)

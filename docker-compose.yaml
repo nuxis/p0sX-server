@@ -1,0 +1,46 @@
+
+version: "3.5"
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - DJANGO_SETTINGS_MODULE=p0sx.settings.dev
+    image: p0sx-server
+    command: ./manage.py runserver_plus 0.0.0.0:8000
+    volumes:
+      - ".:/srv/app"
+      - "./media:/media"
+      - "./logs:/logs"
+      - "pip-cache:/tmp/pip"
+      - "ipython-data-local:/root/.ipython/profile_default"   # persist ipython data, including ipython history
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "8000:8000"
+    restart: always
+
+  server-ext:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      - DJANGO_SETTINGS_MODULE=p0sx.settings.dev
+    image: p0sx-server
+    volumes:
+      - ".:/srv/app"
+      - "./media:/media"
+      - "./logs:/logs"
+      - "pip-cache:/tmp/pip"
+      - "ipython-data-local:/root/.ipython/profile_default"   # persist ipython data, including ipython history
+      - "/etc/localtime:/etc/localtime:ro"
+    ports:
+      - "8080:8080"
+    restart: always
+
+volumes:
+  pip-cache:
+    driver: local
+  ipython-data-local:
+    driver: local

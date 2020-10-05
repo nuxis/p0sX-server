@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_extensions',
     'pos',
     'rest_framework',
     'rest_framework.authtoken',
@@ -134,3 +135,4 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
 MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = '/littleadmin/scan_user_card'
+SITE_URL = 'https://gluttony.pp285.polar.party'

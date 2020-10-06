@@ -219,7 +219,7 @@ def fetch_credit_from_ge(request):
                 with transaction.atomic():
                     users = User.objects.filter(card__iexact=item.badge)
                     user = None
-                    if not users or len(users) is not 1:
+                    if not users or len(users) != 1:
                         user = User.create(item.badge, item.amount, item.first_name, item.last_name, '', '')
                     else:
                         user = users[0]

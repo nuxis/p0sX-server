@@ -1,5 +1,6 @@
 # p0sX
-[![Build Status](https://drone.fap.no/api/badges/nuxis/p0sX-server/status.svg)](https://drone.fap.no/nuxis/p0sX-server)
+![Build Status](https://github.com/nuxis/p0sX-server/workflows/p0sx-server-build/badge.svg?branch=master&event=push)
+
 
 Point of sale system for LAN parties.
 

@@ -1,7 +1,5 @@
 FROM python:3.7.0
 
-MAINTAINER Kristoffer Dalby
-
 ENV NAME=p0sx
 
 ENV DIR=/srv/app

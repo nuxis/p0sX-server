@@ -1,4 +1,4 @@
-FROM python:3.7.0
+FROM python:3.7
 
 ENV NAME=p0sx
 

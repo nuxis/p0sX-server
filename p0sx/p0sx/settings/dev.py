@@ -1,6 +1,6 @@
 from p0sx.settings.base import *
 
-ALLOWED_HOSTS = ['polar.tla.wtf', 'localhost']
+ALLOWED_HOSTS = ['*']
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'secret'

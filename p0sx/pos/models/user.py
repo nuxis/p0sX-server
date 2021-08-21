@@ -6,8 +6,8 @@ from .stock import Order
 
 
 class CreditUpdate(models.Model):
-    user = models.ForeignKey('User', related_name='user')
-    updated_by_user = models.ForeignKey('User', related_name='updated_by_user')
+    user = models.ForeignKey('User', related_name='user', on_delete=models.CASCADE)
+    updated_by_user = models.ForeignKey('User', related_name='updated_by_user', on_delete=models.CASCADE)
     amount = models.IntegerField()
     geekevents_id = models.IntegerField(null=True, blank=True, default=None)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -68,5 +68,5 @@ class User(models.Model):
 class UserSession(models.Model):
     start = models.DateTimeField(auto_now_add=True)
     end = models.DateTimeField()
-    user = models.ForeignKey(User)
-    django_user = models.ForeignKey(DjangoUser, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    django_user = models.ForeignKey(DjangoUser, blank=True, on_delete=models.CASCADE)

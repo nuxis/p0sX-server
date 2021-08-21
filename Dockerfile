@@ -6,9 +6,8 @@ COPY ./requirements/dev.txt /requirements.txt
 RUN pip install -r /requirements.txt
 
 COPY . /code
-
-EXPOSE 8080 8081
-
 WORKDIR "/code"
+RUN "./bin/collectstatic.sh"
+
 ENTRYPOINT ["./entry.sh"]
 CMD ["devserver"]

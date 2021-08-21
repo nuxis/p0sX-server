@@ -1,10 +1,13 @@
 version: "3.5"
 
+# Combination of dev and prod; image is built on the server like dev, but the code is not mounted inside the container.
+
 x-env: &env
   env_file:
-    - config/env/base.env
-    - config/env/generated.env
-    - config/env/local.env
+    - ./config/env/base.env
+    - ./config/env/prod.env
+    - ./config/env/generated.env
+    - ./config/env/local.env
 
 services:
   server:
@@ -15,12 +18,11 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=p0sx.settings.env
     image: p0sx-server
-    command: devserver
+    command: prod
     depends_on:
       - postgres
       - redis
     volumes:
-      - ".:/code"
       - "./media:/media"
       - "./logs:/logs"
       - "pip-cache:/tmp/pip"
@@ -28,6 +30,7 @@ services:
       - "/etc/localtime:/etc/localtime:ro"
     ports:
       - "8000:8000"
+      - "8001:8001"
     restart: always
 
   postgres:
@@ -36,8 +39,6 @@ services:
     volumes:
       - "postgres_data:/var/lib/postgresql/data"
     restart: always
-    ports:
-      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -59,7 +60,6 @@ services:
     environment:
       - C_FORCE_ROOT=1
     volumes:
-      - ".:/code"
       - "./media:/media"
       - "./logs:/logs"
       - "/etc/localtime:/etc/localtime:ro"
@@ -68,7 +68,6 @@ services:
       - postgres
       - redis
     restart: always
-
 
 volumes:
   pip-cache:

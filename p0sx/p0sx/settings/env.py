@@ -26,3 +26,12 @@ DATABASES = {
 }
 
 SITE_URL = env.str('SITE_URL')
+CELERY_RESULT_BACKEND = 'django-db'
+BROKER_URL = 'redis://{host}:{port}/{number}'.format(
+    host=env.str('CELERY_BROKER_HOST'),
+    port=env.str('CELERY_BROKER_PORT', default='6379'),
+    number=env.int('CELERY_BROKER_NUMBER')
+),
+
+STATIC_ROOT = env.str('STATIC_ROOT')
+MEDIA_ROOT = env.str('MEDIA_ROOT')

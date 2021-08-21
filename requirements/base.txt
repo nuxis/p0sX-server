@@ -5,3 +5,4 @@ django-extensions==1.7.2
 Werkzeug==0.15.3
 ipython
 https://github.com/kradalby/pyGE/archive/master/0.0.4.zip 
+django-environ

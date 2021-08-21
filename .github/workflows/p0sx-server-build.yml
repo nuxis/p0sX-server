@@ -1,16 +1,26 @@
 name: Build p0sx-Server
 on: [push]
+
+env:
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "postgres"
+  POSTGRES_DB: "github_actions"
+  POSTGRES_HOST: "localhost"
+  ALLOWED_HOSTS: '*'
+  SECRET_KEY: "testingonetwoonetwo"
+  SITE_URL: "localhost"
+  DJANGO_SETTINGS_MODULE: "p0sx.settings.env"
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     services:
       postgres:
-        image: postgres:11.7-alpine
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: github_actions
+          POSTGRES_USER: "postgres"
+          POSTGRES_PASSWORD: "postgres"
+          POSTGRES_DB: "github_actions"
+        image: postgres:11.7-alpine
         ports:
           - 5432:5432
         # needed because the postgres container does not provide a healthcheck
@@ -30,13 +40,13 @@ jobs:
           pip install -r requirements/lint.txt
           pip install -r requirements/production.txt
       - name: Run migrations
-        run: python manage.py migrate
+        run: cd p0sx && python manage.py migrate
       - name: Run tests
-        run: python manage.py test
+        run: cd p0sx && python manage.py test
       - name: Lint with flake8
         run: |
           pip install flake8
           # stop the build if there are Python syntax errors or undefined names
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 p0sx --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          flake8 p0sx --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics

@@ -1,29 +1,15 @@
-FROM python:3.7.0
+FROM python:3.7
 
-MAINTAINER Kristoffer Dalby
+ENV DJANGO_SETTINGS_MODULE=p0sx.settings.env
+RUN mkdir /requirements
+COPY ./requirements/base.txt /requirements/
+COPY ./requirements/production.txt /requirements/
+RUN pip install -r /requirements/base.txt
+RUN pip install -r /requirements/production.txt
 
-ENV NAME=p0sx
-
-ENV DIR=/srv/app
-
-RUN mkdir -p $DIR
-WORKDIR $DIR
-
-# Install requirements
-RUN mkdir -p $DIR/requirements
-COPY ./requirements/base.txt $DIR/requirements/base.txt
-COPY ./requirements/production.txt $DIR/requirements/production.txt
-RUN pip install -r requirements/base.txt --upgrade
-RUN pip install -r requirements/production.txt --upgrade
-
-# Copy project files
-COPY . $DIR
-
-RUN mkdir -p static media
-ENV DJANGO_SETTINGS_MODULE=$NAME.settings.base
-RUN python manage.py collectstatic --noinput --clear
-ENV DJANGO_SETTINGS_MODULE=$NAME.settings.prod
+COPY . /code
 
 EXPOSE 8080 8081
 
-CMD ["sh", "docker-entrypoint.sh"]
+ENTRYPOINT ["/code/entry.sh"]
+CMD ["devserver"]

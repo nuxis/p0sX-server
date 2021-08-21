@@ -32,7 +32,7 @@ class AllShiftsViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class NewShiftViewSet(viewsets.ViewSet):
-
+    queryset = Shift.objects.none()
     def create(self, request, *args, **kwargs):
 
         serializer = NewShiftSerializer(data=request.data)

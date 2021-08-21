@@ -48,7 +48,7 @@ class Item(models.Model):
     barcode = models.CharField(max_length=255)
     active = models.BooleanField(blank=False, default=True, db_index=True)
     image = models.ImageField(upload_to='', blank=True)
-    category = models.ForeignKey(Category)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
     created_in_the_kitchen = models.BooleanField(blank=False, default=False)
 
     def __str__(self):
@@ -56,8 +56,8 @@ class Item(models.Model):
 
 
 class ItemIngredient(models.Model):
-    item = models.ForeignKey(Item)
-    ingredient = models.ForeignKey(Ingredient)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
     default = models.BooleanField(default=False)
     exclusive = models.BooleanField(default=False)
 
@@ -70,9 +70,9 @@ class ItemIngredient(models.Model):
 
 class Order(models.Model):
     user = models.ForeignKey(
-        'User', related_name='purchasing_user', blank=True, null=True, db_index=True)
-    cashier = models.ForeignKey('User', related_name='cashier')
-    authenticated_user = models.ForeignKey(DjangoUser)
+        'User', related_name='purchasing_user', blank=True, null=True, db_index=True, on_delete=models.CASCADE)
+    cashier = models.ForeignKey('User', related_name='cashier', on_delete=models.CASCADE)
+    authenticated_user = models.ForeignKey(DjangoUser, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     state = models.SmallIntegerField(default=0, choices=ORDER_STATE)
     payment_method = models.SmallIntegerField(
@@ -104,9 +104,9 @@ class Order(models.Model):
 
 class OrderLine(models.Model):
     ingredients = models.ManyToManyField(Ingredient, blank=True)
-    item = models.ForeignKey(Item, db_index=True)
+    item = models.ForeignKey(Item, db_index=True, on_delete=models.CASCADE)
     price = models.IntegerField()
-    order = models.ForeignKey(Order, related_name='orderlines', db_index=True)
+    order = models.ForeignKey(Order, related_name='orderlines', db_index=True, on_delete=models.CASCADE)
 
     def __str__(self):
         s = self.item.name
@@ -156,5 +156,5 @@ class CreditCheck:
 class Discount(models.Model):
     payment_method = models.SmallIntegerField(
         choices=PAYMENT_METHOD, default=0)
-    item = models.ForeignKey(Item)
+    item = models.ForeignKey(Item, on_delete=models.CASCADE)
     expression = models.TextField()

@@ -4,12 +4,10 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
-
 function migrate {
     cd /code/p0sx
     python manage.py migrate
 }
-
 
 function prod {
     echo Starting uwsgi.
@@ -31,6 +29,18 @@ function prod {
 function devserver {
     cd /code/p0sx
     python manage.py runserver_plus 0.0.0.0:8000
+}
+
+function compile-pip {
+  echo "Compiling pip requirements"
+  echo "Base requirements..."
+  pip-compile requirements/base.in --output-file requirements/base.txt
+  echo "Lint requirements..."
+  pip-compile requirements/lint.in --output-file requirements/lint.txt
+  echo "Dev requirements..."
+  pip-compile requirements/dev.in --output-file requirements/dev.txt
+  echo "Prod requirements..."
+  pip-compile requirements/prod.in --output-file requirements/prod.txt
 }
 
 "$@"

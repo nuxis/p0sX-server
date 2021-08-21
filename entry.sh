@@ -10,7 +10,7 @@ function migrate {
 }
 
 function prod {
-    echo Starting uwsgi.
+    echo Starting uwsgi
     exec uwsgi --chdir=/code/p0sx \
         --module=p0sx.wsgi:application \
         --env DJANGO_SETTINGS_MODULE=p0sx.settings.prod \
@@ -21,8 +21,8 @@ function prod {
         --harakiri=20 \
         --max-requests=5000 \
         --offload-threads=4 \
-        --static-map=/static=/srv/app/collected_static \
-        --static-map=/media=/srv/app/media \
+        --static-map=/static=/code/collected_static \
+        --static-map=/media=/code/media \
         --vacuum
 }
 

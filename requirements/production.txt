@@ -1,4 +1,4 @@
 -r base.txt
 uwsgi
 psycopg2==2.7.5
-pillow==7.1.0
+pillow==8.2.0

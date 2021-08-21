@@ -12,10 +12,16 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from version import VERSION
+import re
+from utils import get_release
 from django.conf.locale.en import formats as en_formats
 
 en_formats.DATETIME_FORMAT = "Y-m-d H:i:s"
+
+# Derives version number/ID from git tag
+VERSION = get_release()
+# Derives numeric semver compatible version from the above string
+VERSION_NUMERIC = re.findall(r'([\d\.]*\d+)', VERSION)[0]
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,7 +30,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'override secret in dev.py or prod.py'
+# Do not change the value here; override it elsewhere
+SECRET_KEY = None
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False

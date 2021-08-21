@@ -1,7 +1,7 @@
-Django==1.11.29
-django-filter==1.1.0
-djangorestframework==3.9.1
-django-extensions==1.7.2
+Django
+django-filter
+djangorestframework
+django-extensions
 Werkzeug==0.15.3
 ipython
 https://github.com/kradalby/pyGE/archive/master/0.0.4.zip 

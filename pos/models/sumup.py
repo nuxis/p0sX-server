@@ -51,7 +51,7 @@ class SumUpTerminal(models.Model):
     """
     Aa physical terminal
     """
-    key = models.ForeignKey(SumUpAPIKey, related_name='terminals')
+    key = models.ForeignKey(SumUpAPIKey, related_name='terminals', on_delete=models.CASCADE)
     serial = models.CharField(max_length=32)
 
 
@@ -63,7 +63,7 @@ class SumUpTransaction(models.Model):
             self.summary,
             'Handled' if self.handled else 'Unhandled'
         )
-    key = models.ForeignKey(SumUpAPIKey, related_name='transactions')
+    key = models.ForeignKey(SumUpAPIKey, related_name='transactions', on_delete=models.CASCADE)
     handled = models.BooleanField(default=False)
 
     transaction_id = models.CharField(max_length=256)

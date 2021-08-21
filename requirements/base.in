@@ -1,0 +1,11 @@
+Django>=3.2,<4
+django-filter
+djangorestframework
+django-extensions
+Werkzeug
+ipython
+https://github.com/kradalby/pyGE/archive/master/0.0.4.zip 
+django-environ
+pip-tools
+Pillow>=7.1
+psycopg2

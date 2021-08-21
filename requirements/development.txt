@@ -1,3 +1,0 @@
--r base.txt
-# -r lint.txt
-Pillow==7.1.0

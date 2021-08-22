@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from pos.models import Receipt
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
 from pos.models.sumup import SumUpAPIKey, SumUpTerminal, SumUpTransaction
@@ -92,3 +93,5 @@ admin.site.register(CreditUpdate, CreditUpdateAdmin)
 admin.site.register(SumUpAPIKey, SumUpAPIKeyAdmin)
 admin.site.register(SumUpTerminal, SumUpTerminalAdmin)
 admin.site.register(SumUpTransaction, SumUpTransactionAdmin)
+
+admin.site.register(Receipt, admin.ModelAdmin)

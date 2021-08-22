@@ -79,5 +79,6 @@ urlpatterns = [
     url(r'^logout/$', auth_views.LoginView.as_view, {'next_page': '/login'}, name='logout'),
     url(r'^admin/', admin.site.urls),
     url(r'^', include(router.urls)),
+    url(r'node/', include('node.urls')),
     url(r'littleadmin/', include((littleadmin_url, "pos"), namespace="littleadmin"))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

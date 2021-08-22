@@ -16,3 +16,4 @@ uwsgi
 pytest
 pytest-pythonpath
 sentry-sdk
+django-model-utils

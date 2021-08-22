@@ -6,7 +6,7 @@ set -o nounset
 
 function migrate {
     cd /code/p0sx
-    python manage.py migrate
+    python manage.py migrate "$@"
 }
 
 function prod {
@@ -33,7 +33,7 @@ function devserver {
 
 function manage {
     cd /code/p0sx
-    python manage.py
+    python manage.py "$@"
 }
 
 function shell {
@@ -47,7 +47,7 @@ function run_celery {
 }
 
 function test {
-  py.test
+  py.test "$@"
 }
 
 function compile-pip {

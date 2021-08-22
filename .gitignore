@@ -1,10 +1,12 @@
 config/env/generated.env
-.env
 venv/
 collected_static/
 prod.py
 .tox/
 docker-compose.yaml
+.env
+config/env/local.env
+config/env/generated.env
 # Created by https://www.gitignore.io/api/django,osx,linux,windows,idea,intellj,pycharm,vim,visualstudio
 
 ### Django ###

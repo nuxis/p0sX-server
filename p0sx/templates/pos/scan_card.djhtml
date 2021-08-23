@@ -1,6 +1,6 @@
 {% extends "base.djhtml" %}
 {% block title %}
-Check credit
+Scan to add credit
 {% endblock title %}
 {% block content %}
 <h1>Scan to add credit</h1>

@@ -1,17 +1,50 @@
 import uuid
+from django.http.response import HttpResponseRedirect, JsonResponse
+from django.urls.base import reverse_lazy
 import requests
-from datetime import timedelta
+from datetime import timedelta, datetime
 from urllib.parse import urljoin, urlencode
 
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 
-from pos.models.sumup import SumUpAPIKey
+from pos.models.sumup import SumUpAPIKey, SumUpCard
 from pos.service.sumup import API_URL
+
+def get_pending_transactions(request):
+    transactions = SumUpCard.objects.filter(status=0)
+    return render(request, 'pos/sumupcard.djhtml', {
+        'transactions': transactions
+    })
+
+def sumup_callback(request, tid):
+    callback = request.GET
+    tr = SumUpCard.objects.get(id=tid)
+    if callback.get('smp-status') == 'failed':
+        tr.status = 3
+        tr.transaction_id = callback.get('smp-tx-code')
+        tr.transaction_comment = callback.get('smp-message')
+        tr.save()
+        tr.update_user()
+
+    elif callback.get('smp-status') == 'success':
+        tr.status = 2
+        tr.transaction_id = callback.get('smp-tx-code')
+        tr.transaction_comment = callback.get('smp-message')
+        tr.save()
+        tr.update_user()
+
+    return HttpResponse('<script type="text/javascript">window.close()</script>')
+
+def set_processing(request, transaction):
+    tr = SumUpCard.objects.get(id=transaction)
+    tr.status = 1
+    tr.save()
+    return HttpResponse('OK')
 
 
 class SumUpAuthView(View):

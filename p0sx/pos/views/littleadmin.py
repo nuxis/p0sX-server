@@ -5,17 +5,19 @@ from django.db import transaction
 from django.db.models import Case, IntegerField, Sum, When
 from django.conf import settings
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
+from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy, reverse
 from django.contrib import messages
 from django.views.generic import TemplateView
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.contrib.auth.models import User as DjangoUser
 
 from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm, CreditStatsForm
 from ..models.shift import Shift
 from ..models.stock import Item, OrderLine, Order
-from ..models.sumup import SumUpTransaction, SumUpAPIKey
+from ..models.sumup import SumUpTransaction, SumUpAPIKey, SumUpCard
 from ..models.user import User, CreditUpdate
 from ..serializers.shift import ShiftSerializer
 
@@ -266,10 +268,13 @@ def add_user_credit(request, card=None):
                 return redirect('littleadmin:add_user_credit', card)
 
             if amount > 1000:
-                messages.error(request, "The maximum credit that can be added at once is 1000.<br />Add multiple times if more is needed")
+                messages.error(request, "The maximum credit that can be added at once is 1000. Add multiple times if more is needed")
                 return redirect('littleadmin:add_user_credit', card)
 
-            return redirect('littleadmin:verify_add_credit', user.id, amount)
+            transaction = SumUpCard.objects.create(user=user, amount=amount, authorized_user=request.user)
+            tid = transaction.id
+
+            return redirect('littleadmin:verify_add_credit', tid)
         else:
             return redirect('littleadmin:add_user_credit', card)
     else:
@@ -282,6 +287,10 @@ def add_user_credit(request, card=None):
         form = AddCreditForm()
         sumup_url = reverse('littleadmin:add_user_credit_sumup', kwargs={'card': card})
         return render(request, 'pos/add_credit.djhtml', {'form': form, 'target': user, 'sumup_url': sumup_url})
+
+def check_sumup_status(request, tid):
+    obj = SumUpCard.objects.get(pk=tid)
+    return HttpResponse(obj.status)
 
 
 class AddUserSumupCredit(TemplateView):
@@ -364,8 +373,8 @@ def add_user(request, card=None):
 
 
 @permission_required('pos.update_credit')
-def verify_add_credit(request, user='', amount=''):
-    if request.POST:
+def verify_add_credit(request, tid=''):
+    '''if request.POST:
         form = CheckCreditForm(request.POST)
 
         if form.is_valid():
@@ -392,7 +401,23 @@ def verify_add_credit(request, user='', amount=''):
         form = CheckCreditForm()
         return render(request, 'pos/verify_add_credit.djhtml', {
             'form': form
+        }) '''
+    transaction = SumUpCard.objects.get(pk=tid)
+    
+    if transaction.status == 4:
+        messages.success(request, str(transaction.amount) + ' added to ' + str(transaction.user))
+        return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
+
+    if transaction.status == 3:
+        messages.error(request, 'Transaction failed')
+        return HttpResponseRedirect(reverse_lazy('littleadmin:scan_user_card'))
+
+    else:
+        return render(request, 'pos/verify_add_credit.djhtml', {
+            'tid': tid,
+            'status': transaction.get_status_display()
         })
+    
 
 
 def group_credit_updates(date, group_by):

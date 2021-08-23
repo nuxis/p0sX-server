@@ -2,7 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, path
 from django.views.generic.base import RedirectView
 from django.contrib.auth import views as auth_views
 
@@ -10,6 +10,7 @@ from pos.views.littleadmin import (
     add_user,
     add_credit_stats,
     check_credit,
+    check_sumup_status,
     credit_edit,
     credit_overview,
     crew_report,
@@ -27,7 +28,7 @@ from pos.views.stock import (CategoryViewSet,
                              OrderLineViewSet,
                              OrderViewSet,
                              PurchaseViewSet)
-from pos.views.sumup import SumUpAuthView
+from pos.views.sumup import SumUpAuthView, get_pending_transactions, sumup_callback, set_processing
 from pos.views.user import UserViewSet
 
 from rest_framework import routers
@@ -54,7 +55,14 @@ littleadmin_url = [
     url(r'add_user_credit/(?P<card>\w+)/sumup/(?P<transaction_id>\d+)/verify$',AddUserSumupCredit.as_view(),
         name='add_user_credit_sumup_verify', kwargs={'verify': True}),
     url(r'add_user/(?P<card>\w+)', add_user, name='add_user'),
-    url(r'verify_add_credit/(?P<user>\d+)/(?P<amount>\d+)', verify_add_credit, name='verify_add_credit'),
+    #url(r'verify_add_credit/(?P<tid>\[a-zA-Z0-9-]+)', verify_add_credit, name='verify_add_credit'),
+    path('verify_add_credit/<uuid:tid>', verify_add_credit, name='verify_add_credit'),
+    #url(r'check_sumup_status/(?P<tid>\[a-zA-Z0-9-]+)', check_sumup_status, name='check_sumup_status'),
+    path('check_sumup_status/<uuid:tid>', check_sumup_status, name='check_sumup_status'), 
+    #url(r'get_pending_transactions/', get_pending_transactions, name='get_pending_transactions'),
+    path('get_pending_transactions/', get_pending_transactions, name='get_pending_transactions'),
+    #url(r'set_processing/(?P<transaction>\[a-zA-Z0-9-]+)', set_processing, name='set_processing'),
+    path('set_processing/<uuid:transaction>', set_processing, name='set_processing'),
     url(r'add_credit_stats', add_credit_stats, name='add_credit_stats')
 ]
 
@@ -79,5 +87,7 @@ urlpatterns = [
     url(r'^logout/$', auth_views.LoginView.as_view, {'next_page': '/login'}, name='logout'),
     url(r'^admin/', admin.site.urls),
     url(r'^', include(router.urls)),
-    url(r'littleadmin/', include((littleadmin_url, "pos"), namespace="littleadmin"))
+    url(r'littleadmin/', include((littleadmin_url, "pos"), namespace="littleadmin")), 
+    #url(r'callback/(?P<tid>\d+)', sumup_callback, name='sumup_callback')
+    path('callback/<uuid:tid>', sumup_callback, name='sumup_callback')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -2,10 +2,13 @@ import uuid
 from datetime import timedelta
 
 from django.db import models, transaction
+from django.db.models.deletion import PROTECT
 from django.utils import timezone
 
 from pos.exceptions import SumUpNoAccessCode, SumUpAccessCodeExpired
 from pos.service import sumup as service
+from pos.models.user import User
+from django.contrib.auth.models import User as DjangoUser
 
 ACCESS_CODE_TIMEOUT = 60
 
@@ -91,5 +94,45 @@ class SumUpTransaction(models.Model):
         cu = CreditUpdate.create(user, crew_user, self.amount)
         cu.save()
         self.handled = True
+        self.save()
+        return True
+
+
+
+class SumUpCard(models.Model):
+
+    def __str__(self):
+        return '{} to {} with status {}'.format(self.amount, self.user, self.get_status_display())
+    SUMUP_STATUS = [
+        (0, 'CREATED'), 
+        (1, 'PROCESSING'), 
+        (2, 'SUCCESS'), 
+        (3, 'FAILED'),
+        (4, 'COMPLETE'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    authorized_user = models.ForeignKey(DjangoUser, on_delete=models.PROTECT)
+    amount = models.DecimalField(max_digits=9, decimal_places=2)
+    status = models.SmallIntegerField(choices=SUMUP_STATUS, default=0)
+    transaction_id = models.CharField(max_length=64, null=True, blank=True)
+    transaction_comment = models.CharField(max_length=256, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    timestamp  = models.DateTimeField(auto_now=True)
+
+    @transaction.atomic
+    def update_user(self):
+        if not self.status == 2:
+            return False
+        
+        user = self.user
+        user.credit += self.amount
+        user.save()
+        
+        from pos.models.user import CreditUpdate
+        cu = CreditUpdate.sumup_create(user=self.user, amount=self.amount)
+        cu.save()
+        self.status = 4
         self.save()
         return True

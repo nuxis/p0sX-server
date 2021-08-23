@@ -9,19 +9,8 @@
 
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
-    <script>
-         document.addEventListener('DOMContentLoaded', function() {
-            var elems = document.querySelectorAll('.datepicker');
-            var instances = M.Datepicker.init(elems, {});
-
-            var elems2 = document.querySelectorAll('.timepicker');
-            var instances2 = M.Timepicker.init(elems, {});
-        });
-    </script>
-    
-    {% block script%}
-    {% endblock script %}
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="refresh" content="5">
     <style>
         body {
             display: flex;
@@ -34,14 +23,14 @@
         }
     </style>
 
-    <title>{% block title %}{% endblock title %}</title>
+    <title>SumUp</title>
 </head>
 
 <body>
     <nav>
         <div class="nav-wrapper cyan">
-            <a href="#" class="brand-logo">p0sX a little admin</a>
-            <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <a href="#" class="brand-logo">p0sX - SumUp</a>
+            <!--<ul id="nav-mobile" class="right hide-on-med-and-down">
                 {% if user.is_staff %}
                 <li><a href="{% url 'littleadmin:check' %}">Check credit</a></li>
                 <li><a href="{% url 'littleadmin:overview' %}">Credit overview</a></li>
@@ -50,20 +39,39 @@
                 <li><a href="{% url 'littleadmin:add_credit_stats' %}">PolarPæng statz</a></li>
                 {% endif %}
                 {% if perms.pos.update_credit %}
-                <li><a href="{% url 'littleadmin:scan_user_card' %}">Update user credit</a></li>
+                <li><a href="{% url 'littleadmin:scan_user_card' %}">User credit</a></li>
                 {% endif %}
                 {% if perms.pos.import_credit %}
-                <!--<li><a href="{% url 'littleadmin:fetch_credit_from_ge' %}">Fetch PolarPæng from GE</a></li>-->
+                <li><a href="{% url 'littleadmin:fetch_credit_from_ge' %}">Fetch PolarPæng from GE</a></li>
                 {% endif %}
                 {% if user.is_authenticated %}
                 <li><a href="{% url 'logout' %}">Logout</a></li>
                 {% endif %}
-            </ul>
+            </ul>-->
         </div>
     </nav>
     <main>
         <div class="container">
-            {% block content %}{% endblock content %}
+            {% for pending in transactions %}
+                <div class="row">
+                    <p>
+                        <a id="{{ pending.id }}" class="waves-effect waves-light btn cyan" onclick="this.classList.add('disabled'); mark_processing({{ pending.id }});" href="sumupmerchant://pay/1.0?affiliate-key=a6e85324-c5b5-412a-852f-8460d7987c90&app-id=com.polarparty.p0sx&total={{ pending.amount }}&currency=NOK&title=PolarPæng&callback=http://eth0.no:8989/callback/{{ pending.id }}">Pay {{ pending.amount }} to {{ pending.user }}</a><br>
+                    </p>
+                </div>
+            {% empty %}
+                <div class="row">
+                    <p>No transactions pending</p>
+                </div>
+            {% endfor %}
+        <script>
+        window.addEventListener("focus", e => window.location.reload());
+       $(function() {
+        // selector has to be . for a class name and # for an ID
+            $('.btn').click(function(e) {
+                $.get('/littleadmin/set_processing/' + this.id);
+            });
+        });
+        </script>
         </div>
         {% if messages %}
             <div class="container">

@@ -111,7 +111,7 @@ class SumUpCard(models.Model):
         (4, 'COMPLETE'),
     ]
 
-    id = models.UUIDField(default=uuid.uuid4, primary_key=True)
+    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
     user = models.ForeignKey(User, on_delete=models.PROTECT)
     authorized_user = models.ForeignKey(DjangoUser, on_delete=models.PROTECT)
     amount = models.DecimalField(max_digits=9, decimal_places=2)

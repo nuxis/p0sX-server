@@ -38,6 +38,24 @@ def update_transactions(api_key, seconds=300):
         transactions.append(trans.pk)
     return api_key.transactions.filter(pk__in=transactions)
 
+def fetch_transaction_status(api_key, txid):
+    if api_key.token_expired:
+        api_key.refresh_current_token()
+    url = urljoin(API_URL, '/v0.1/me/transactions')
+    data = {
+        'transaction_code': txid
+    }
+    req = requests.get(
+        url=url,
+        data=data,
+        headers={'Authorization': 'Bearer {}'.format(api_key.token)}
+    )
+    td = req.json()
+    if 'status' in td:
+        if td['status'] == 'SUCCESSFUL':
+            return True
+    else:
+        return False
 
 def refresh_token(api_key):
     req = requests.post(

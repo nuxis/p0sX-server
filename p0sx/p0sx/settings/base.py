@@ -55,17 +55,6 @@ INSTALLED_APPS = (
     'django_filters',
 )
 
-#MIDDLEWARE = (
-#    'django.contrib.sessions.middleware.SessionMiddleware',
-#    'django.middleware.common.CommonMiddleware',
-#    'django.middleware.csrf.CsrfViewMiddleware',
-#    'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-#    'django.contrib.messages.middleware.MessageMiddleware',
-#    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#    'django.middleware.security.SecurityMiddleware',
-#)
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -154,4 +143,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
 MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = '/littleadmin/scan_user_card'
-SITE_URL = 'https://gluttony.pp285.polar.party'
+SITE_URL = ''
+
+# SumUp affiliate key. Create one on your SumUp account with application-id com.polarparty.p0sx
+SUMUP_AFFILIATE_KEY = ''
+# SumUp callback hostname, must include http:// or https:// and port if required. 
+SUMUP_CALLBACK_HOSTNAME = ''

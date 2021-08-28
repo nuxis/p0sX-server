@@ -49,7 +49,6 @@ class SumUpAPIKey(models.Model):
         transactions = self.transactions.all().filter(timestamp__gte=timezone.now()-timedelta(seconds=seconds))
         return transactions.filter(handled=False)
 
-
 class SumUpTerminal(models.Model):
     """
     Aa physical terminal

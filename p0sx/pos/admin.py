@@ -79,6 +79,8 @@ class SumUpTransactionAdmin(admin.ModelAdmin):
 
 class SumUpCardAdmin(admin.ModelAdmin):
     readonly_fields = ('id', 'created', 'timestamp')
+    ordering = ('-created',)
+    list_display = ('user', 'amount', 'status', 'created', 'transaction_id', 'transaction_comment',)
     pass
 
 

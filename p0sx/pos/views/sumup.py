@@ -1,20 +1,20 @@
 import uuid
-from django.http.response import HttpResponseRedirect, JsonResponse
-from django.urls.base import reverse_lazy
-import requests
-from datetime import timedelta, datetime
-from urllib.parse import urljoin, urlencode
+from datetime import timedelta
+from urllib.parse import urlencode, urljoin
 
+from django.conf import settings
+from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import View
-from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib.auth.decorators import permission_required
+from django.views.generic import View
 
 from pos.models.sumup import SumUpAPIKey, SumUpCard
 from pos.service.sumup import API_URL, fetch_transaction_status
+
+import requests
+
 
 @permission_required('pos.update_credit')
 def get_pending_transactions(request):
@@ -23,9 +23,10 @@ def get_pending_transactions(request):
     callback = settings.SUMUP_CALLBACK_HOSTNAME
     return render(request, 'pos/sumupcard.djhtml', {
         'transactions': transactions,
-        'key': key, 
+        'key': key,
         'url': callback
     })
+
 
 def sumup_callback(request, tid):
     callback = request.GET
@@ -47,6 +48,7 @@ def sumup_callback(request, tid):
                 tr.save()
                 tr.update_user()
     return HttpResponse('<script type="text/javascript">window.close()</script>')
+
 
 def set_processing(request, transaction):
     tr = SumUpCard.objects.get(id=transaction)

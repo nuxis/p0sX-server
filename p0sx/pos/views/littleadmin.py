@@ -1,27 +1,24 @@
 import datetime
 
+from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
 from django.db.models import Case, IntegerField, Sum, When
-from django.conf import settings
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponse
-from django.http.response import JsonResponse
-from django.shortcuts import get_object_or_404, render, redirect
-from django.urls import reverse_lazy, reverse
-from django.contrib import messages
-from django.views.generic import TemplateView
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.contrib.auth.models import User as DjangoUser
+from django.views.generic import TemplateView
 
 from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm, CreditStatsForm
+from ..ge_importer import GeekEventsImporter
 from ..models.shift import Shift
-from ..models.stock import Item, OrderLine, Order
-from ..models.sumup import SumUpTransaction, SumUpAPIKey, SumUpCard
-from ..models.user import User, CreditUpdate
+from ..models.stock import Item, Order, OrderLine
+from ..models.sumup import SumUpAPIKey, SumUpCard, SumUpTransaction
+from ..models.user import CreditUpdate, User
 from ..serializers.shift import ShiftSerializer
-
-from ..ge_importer import GeekEventsImporter, GeekEventsItem
 
 
 def check_credit(request):
@@ -242,12 +239,10 @@ def fetch_credit_from_ge(request):
             except:
                 messages.error(request, f"Failed to mark the item as fetched for user {item.first_name} {item.last_name}")
 
-
-
-
         return render(request, 'pos/import_geekevents.djhtml', {'items': items, 'form': CheckCreditForm()})
     else:
         return render(request, 'pos/import_geekevents.djhtml', {'items': [], 'form': CheckCreditForm()})
+
 
 @permission_required('pos.update_credit')
 def add_user_credit(request, card=None):
@@ -288,6 +283,7 @@ def add_user_credit(request, card=None):
         sumup_url = reverse('littleadmin:add_user_credit_sumup', kwargs={'card': card})
         return render(request, 'pos/add_credit.djhtml', {'form': form, 'target': user, 'sumup_url': sumup_url})
 
+
 def check_sumup_status(request, tid):
     obj = SumUpCard.objects.get(pk=tid)
     return HttpResponse(obj.status)
@@ -327,7 +323,6 @@ class AddUserSumupCredit(TemplateView):
         if kwargs.get('verify', None):
             self.template_name = 'pos/add_credit_sumup_confirm.djhtml'
         return super().get(*args, **kwargs)
-
 
     def post(self, *args, **kwargs):
         if not self.transaction:
@@ -374,36 +369,8 @@ def add_user(request, card=None):
 
 @permission_required('pos.update_credit')
 def verify_add_credit(request, tid=''):
-    '''if request.POST:
-        form = CheckCreditForm(request.POST)
 
-        if form.is_valid():
-            target = get_object_or_404(User, id=int(user))
-            card = form.cleaned_data['card']
-            crew = User.objects.filter(card__iexact=card)
-
-            if not crew or not crew[0].is_crew:
-                messages.error(request, "Failed to verify, are you crew?")
-                return redirect('littleadmin:verify_add_credit', user, amount)
-
-            target.credit += int(amount)
-            target.save()
-
-            update = CreditUpdate.create(target, crew[0], amount)
-            update.save()
-
-            messages.success(request, f"Success! Credit set to {target.left}")
-            return redirect('littleadmin:scan_user_card')
-        else:
-            messages.error(request, "Failed to add user")
-            return HttpResponseRedirect(reverse_lazy('littleadmin:scan_user_card'))
-    else:
-        form = CheckCreditForm()
-        return render(request, 'pos/verify_add_credit.djhtml', {
-            'form': form
-        }) '''
     transaction = SumUpCard.objects.get(pk=tid)
-    
     if transaction.status == 4:
         messages.success(request, str(transaction.amount) + ' added to ' + str(transaction.user))
         return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
@@ -417,7 +384,6 @@ def verify_add_credit(request, tid=''):
             'tid': tid,
             'status': transaction.get_status_display()
         })
-    
 
 
 def group_credit_updates(date, group_by):

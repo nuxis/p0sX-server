@@ -13,8 +13,10 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import re
-from utils import get_release
+
 from django.conf.locale.en import formats as en_formats
+
+from utils import get_release
 
 en_formats.DATETIME_FORMAT = "Y-m-d H:i:s"
 
@@ -147,5 +149,5 @@ SITE_URL = ''
 
 # SumUp affiliate key. Create one on your SumUp account with application-id com.polarparty.p0sx
 SUMUP_AFFILIATE_KEY = ''
-# SumUp callback hostname, must include http:// or https:// and port if required. 
+# SumUp callback hostname, must include http:// or https:// and port if required.
 SUMUP_CALLBACK_HOSTNAME = ''

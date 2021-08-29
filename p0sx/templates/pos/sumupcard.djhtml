@@ -1,0 +1,76 @@
+{% load settings %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="refresh" content="5">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+    </style>
+
+    <title>SumUp</title>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-wrapper cyan">
+            <a href="#" class="brand-logo">p0sX - SumUp</a>
+        </div>
+    </nav>
+    <main>
+        <div class="container">
+            {% for pending in transactions %}
+                <div class="row">
+                    <p>
+                        <a id="{{ pending.id }}" class="waves-effect waves-light btn cyan" onclick="this.classList.add('disabled'); mark_processing({{ pending.id }});" href="sumupmerchant://pay/1.0?affiliate-key={{ key }}&app-id=com.polarparty.p0sx&total={{ pending.amount }}&currency=NOK&title=PolarPæng {{ pending.user }}&callback={{ url }}/callback/{{ pending.id }}">Pay {{ pending.amount }} to {{ pending.user }}</a><br>
+                    </p>
+                </div>
+            {% empty %}
+                <div class="row">
+                    <p>No transactions pending</p>
+                </div>
+            {% endfor %}
+        <script>
+        window.addEventListener("focus", e => window.location.reload());
+       $(function() {
+            $('.btn').click(function(e) {
+                $.get('/littleadmin/set_processing/' + this.id);
+            });
+        });
+        </script>
+        </div>
+        {% if messages %}
+            <div class="container">
+                <ul>
+                {% for message in messages %}
+                    <li><b>{{message}}</b></li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        
+    </main>
+    <footer class="page-footer cyan">
+        <div class="footer-copyright">
+            <div class="container">
+                © {% now "Y" %} Nuxis, Version: {% version %}
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

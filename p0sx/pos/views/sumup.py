@@ -1,17 +1,60 @@
 import uuid
-import requests
 from datetime import timedelta
-from urllib.parse import urljoin, urlencode
+from urllib.parse import urlencode, urljoin
 
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import View
 from django.conf import settings
+from django.contrib.auth.decorators import permission_required
+from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.generic import View
 
-from pos.models.sumup import SumUpAPIKey
-from pos.service.sumup import API_URL
+from pos.models.sumup import SumUpAPIKey, SumUpCard
+from pos.service.sumup import API_URL, fetch_transaction_status
+
+import requests
+
+
+@permission_required('pos.update_credit')
+def get_pending_transactions(request):
+    transactions = SumUpCard.objects.filter(status=0)
+    key = settings.SUMUP_AFFILIATE_KEY
+    callback = settings.SUMUP_CALLBACK_HOSTNAME
+    return render(request, 'pos/sumupcard.djhtml', {
+        'transactions': transactions,
+        'key': key,
+        'url': callback
+    })
+
+
+def sumup_callback(request, tid):
+    callback = request.GET
+    tr = SumUpCard.objects.get(id=tid, status=1)
+    if tr:
+        if callback.get('smp-status') == 'failed':
+            tr.status = 3
+            tr.transaction_id = callback.get('smp-tx-code')
+            tr.transaction_comment = callback.get('smp-message')
+            tr.save()
+
+        elif callback.get('smp-status') == 'success':
+            api_key = SumUpAPIKey.objects.get()
+            txstatus = fetch_transaction_status(api_key, callback.get('smp-tx-code'))
+            if txstatus is True:
+                tr.status = 2
+                tr.transaction_id = callback.get('smp-tx-code')
+                tr.transaction_comment = callback.get('smp-message')
+                tr.save()
+                tr.update_user()
+    return HttpResponse('<script type="text/javascript">window.close()</script>')
+
+
+def set_processing(request, transaction):
+    tr = SumUpCard.objects.get(id=transaction)
+    tr.status = 1
+    tr.save()
+    return HttpResponse('OK')
 
 
 class SumUpAuthView(View):

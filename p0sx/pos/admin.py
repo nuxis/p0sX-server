@@ -2,8 +2,8 @@ from django.contrib import admin
 
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
-from pos.models.sumup import SumUpAPIKey, SumUpTerminal, SumUpTransaction
-from pos.models.user import User, CreditUpdate
+from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpTerminal, SumUpTransaction
+from pos.models.user import CreditUpdate, User
 
 
 class CreditUpdateAdmin(admin.ModelAdmin):
@@ -68,13 +68,23 @@ class CategoryAdmin(admin.ModelAdmin):
 class ShiftAdmin(admin.ModelAdmin):
     pass
 
+
 class SumUpAPIKeyAdmin(admin.ModelAdmin):
     pass
+
 
 class SumUpTerminalAdmin(admin.ModelAdmin):
     pass
 
+
 class SumUpTransactionAdmin(admin.ModelAdmin):
+    pass
+
+
+class SumUpCardAdmin(admin.ModelAdmin):
+    readonly_fields = ('id', 'created', 'timestamp')
+    ordering = ('-created',)
+    list_display = ('user', 'amount', 'status', 'created', 'transaction_id', 'transaction_comment',)
     pass
 
 
@@ -92,3 +102,4 @@ admin.site.register(CreditUpdate, CreditUpdateAdmin)
 admin.site.register(SumUpAPIKey, SumUpAPIKeyAdmin)
 admin.site.register(SumUpTerminal, SumUpTerminalAdmin)
 admin.site.register(SumUpTransaction, SumUpTransactionAdmin)
+admin.site.register(SumUpCard, SumUpCardAdmin)

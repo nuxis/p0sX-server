@@ -7,17 +7,17 @@ Add credit
 <h1>Add credit to {{ target.first_name }} {{ target.last_name }}</h1>
 <h3>Current credit: {{ target.left }}Kr.</h3>
 <p>
-    <span class="manual-amount" style="display: none;">
+    <span class="manual-amount">
         <button onclick="addCredit(50)" class="waves-effect waves-light btn-large cyan">+50</button>
         <button onclick="addCredit(100)" class="waves-effect waves-light btn-large cyan">+100</button>
         <button onclick="addCredit(200)" class="waves-effect waves-light btn-large cyan">+200</button>
         <button onclick="addCredit(500)" class="waves-effect waves-light btn-large cyan">+500</button>
     </span>
-    <button onClick="$('.manual-amount').show();" class="waves-effect waves-light btn-large cyan">Manual amount</button>
-    <button onClick="window.location = '{{ sumup_url }}'" class="waves-effect waves-light btn-large cyan">SumUp</button>
+    <!--<button onClick="$('.manual-amount').show();" class="waves-effect waves-light btn-large cyan">Manual amount</button>-->
+    <!--<button onClick="window.location = '{{ sumup_url }}'" class="waves-effect waves-light btn-large cyan">SumUp</button>-->
 </p>
 
-<div style="display: none" class="manual-amount">
+<div class="manual-amount">
     <form action="" method="post">
         {% csrf_token %}
         {{ form }}

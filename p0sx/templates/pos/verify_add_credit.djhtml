@@ -1,20 +1,32 @@
 {% extends "base.djhtml" %}
 {% block title %}
-Check credit status
+Kortbetaling
 {% endblock title %}
 {% block content %}
-<h1>Scan crew badge to verify</h1>
+<h1>Fullfør kortbetaling med terminalen</h1>
 
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form }}
-</form>
+  <div class="progress">
+      <div class="indeterminate"></div>
+  </div>
+
+<p>Transaksjons-ID: {{ tid }} Status: {{ status }} 
+</p>
+<p>Bruk mobiltelefonen til SumUP-terminalen til å gjøre transaksjonen.</p>
+<p>Du blir videresendt så fort transaksjonen er fullført</p>
+{% if status == "SUCCESS" %} 
+<div class="preloader-wrapper small active">
+    <div class="spinner-layer spinner-green-only">
+      <div class="circle-clipper left">
+        <div class="circle"></div>
+      </div><div class="gap-patch">
+        <div class="circle"></div>
+      </div><div class="circle-clipper right">
+        <div class="circle"></div>
+      </div>
+    </div>
+  </div>
+{% endif %}
 <script>
-    const field = $("#id_card");
-
-    field.focus();
-    field.focusout(() => {
-        field.focus();
-    });
+setTimeout(function() { location.reload(); }, 2000);
 </script>
 {% endblock content %}

@@ -50,10 +50,10 @@
                 <li><a href="{% url 'littleadmin:add_credit_stats' %}">PolarPæng statz</a></li>
                 {% endif %}
                 {% if perms.pos.update_credit %}
-                <li><a href="{% url 'littleadmin:scan_user_card' %}">User credit</a></li>
+                <li><a href="{% url 'littleadmin:scan_user_card' %}">Update user credit</a></li>
                 {% endif %}
                 {% if perms.pos.import_credit %}
-                <li><a href="{% url 'littleadmin:fetch_credit_from_ge' %}">Fetch PolarPæng from GE</a></li>
+                <!--<li><a href="{% url 'littleadmin:fetch_credit_from_ge' %}">Fetch PolarPæng from GE</a></li>-->
                 {% endif %}
                 {% if user.is_authenticated %}
                 <li><a href="{% url 'logout' %}">Logout</a></li>

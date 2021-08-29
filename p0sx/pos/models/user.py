@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User as DjangoUser
-
 from django.db import models
 
 from .stock import Order
@@ -7,14 +6,20 @@ from .stock import Order
 
 class CreditUpdate(models.Model):
     user = models.ForeignKey('User', related_name='user', on_delete=models.CASCADE)
-    updated_by_user = models.ForeignKey('User', related_name='updated_by_user', on_delete=models.CASCADE)
+    updated_by_user = models.ForeignKey('User', related_name='updated_by_user', on_delete=models.CASCADE, blank=True, null=True)
     amount = models.IntegerField()
     geekevents_id = models.IntegerField(null=True, blank=True, default=None)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
-    def create(cls, user, updated_by_user, amount, geekevents_id = None):
+    def create(cls, user, updated_by_user, amount, geekevents_id=None):
         update = cls(user=user, updated_by_user=updated_by_user, amount=amount, geekevents_id=geekevents_id)
+
+        return update
+
+    @classmethod
+    def sumup_create(cls, user, amount, updated_by_user=None, geekevents_id=None):
+        update = cls(user=user, amount=amount, updated_by_user=updated_by_user, geekevents_id=geekevents_id)
 
         return update
 

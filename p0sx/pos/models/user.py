@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User as DjangoUser
-
 from django.db import models
 
 from .stock import Order
@@ -13,17 +12,17 @@ class CreditUpdate(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     @classmethod
-    def create(cls, user, updated_by_user, amount, geekevents_id = None):
+    def create(cls, user, updated_by_user, amount, geekevents_id=None):
         update = cls(user=user, updated_by_user=updated_by_user, amount=amount, geekevents_id=geekevents_id)
 
         return update
 
     @classmethod
-    def sumup_create(cls, user, amount, updated_by_user = None, geekevents_id=None):
+    def sumup_create(cls, user, amount, updated_by_user=None, geekevents_id=None):
         update = cls(user=user, amount=amount, updated_by_user=updated_by_user, geekevents_id=geekevents_id)
 
         return update
-        
+
     def __str__(self):
         extra = f' from GeekEvents item {self.geekevents_id}' if self.geekevents_id is not None else ''
         return f'{self.updated_by_user} added {self.amount} kr to {self.user}{extra}'

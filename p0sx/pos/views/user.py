@@ -1,5 +1,4 @@
 from pos.models.user import User
-
 from pos.serializers.user import CrewSerializer
 
 from rest_framework import viewsets

@@ -1,7 +1,9 @@
-import requests
-from django.utils import timezone
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 from urllib.parse import urljoin
+
+from django.utils import timezone
+
+import requests
 
 
 API_URL = 'https://api.sumup.com/'
@@ -38,6 +40,7 @@ def update_transactions(api_key, seconds=300):
         transactions.append(trans.pk)
     return api_key.transactions.filter(pk__in=transactions)
 
+
 def fetch_transaction_status(api_key, txid):
     if api_key.token_expired:
         api_key.refresh_current_token()
@@ -56,6 +59,7 @@ def fetch_transaction_status(api_key, txid):
             return True
     else:
         return False
+
 
 def refresh_token(api_key):
     req = requests.post(

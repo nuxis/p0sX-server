@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from pos.models.shift import Shift
-from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
+from pos.models.stock import Category, Discount, FoodLog, Ingredient, Item, ItemIngredient, Order, OrderLine
 from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpTerminal, SumUpTransaction
 from pos.models.user import CreditUpdate, User
 
@@ -56,11 +56,6 @@ class OrderLineInline(admin.TabularInline):
         return False
 
 
-class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = ('user', 'payment_method', 'cashier', 'authenticated_user')
-    inlines = [OrderLineInline]
-
-
 class CategoryAdmin(admin.ModelAdmin):
     pass
 
@@ -88,6 +83,31 @@ class SumUpCardAdmin(admin.ModelAdmin):
     pass
 
 
+class FoodLogAdmin(admin.ModelAdmin):
+    readonly_fields = ('orderline', 'state', 'timestamp')
+    pass
+
+
+class FoodLogInline(admin.TabularInline):
+    readonly_fields = ('orderline', 'state', 'timestamp')
+    model = FoodLog
+    extra = 0
+
+    def __unicode__(self):
+        return ''
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+class OrderAdmin(admin.ModelAdmin):
+    readonly_fields = ('user', 'payment_method', 'cashier', 'authenticated_user')
+    inlines = [OrderLineInline]
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Item, ItemAdmin)
@@ -103,3 +123,5 @@ admin.site.register(SumUpAPIKey, SumUpAPIKeyAdmin)
 admin.site.register(SumUpTerminal, SumUpTerminalAdmin)
 admin.site.register(SumUpTransaction, SumUpTransactionAdmin)
 admin.site.register(SumUpCard, SumUpCardAdmin)
+
+admin.site.register(FoodLog, FoodLogAdmin)

@@ -39,6 +39,7 @@ class ItemAdmin(admin.ModelAdmin):
 
 class OrderLineAdmin(admin.ModelAdmin):
     readonly_fields = ('ingredients', 'item', 'price')
+    list_display = ('item', 'order', 'state')
 
 
 class OrderLineInline(admin.TabularInline):
@@ -85,6 +86,7 @@ class SumUpCardAdmin(admin.ModelAdmin):
 
 class FoodLogAdmin(admin.ModelAdmin):
     readonly_fields = ('orderline', 'state', 'timestamp')
+    list_display = ('orderline_id', 'orderline', 'timestamp', 'state')
     pass
 
 
@@ -105,6 +107,7 @@ class FoodLogInline(admin.TabularInline):
 
 class OrderAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'payment_method', 'cashier', 'authenticated_user')
+    list_display = ('id', 'user', 'date', 'sum', 'state')
     inlines = [OrderLineInline]
 
 

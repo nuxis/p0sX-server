@@ -170,10 +170,8 @@ class PurchaseSerializer(serializers.Serializer):
                 line.ingredients.set((i.pk for i in ingredients))
                 line.save()
 
-            if line.item.created_in_the_kitchen:
-                line.state = 0
+            if line.item.created_in_the_kitchen and not undo:
                 prepared_order = True
-                line.save()
             else:
                 line.state = 3
                 line.save()

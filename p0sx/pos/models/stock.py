@@ -165,7 +165,7 @@ class Discount(models.Model):
 
 
 class FoodLog(models.Model):
-    orderline = models.ForeignKey(OrderLine, on_delete=models.PROTECT)
+    orderline = models.ForeignKey(OrderLine, related_name='log', on_delete=models.PROTECT)
     state = models.SmallIntegerField(choices=ORDER_STATE, default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
 

@@ -155,3 +155,4 @@ SUMUP_CALLBACK_HOSTNAME = ''
 
 # GeekEvents event id for the current party
 GE_EVENT_ID = None
+GE_SSO_SUCCESS_REDIRECT = None

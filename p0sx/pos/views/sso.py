@@ -5,6 +5,8 @@ import requests
 
 from ..models.user import GeekeventsToken, User
 
+from django.conf import settings
+
 from pos.service.ge_sso import get_user, validate_token, user_has_ticket
 
 def add_user(request):
@@ -48,6 +50,8 @@ def add_user_callback(request):
     user_token = GeekeventsToken.create(user_id, timestamp, token, user)
     user_token.save()
 
-    return redirect("https://polarparty.no")
-    # return render(request, 'sso/added_user.djhtml', {'first_name': first_name, 'last_name': last_name})
+    redirect_url = settings.GE_SSO_SUCCESS_REDIRECT
+    if redirect_url is not None:
+        return redirect(redirect_url)
+    return render(request, 'sso/added_user.djhtml', {'first_name': first_name, 'last_name': last_name})
 

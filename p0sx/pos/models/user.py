@@ -70,6 +70,34 @@ class User(models.Model):
         )
 
 
+class GeekeventsToken(models.Model):
+    token = models.CharField(max_length=255)
+    ge_user_id = models.CharField(max_length=255)
+    timestamp = models.CharField(max_length=255)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+
+    @classmethod
+    def create(cls, user_id, timestamp, token, user):
+        user_token = cls(ge_user_id=user_id, timestamp=timestamp, token=token, user=user)
+        return user_token
+
+    def delete(self, *args, **kwargs):
+        self.user.delete()
+        super(GeekeventsToken, self).delete(*args, **kwargs)
+
+    def __str__(self):
+        return '{} {} | {}'.format(self.user.first_name, self.user.last_name, self.ge_user_id)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['ge_user_id'], name='GeekEvents user ID must be unique')
+        ]   
+
+
 class UserSession(models.Model):
     start = models.DateTimeField(auto_now_add=True)
     end = models.DateTimeField()

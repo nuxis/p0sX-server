@@ -44,6 +44,7 @@
             <ul id="nav-mobile" class="right hide-on-med-and-down">
                 {% if user.is_staff %}
                 <li><a href="{% url 'littleadmin:check' %}">Check credit</a></li>
+                <li><a href="{% url 'littleadmin:update_ge_user' %}">Update GE user</a></li>
                 <li><a href="{% url 'littleadmin:overview' %}">Credit overview</a></li>
                 <li><a href="{% url 'littleadmin:sale' %}">Sale overview</a></li>
                 <li><a href="{% url 'littleadmin:crew_report' %}">Crew report</a></li>

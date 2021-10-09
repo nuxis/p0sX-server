@@ -17,8 +17,10 @@ from ..ge_importer import GeekEventsImporter
 from ..models.shift import Shift
 from ..models.stock import Item, Order, OrderLine
 from ..models.sumup import SumUpAPIKey, SumUpCard, SumUpTransaction
-from ..models.user import CreditUpdate, User
+from ..models.user import CreditUpdate, GeekeventsToken, User
 from ..serializers.shift import ShiftSerializer
+
+from pos.service.ge_sso import get_user
 
 
 def check_credit(request):
@@ -434,4 +436,26 @@ def add_credit_stats(request):
         'total': total,
         'total_out': total_out,
         'form': form
+    })
+
+@login_required()
+def update_ge_user(request):
+    ge_id = request.GET.get('id', None)
+    if ge_id is not None:
+        user = GeekeventsToken.objects.get(ge_user_id=ge_id)
+        if not user:
+            return;
+        ge_user = get_user(user.ge_user_id, user.timestamp, user.token)
+        user.user.card = ge_user['usercard'].split('||')[0]
+        user.user.first_name = ge_user['first_name']
+        user.user.last_name = ge_user['last_name']
+        user.user.phone = ge_user['phone']
+        user.user.email = ge_user['email']
+        user.user.save()
+        return redirect('/littleadmin/update_ge_user')
+
+    users = GeekeventsToken.objects.all();
+
+    return render(request, 'pos/update_ge_user.djhtml', {
+        'users': users
     })

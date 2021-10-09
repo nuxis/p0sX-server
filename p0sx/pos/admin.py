@@ -3,7 +3,7 @@ from django.contrib import admin
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine
 from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpTerminal, SumUpTransaction
-from pos.models.user import CreditUpdate, User
+from pos.models.user import CreditUpdate, User, GeekeventsToken
 
 
 class CreditUpdateAdmin(admin.ModelAdmin):
@@ -25,6 +25,14 @@ class UserAdmin(admin.ModelAdmin):
 
     def full_name(self, obj):
         return "{} {}".format(obj.first_name, obj.last_name)
+
+    pass
+
+class GeekeventsTokenAdmin(admin.ModelAdmin):
+    readonly_fields = ('ge_user_id', 'token', 'timestamp', 'user')
+
+    def full_name(self, obj):
+        return "{} {}".format(obj.ge_user_id)
 
     pass
 
@@ -89,6 +97,7 @@ class SumUpCardAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
+admin.site.register(GeekeventsToken, GeekeventsTokenAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Order, OrderAdmin)

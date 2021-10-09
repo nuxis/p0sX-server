@@ -152,3 +152,6 @@ SITE_URL = ''
 SUMUP_AFFILIATE_KEY = ''
 # SumUp callback hostname, must include http:// or https:// and port if required.
 SUMUP_CALLBACK_HOSTNAME = ''
+
+# GeekEvents event id for the current party
+GE_EVENT_ID = None

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+            padding: 10px;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+    </style>
+
+    <title>Registrer bruker</title>
+</head>
+<body>
+    <h1>Velkommen {{first_name}} {{last_name}}, du kan nå fylle på penger og handle i kantina! :)</h1>
+</body>

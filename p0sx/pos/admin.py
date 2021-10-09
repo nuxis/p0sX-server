@@ -19,20 +19,35 @@ class ItemIngredientAdmin(admin.ModelAdmin):
     pass
 
 
+class GeekeventsTokenInline(admin.StackedInline):
+    readonly_fields = ('ge_user_id', 'timestamp', 'token')
+    model = GeekeventsToken
+    extra = 0
+
+    def __unicode__(self):
+        return self.token
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
 class UserAdmin(admin.ModelAdmin):
     search_fields = ('card', 'first_name', 'last_name',)
     list_display = ('full_name', 'credit',)
+    inlines = [GeekeventsTokenInline]
+
+    def get_inline_instances(self, request, obj=None):
+        if not obj or not hasattr(obj, 'geekeventstoken'):
+            return []
+        return super(UserAdmin, self).get_inline_instances(request, obj)
 
     def full_name(self, obj):
-        return "{} {}".format(obj.first_name, obj.last_name)
-
-    pass
-
-class GeekeventsTokenAdmin(admin.ModelAdmin):
-    readonly_fields = ('ge_user_id', 'token', 'timestamp', 'user')
-
-    def full_name(self, obj):
-        return "{} {}".format(obj.ge_user_id)
+        if hasattr(obj, 'geekeventstoken'):
+            return '{} {} via Geekevents SSO'.format(obj.first_name, obj.last_name)
+        return '{} {}'.format(obj.first_name, obj.last_name)
 
     pass
 
@@ -97,7 +112,6 @@ class SumUpCardAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, UserAdmin)
-admin.site.register(GeekeventsToken, GeekeventsTokenAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Item, ItemAdmin)
 admin.site.register(Order, OrderAdmin)

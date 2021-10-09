@@ -61,6 +61,8 @@ class User(models.Model):
         return user
 
     def __str__(self):
+        if hasattr(self, 'geekeventstoken'):
+            return '{} {} via Geekevents SSO'.format(self.first_name, self.last_name)
         return '{} {}'.format(self.first_name, self.last_name)
 
     class Meta:
@@ -90,7 +92,7 @@ class GeekeventsToken(models.Model):
         super(GeekeventsToken, self).delete(*args, **kwargs)
 
     def __str__(self):
-        return '{} {} | {}'.format(self.user.first_name, self.user.last_name, self.ge_user_id)
+        return self.token
 
     class Meta:
         constraints = [

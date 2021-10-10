@@ -6,6 +6,7 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 from django.views.generic.base import RedirectView
 
+from pos.views.foodtracker import active_orders, delivery_screen, delivery_station, production_station, production_station_single
 from pos.views.littleadmin import (
     AddUserSumupCredit,
     add_credit_stats,
@@ -103,5 +104,10 @@ urlpatterns = [
     url(r'littleadmin/', include((littleadmin_url, "pos"), namespace="littleadmin")),
     url(r'sso/', include((sso_url, "pos"), namespace="sso")),
     # url(r'callback/(?P<tid>\d+)', sumup_callback, name='sumup_callback')
-    path('callback/<uuid:tid>', sumup_callback, name='sumup_callback')
+    path('callback/<uuid:tid>', sumup_callback, name='sumup_callback'),
+    path('foodtracker/active/', active_orders, name='active_orders'),
+    path('foodtracker/production_station/', production_station, name='production_station'),
+    path('foodtracker/production_station/<int:category>/', production_station_single, name='production_station_single'),
+    path('foodtracker/delivery_station/', delivery_station, name='delivery_station'),
+    path('foodtracker/delivery_screen/', delivery_screen, name='delivery_screen')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

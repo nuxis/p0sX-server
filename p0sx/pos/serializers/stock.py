@@ -164,18 +164,21 @@ class PurchaseSerializer(serializers.Serializer):
             item.stock -= count
 
             line = OrderLine.create(item, order, price)
-            line.save()
             item.save()
+            line.save()
             if len(ingredients):
                 line.ingredients.set((i.pk for i in ingredients))
                 line.save()
 
-            if line.item.created_in_the_kitchen:
+            if line.item.created_in_the_kitchen and not undo:
                 prepared_order = True
+            else:
+                line.state = 3
+                line.save()
 
-        # Set the order to DONE if its not going to the kitchen
+        # Set the order to ARCHIVED if its not going to the kitchen
         if not prepared_order:
-            order.state = 2
+            order.state = 3
             order.save()
 
         return Purchase(order, card, undo, cashier_card)

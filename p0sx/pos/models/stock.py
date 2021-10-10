@@ -2,11 +2,14 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User as DjangoUser
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 ORDER_STATE = (
     (0, 'OPEN'),
-    (1, 'DONE'),
-    (2, 'ARCHIVED')
+    (1, 'PROCESSING'),
+    (2, 'DONE'),
+    (3, 'ARCHIVED')
 )
 
 PAYMENT_METHOD = (
@@ -107,6 +110,7 @@ class OrderLine(models.Model):
     item = models.ForeignKey(Item, db_index=True, on_delete=models.CASCADE)
     price = models.IntegerField()
     order = models.ForeignKey(Order, related_name='orderlines', db_index=True, on_delete=models.CASCADE)
+    state = models.SmallIntegerField(choices=ORDER_STATE, default=0)
 
     def __str__(self):
         s = self.item.name
@@ -158,3 +162,39 @@ class Discount(models.Model):
         choices=PAYMENT_METHOD, default=0)
     item = models.ForeignKey(Item, on_delete=models.CASCADE)
     expression = models.TextField()
+
+
+class FoodLog(models.Model):
+    orderline = models.ForeignKey(OrderLine, related_name='log', on_delete=models.PROTECT)
+    state = models.SmallIntegerField(choices=ORDER_STATE, default=0)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('orderline', 'state')
+
+    def __str__(self):
+        return '{} set state {} at {}'.format(self.orderline, self.get_state_display(), self.timestamp.strftime('%Y-%m-%d %H:%M:%S'))
+
+    @receiver(post_save, sender=OrderLine)
+    def create_logline(sender, instance, **kwargs):
+        if instance.item.created_in_the_kitchen:
+            FoodLog.objects.get_or_create(orderline=instance, state=instance.state)
+
+            ol = OrderLine.objects.filter(order=instance.order).exclude(item__created_in_the_kitchen=False)
+            o = Order.objects.filter(pk=instance.order.id)
+            processing = 0
+            done = 0
+            archived = 0
+            for line in ol:
+                if line.state == 1:
+                    processing += 1
+                elif line.state == 2:
+                    done += 1
+                elif line.state == 3:
+                    archived += 1
+            if processing >= 1:
+                o.update(state=1)
+            if done == ol.count():
+                o.update(state=2)
+            if archived == ol.count():
+                o.update(state=3)

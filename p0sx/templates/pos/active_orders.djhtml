@@ -1,0 +1,154 @@
+{% load settings %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        window.addEventListener("focus", e => window.location.reload());
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="refresh" content="5">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+    </style>
+
+    <title>p0sX - FoodTracker</title>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-wrapper cyan">
+            <a href="#" class="brand-logo">p0sX - FoodTracker overview</a>
+            <div class="right-align">{% now "H:i" %}</div>
+        </div>
+    </nav>
+    <main>
+        <div class="section">
+            <div class="row">
+            <h5>Ordre som blir laget:</h5>
+            {% for order in processing_orders %}
+                <div class="col s2">
+                    <div class="card small yellow lighten-5 card-content black-text">
+                        <span class="card-title white-text black">{{ order.id }} - {{ order.user.first_name }}</span><br>
+                        Bestilt: {{ order.date|time:"H:i" }}
+                        <div class="valign-wrapper">
+                        {% for orderline in order.orderlines.all %}
+                            {% if orderline.item.created_in_the_kitchen %}
+                                <p>{{ orderline.item }} 
+                                {% if orderline.state == 0 %}
+                                    ble bestilt {{ orderline.log.last.timestamp |time:"H:i" }}<br>
+                                {% elif orderline.state == 1 %}
+                                    ble startet {{ orderline.log.last.timestamp |time:"H:i" }}<br>
+                                {% else %}
+                                    ble ferdig {{ orderline.log.last.timestamp |time:"H:i" }}<br>
+                                {% endif %}
+                                {% for item in orderline.ingredients.all %}
+                                    &emsp;{{ item }}<br>
+                                {% endfor %}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="row">
+                    <p>No orders waiting</p>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section">
+            <h5>Ordre som venter:</h5>
+            <div class="row">
+            {% for order in open_orders %}
+                <div class="col s2">
+                    <div style="overflow-x: auto;" class="card small red lighten-5 card-content black-text">
+                        <span class="card-title white-text black">{{ order.id }} - {{ order.user.first_name }}</span><br>
+                        {{ order.date|time:"H:i" }}
+                        <div class="valign-wrapper">
+                        {% for orderline in order.orderlines.all %}
+                            {% if orderline.item.created_in_the_kitchen %}
+                                <p>{{ orderline.item }}<br>
+                                {% for item in orderline.ingredients.all %}
+                                    &emsp;{{ item }}<br>
+                                {% empty %}
+                                    &emsp;Standard<br>
+                                {% endfor %}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="row">
+                    <p>No orders waiting</p>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        <div class="divider"></div>
+        <div class="section">
+            <h5>Ordre som er klare til avhenting:</h5>
+            <div class="row">
+            {% for order in done_orders %}
+                <div class="col s2">
+                    <div class="card small green lighten-5 card-content black-text">
+                        <span class="card-title white-text black">{{ order.id }} - {{ order.user.first_name }}</span><br>
+                        {{ order.date|time:"H:i" }}
+                        <div class="valign-wrapper">
+                        {% for orderline in order.orderlines.all %}
+                            {% if orderline.item.created_in_the_kitchen %}
+                                <p>{{ orderline.item }}<br>
+                                {% for item in orderline.ingredients.all %}
+                                    &emsp;{{ item }}<br>
+                                {% endfor %}
+                                </p>
+                            {% endif %}
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="row">
+                    <p>No orders waiting</p>
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+        {% if messages %}
+            <div class="container">
+                <ul>
+                {% for message in messages %}
+                    <li><b>{{message}}</b></li>
+                {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        
+    </main>
+    <footer class="page-footer cyan">
+        <div class="footer-copyright">
+            <div class="container">
+                © {% now "Y" %} Nuxis, Version: {% version %}
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

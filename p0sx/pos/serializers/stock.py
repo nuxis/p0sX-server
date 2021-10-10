@@ -12,6 +12,7 @@ class DiscountSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Discount
+        fields = '__all__'
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -61,7 +62,7 @@ class SimpleItemSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Item
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'created_in_the_kitchen')
 
 
 class ItemField(serializers.Field):
@@ -87,10 +88,11 @@ class IngredientField(serializers.Field):
 class OrderLineSerializer(serializers.ModelSerializer):
     item = ItemField()
     ingredients = IngredientField()
+    message = serializers.CharField(required=False, allow_blank=True)
 
     class Meta:
         model = OrderLine
-        fields = ('id', 'ingredients', 'item')
+        fields = ('id', 'ingredients', 'item', 'message')
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -157,13 +159,14 @@ class PurchaseSerializer(serializers.Serializer):
         for line_dict in order_lines:
             ingredients = line_dict.get('ingredients')
             item = line_dict.get('item')
+            message = line_dict.get('message')
 
             price = item.price + sum(i.price for i in ingredients)
             price = price * -1 if undo else price
             count = count * -1 if undo else count
             item.stock -= count
 
-            line = OrderLine.create(item, order, price)
+            line = OrderLine.create(item, order, price, message)
             item.save()
             line.save()
             if len(ingredients):

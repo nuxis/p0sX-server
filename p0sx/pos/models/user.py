@@ -61,6 +61,8 @@ class User(models.Model):
         return user
 
     def __str__(self):
+        if hasattr(self, 'geekeventstoken'):
+            return '{} {} via Geekevents SSO'.format(self.first_name, self.last_name)
         return '{} {}'.format(self.first_name, self.last_name)
 
     class Meta:
@@ -68,6 +70,34 @@ class User(models.Model):
             ("update_credit", "Can update the credit limit on a user"),
             ("import_credit", "Can import credit from GeekEvents"),
         )
+
+
+class GeekeventsToken(models.Model):
+    token = models.CharField(max_length=255)
+    ge_user_id = models.CharField(max_length=255)
+    timestamp = models.CharField(max_length=255)
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True,
+    )
+
+    @classmethod
+    def create(cls, user_id, timestamp, token, user):
+        user_token = cls(ge_user_id=user_id, timestamp=timestamp, token=token, user=user)
+        return user_token
+
+    def delete(self, *args, **kwargs):
+        self.user.delete()
+        super(GeekeventsToken, self).delete(*args, **kwargs)
+
+    def __str__(self):
+        return self.token
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['ge_user_id'], name='GeekEvents user ID must be unique')
+        ]   
 
 
 class UserSession(models.Model):

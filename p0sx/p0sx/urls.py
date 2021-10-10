@@ -19,7 +19,8 @@ from pos.views.littleadmin import (
     fetch_credit_from_ge,
     sale_overview,
     scan_user_card,
-    verify_add_credit
+    verify_add_credit,
+    update_ge_user
 )
 from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
@@ -31,6 +32,11 @@ from pos.views.stock import (CategoryViewSet,
                              PurchaseViewSet)
 from pos.views.sumup import SumUpAuthView, get_pending_transactions, set_processing, sumup_callback
 from pos.views.user import UserViewSet
+
+from pos.views.sso import (
+    add_user,
+    add_user_callback
+)
 
 from rest_framework import routers
 
@@ -64,7 +70,13 @@ littleadmin_url = [
     path('get_pending_transactions/', get_pending_transactions, name='get_pending_transactions'),
     # url(r'set_processing/(?P<transaction>\[a-zA-Z0-9-]+)', set_processing, name='set_processing'),
     path('set_processing/<uuid:transaction>', set_processing, name='set_processing'),
-    url(r'add_credit_stats', add_credit_stats, name='add_credit_stats')
+    url(r'add_credit_stats', add_credit_stats, name='add_credit_stats'),
+    path('update_ge_user/', update_ge_user, name='update_ge_user'),
+]
+
+sso_url = [
+    path('add_user/', add_user, name='add_user'),
+    path('add_user_callback/', add_user_callback, name='add_user_callback')
 ]
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -83,12 +95,13 @@ router.register(r'credit', CreditCheckViewSet, 'credit')
 router.register(r'discounts', DiscountViewSet, 'discount')
 
 urlpatterns = [
-    url(r'^$', RedirectView.as_view(url=reverse_lazy('admin:index'))),
-    url(r'^login/$', auth_views.LoginView.as_view, {'template_name': 'pos/login.djhtml'}, name='login'),
-    url(r'^logout/$', auth_views.LoginView.as_view, {'next_page': '/login'}, name='logout'),
+    url(r'^$', RedirectView.as_view(url=reverse_lazy('login'))),
+    url(r'^login/$', auth_views.LoginView.as_view(template_name='pos/login.djhtml'), name='login'),
+    url(r'^logout/$', auth_views.LogoutView.as_view(next_page='/login'), name='logout'),
     url(r'^admin/', admin.site.urls),
     url(r'^', include(router.urls)),
     url(r'littleadmin/', include((littleadmin_url, "pos"), namespace="littleadmin")),
+    url(r'sso/', include((sso_url, "pos"), namespace="sso")),
     # url(r'callback/(?P<tid>\d+)', sumup_callback, name='sumup_callback')
     path('callback/<uuid:tid>', sumup_callback, name='sumup_callback')
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

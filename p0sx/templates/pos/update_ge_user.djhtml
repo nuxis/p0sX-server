@@ -1,0 +1,44 @@
+{% extends "base.djhtml" %}
+{% load static %}
+{% block script %}
+<script src="{% static "js/jquery.tablesort.min.js" %}"></script>
+
+{% endblock script %}
+{% block title %}
+Update GeekEvents user
+{% endblock title %}
+{% block content %}
+<style>
+    tfoot, thead {
+        font-weight: bold;
+    }
+</style>
+<h1>Update Geekevents user</h1>
+<h4>Click the button next to the user to fetch updated information from Geekevents</h4>
+<table>
+    <thead>
+    <tr>
+        <th>GE Id</th>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>Badge</th>
+        <th>Update</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+        <tr>
+            <td>{{ user.ge_user_id }}</td>
+            <td>{{ user.user.first_name }} {{ user.user.last_name}}</td>
+            <td>{{ user.user.phone}}</td>
+            <td>{{ user.user.card }}</td>
+            <td><a style="color: white" href="./?id={{user.ge_user_id}}"><button class="waves-effect waves-light btn cyan">UPDATE</button</td></a>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    $('table').tablesort();
+</script>
+{% endblock content %}

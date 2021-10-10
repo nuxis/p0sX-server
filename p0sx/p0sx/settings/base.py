@@ -145,10 +145,14 @@ STATIC_ROOT = os.path.join(BASE_DIR, '..', 'collected_static')
 MEDIA_ROOT = os.path.join(BASE_DIR, '..', 'media')
 MEDIA_URL = '/media/'
 
-LOGIN_REDIRECT_URL = '/littleadmin/scan_user_card'
+LOGIN_REDIRECT_URL = '/littleadmin/update_ge_user'
 SITE_URL = ''
 
 # SumUp affiliate key. Create one on your SumUp account with application-id com.polarparty.p0sx
 SUMUP_AFFILIATE_KEY = ''
 # SumUp callback hostname, must include http:// or https:// and port if required.
 SUMUP_CALLBACK_HOSTNAME = ''
+
+# GeekEvents event id for the current party
+GE_EVENT_ID = None
+GE_SSO_SUCCESS_REDIRECT = None

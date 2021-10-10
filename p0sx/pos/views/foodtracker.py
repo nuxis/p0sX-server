@@ -1,7 +1,10 @@
-from django.http.response import HttpResponseRedirect
-from django.shortcuts import redirect, render
+from datetime import timedelta
 
-from pos.models.stock import Category, Order, OrderLine
+from django.http.response import HttpResponseRedirect
+from django.shortcuts import render
+from django.utils import timezone
+
+from pos.models.stock import Category, FoodLog, Order, OrderLine
 
 
 def active_orders(request):
@@ -13,10 +16,10 @@ def active_orders(request):
     done_orders = Order.objects.filter(state=2).filter(orderlines__log__state=2).order_by('orderlines__log__timestamp')
 
     return render(request, 'pos/active_orders.djhtml', {
-        'open_orders': open_orders, 
+        'open_orders': open_orders,
         'processing_orders': processing_orders,
         'done_orders': done_orders
-        })
+    })
 
 
 def production_station(request):
@@ -87,9 +90,17 @@ def delivery_station(request):
     else:
         processing_orderlines = OrderLine.objects.filter(state=1).filter(log__state=1).order_by('log__timestamp')
         done_orderlines = OrderLine.objects.filter(state=2).filter(log__state=2).order_by('log__timestamp')
-        done_orders = Order.objects.filter(state=2).order_by('orderlines__log__timestamp')
 
         return render(request, 'pos/delivery_station.djhtml', {
             'processing_orderlines': processing_orderlines,
             'done_orders': done_orderlines
         })
+
+
+def delivery_screen(request):
+    time_threshold = timezone.now() - timedelta(minutes=5)
+    orderlines = FoodLog.objects.filter(state=3).filter(timestamp__gte=time_threshold).order_by('timestamp')
+
+    return render(request, 'pos/delivery_screen.djhtml', {
+        'orderlines': orderlines
+    })

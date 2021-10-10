@@ -1,0 +1,64 @@
+{% load settings %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+        window.addEventListener("focus", e => window.location.reload());
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="refresh" content="5">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+        
+        main {
+            flex: 1 0 auto;
+        }
+
+        .lol {
+            font-size: 7vw;
+            text-align: center;
+            color: white;
+        }
+    </style>
+
+    <title>p0sX - FoodTracker</title>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-wrapper blue">
+            <a href="#" class="brand-logo">Klar til henting:{% if category %}: {{ category }}{% endif %}</a>
+            <div class="right-align">{% now "H:i" %}</div>
+        </div>
+    </nav>
+    <main>
+        <div class="section">
+            <div class="row">
+            {% for orderline in orderlines %}
+                <div class="col s2">
+                    <div class="card small green lighten-1 card-content black-text">
+                        <div class="lol">
+                        {{ orderline.orderline.id }}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="row">
+                </div>
+            {% endfor %}
+            </div>
+        </div>
+    </main>
+</body>
+</html>

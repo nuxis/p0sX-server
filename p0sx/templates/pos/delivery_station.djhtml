@@ -32,19 +32,19 @@
 <body>
     <nav>
         <div class="nav-wrapper cyan">
-            <a href="#" class="brand-logo">p0sX - FoodTracker Production Station{% if category %}: {{ category }}{% endif %}</a>
+            <a href="#" class="brand-logo">p0sX - FoodTracker Delivery Station{% if category %}: {{ category }}{% endif %}</a>
             <div class="right-align">{% now "H:i" %}</div>
         </div>
     </nav>
     <main>
         <div class="section">
             <div class="row">
-            <h5>Ordre som blir laget:</h5>
-            {% for orderline in processing_orderlines %}
+            <h5>Ordre til utlevering:</h5>
+            {% for orderline in done_orders %}
                 <div class="col s2">
-                    <div class="card small green lighten-5 card-content black-text" onclick="window.location.href = '?done={{ orderline.id }}'">
-                        <span class="card-title white-text black">{{ orderline.order.id }} - {{ orderline.item }}</span><br>
-                        Bestilt: {{ orderline.order.date|time:"H:i" }}, startet: {{ orderline.log.last.timestamp |time:"H:i" }}
+                    <div class="card small green lighten-5 card-content black-text" onclick="window.location.href = '?delivered={{ orderline.id }}'">
+                        <span class="card-title white-text black">{{ orderline.order.id }} - {{ orderline.item }}<br>{{ orderline.order.user.first_name }}</span><br>
+                        Bestilt: {{ orderline.order.date|time:"H:i" }}, ferdig: {{ orderline.log.last.timestamp |time:"H:i" }}
                         {% if orderline.item.created_in_the_kitchen %}
                             <p>{{ orderline.item }} <br>
                             {% for item in orderline.ingredients.all %}
@@ -64,10 +64,10 @@
         <div class="divider"></div>
         <div class="section">
             <div class="row">
-            <h5>Ordre i bestilling:</h5>
-            {% for orderline in open_orderlines %}
+            <h5>Ordre i produksjon:</h5>
+            {% for orderline in processing_orderlines %}
                 <div class="col s2">
-                    <div class="card small cyan lighten-5 card-content black-text" onclick="window.location.href = '?start={{ orderline.id }}'">
+                    <div class="card small cyan lighten-5 card-content black-text">
                         <span class="card-title white-text black">{{ orderline.order.id }} - {{ orderline.item }}</span><br>
                         Bestilt: {{ orderline.order.date|time:"H:i" }}
                         {% if orderline.item.created_in_the_kitchen %}

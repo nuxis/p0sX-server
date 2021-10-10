@@ -79,18 +79,17 @@ def delivery_station(request):
     if request.method == 'GET' and 'delivered' in request.GET:
         orderline_id = request.GET['delivered']
         orderline = OrderLine.objects.get(pk=orderline_id)
-        orderline.state = 2
+        orderline.state = 3
         orderline.save()
         url = request.build_absolute_uri(request.path)
         return HttpResponseRedirect(url)
 
     else:
-        open_orderlines = OrderLine.objects.filter(state=0).order_by('order__date')
         processing_orderlines = OrderLine.objects.filter(state=1).filter(log__state=1).order_by('log__timestamp')
+        done_orderlines = OrderLine.objects.filter(state=2).filter(log__state=2).order_by('log__timestamp')
         done_orders = Order.objects.filter(state=2).order_by('orderlines__log__timestamp')
 
-        return render(request, 'pos/production_station.djhtml', {
-            'open_orderlines': open_orderlines,
+        return render(request, 'pos/delivery_station.djhtml', {
             'processing_orderlines': processing_orderlines,
-            'done_orders': done_orders
+            'done_orders': done_orderlines
         })

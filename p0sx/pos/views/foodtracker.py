@@ -128,7 +128,7 @@ def delivery_station(request):
 
 def delivery_screen(request):
     time_threshold = timezone.now() - timedelta(minutes=5)
-    orderlines = OrderLine.objects.filter(log__state=2).exclude(log__state=3)
+    orderlines = OrderLine.objects.filter(state=2)
 
     return render(request, 'pos/delivery_screen.djhtml', {
         'orderlines': orderlines

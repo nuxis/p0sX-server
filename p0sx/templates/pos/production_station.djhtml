@@ -24,6 +24,10 @@
         main {
             flex: 1 0 auto;
         }
+
+        p {
+            font-size: 24px;
+        }
     </style>
 
     <title>p0sX - FoodTracker</title>

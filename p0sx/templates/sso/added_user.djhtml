@@ -24,5 +24,5 @@
     <title>Registrer bruker</title>
 </head>
 <body>
-    <h1>Velkommen {{first_name}} {{last_name}}, du kan nå fylle på penger og handle i kantina! :)</h1>
+    <h1>Velkommen {{first_name}} {{last_name}}, du kan nå fylle på penger i desken og handle i kantina! :)</h1>
 </body>

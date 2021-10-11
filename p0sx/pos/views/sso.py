@@ -1,7 +1,6 @@
 from django.http.response import HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
-import requests
 
 from ..models.user import GeekeventsToken, User
 
@@ -32,18 +31,25 @@ def add_user_callback(request):
         return HttpResponseBadRequest("Your user already exists")
 
     if not validate_token(user_id, timestamp, token):
-        return HttpResponseBadRequest("The token returned from GeekEvents could not be validated")
+        return HttpResponseBadRequest("The token returned from Geekevents could not be validated")
 
     if not user_has_ticket(user_id, timestamp, token):
         return HttpResponseForbidden("You do not have a valid ticket to this event")
 
-    ge_user = get_user(user_id, timestamp, token)
+    try:
+        ge_user = get_user(user_id, timestamp, token)
+    except:
+        return HttpResponseBadRequest("Failed to get user details from Geekevents")
 
     card = ge_user['usercard'].split('||')[0]
     first_name = ge_user['first_name']
     last_name = ge_user['last_name']
     phone = ge_user['phone']
     email = ge_user['email']
+
+    card_query = User.objects.filter(card=card)
+    if len(card_query) != 0:
+        return HttpResponseBadRequest("A user with your ID is already registered")
 
     user = User.create(card, 0, first_name, last_name, phone, email)
     user.save()
@@ -54,4 +60,3 @@ def add_user_callback(request):
     if redirect_url is not None:
         return redirect(redirect_url)
     return render(request, 'sso/added_user.djhtml', {'first_name': first_name, 'last_name': last_name})
-

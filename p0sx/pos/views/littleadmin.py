@@ -253,6 +253,7 @@ def add_user_credit(request, card=None):
 
         if form.is_valid():
             credit = form.cleaned_data['credit']
+            cash = form.cleaned_data['cash']
             user = get_object_or_404(User, card__iexact=card)
 
             if user.is_crew:
@@ -267,6 +268,10 @@ def add_user_credit(request, card=None):
             if amount > 1000:
                 messages.error(request, "The maximum credit that can be added at once is 1000. Add multiple times if more is needed")
                 return redirect('littleadmin:add_user_credit', card)
+
+            if(cash):
+                return redirect('littleadmin:verify_add_credit_cash', user.id, amount)
+
 
             transaction = SumUpCard.objects.create(user=user, amount=amount, authorized_user=request.user)
             tid = transaction.id
@@ -385,6 +390,38 @@ def verify_add_credit(request, tid=''):
         return render(request, 'pos/verify_add_credit.djhtml', {
             'tid': tid,
             'status': transaction.get_status_display()
+        })
+
+
+@permission_required('pos.update_credit')
+def verify_add_credit_cash(request, user='', amount=''):
+    if request.POST:
+        form = CheckCreditForm(request.POST)
+
+        if form.is_valid():
+            target = get_object_or_404(User, id=int(user))
+            card = form.cleaned_data['card']
+            crew = User.objects.filter(card__iexact=card)
+
+            if not crew or not crew[0].is_crew:
+                messages.error(request, "Failed to verify, are you crew?")
+                return redirect('littleadmin:verify_add_credit_cash', user, amount)
+
+            target.credit += int(amount)
+            target.save()
+
+            update = CreditUpdate.create(target, crew[0], amount)
+            update.save()
+
+            messages.success(request, f"Success! Credit set to {target.left}")
+            return redirect('littleadmin:scan_user_card')
+        else:
+            messages.error(request, "Failed to add user")
+            return HttpResponseRedirect(reverse_lazy('littleadmin:scan_user_card'))
+    else:
+        form = CheckCreditForm()
+        return render(request, 'pos/verify_add_credit_cash.djhtml', {
+            'form': form
         })
 
 

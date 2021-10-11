@@ -66,7 +66,7 @@ class OrderLineAdmin(admin.ModelAdmin):
 
 
 class OrderLineInline(admin.TabularInline):
-    readonly_fields = ('item', 'ingredients', 'price')
+    readonly_fields = ('item', 'ingredients', 'price', 'message')
     model = OrderLine
     extra = 0
 

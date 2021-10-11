@@ -67,8 +67,37 @@ def production_station_single(request, category):
         return HttpResponseRedirect(url)
 
     else:
-        open_orderlines = OrderLine.objects.filter(state=0).order_by('order__date')
-        processing_orderlines = OrderLine.objects.filter(state=1).filter(log__state=1).order_by('log__timestamp')
+        open_orderlines = OrderLine.objects.filter(state=0).filter(item__category=category).order_by('order__date')
+        processing_orderlines = OrderLine.objects.filter(state=1).filter(item__category=category).filter(log__state=1).order_by('log__timestamp')
+        category_name = Category.objects.get(pk=category)
+
+        return render(request, 'pos/production_station.djhtml', {
+            'open_orderlines': open_orderlines,
+            'processing_orderlines': processing_orderlines,
+            'category': category_name.name
+        })
+
+
+def production_station_exclude(request, category):
+    if request.method == 'GET' and 'done' in request.GET:
+        orderline_id = request.GET['done']
+        orderline = OrderLine.objects.get(pk=orderline_id)
+        orderline.state = 2
+        orderline.save()
+        url = request.build_absolute_uri(request.path)
+        return HttpResponseRedirect(url)
+
+    elif request.method == 'GET' and 'start' in request.GET:
+        orderline_id = request.GET['start']
+        orderline = OrderLine.objects.get(pk=orderline_id)
+        orderline.state = 1
+        orderline.save()
+        url = request.build_absolute_uri(request.path)
+        return HttpResponseRedirect(url)
+
+    else:
+        open_orderlines = OrderLine.objects.filter(state=0).exclude(item__category=category).order_by('order__date')
+        processing_orderlines = OrderLine.objects.filter(state=1).exclude(item__category=category).filter(log__state=1).order_by('log__timestamp')
         category_name = Category.objects.get(pk=category)
 
         return render(request, 'pos/production_station.djhtml', {

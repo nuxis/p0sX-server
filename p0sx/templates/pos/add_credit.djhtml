@@ -3,7 +3,12 @@
 Add credit
 {% endblock title %}
 {% block content %}
-
+<style>
+label[for=id_cash]
+{
+  display: none;
+}
+</style>
 <h1>Add credit to {{ target.first_name }} {{ target.last_name }}</h1>
 <h3>Current credit: {{ target.left }}Kr.</h3>
 <p>
@@ -21,7 +26,8 @@ Add credit
     <form action="" method="post">
         {% csrf_token %}
         {{ form }}
-        <button type="submit" class="waves-effect waves-light btn cyan">Save</button>
+        <button type="submit" class="waves-effect waves-light btn cyan">Save with SumUp</button>
+        <button type="submit" name="cash" value="true" class="waves-effect waves-light btn cyan">Save with CASH</button>
     </form>
 
     <script>

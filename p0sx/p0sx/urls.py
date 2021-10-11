@@ -21,7 +21,8 @@ from pos.views.littleadmin import (
     sale_overview,
     scan_user_card,
     verify_add_credit,
-    update_ge_user
+    update_ge_user,
+    verify_add_credit_cash
 )
 from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
 from pos.views.stock import (CategoryViewSet,
@@ -63,7 +64,7 @@ littleadmin_url = [
     url(r'add_user_credit/(?P<card>\w+)/sumup/(?P<transaction_id>\d+)/verify$', AddUserSumupCredit.as_view(),
         name='add_user_credit_sumup_verify', kwargs={'verify': True}),
     url(r'add_user/(?P<card>\w+)', add_user, name='add_user'),
-    # url(r'verify_add_credit/(?P<tid>\[a-zA-Z0-9-]+)', verify_add_credit, name='verify_add_credit'),
+    url(r'verify_add_credit_cash/(?P<user>\d+)/(?P<amount>\d+)', verify_add_credit_cash, name='verify_add_credit_cash'),
     path('verify_add_credit/<uuid:tid>', verify_add_credit, name='verify_add_credit'),
     # url(r'check_sumup_status/(?P<tid>\[a-zA-Z0-9-]+)', check_sumup_status, name='check_sumup_status'),
     path('check_sumup_status/<uuid:tid>', check_sumup_status, name='check_sumup_status'),

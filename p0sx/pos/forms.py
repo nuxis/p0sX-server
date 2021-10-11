@@ -9,6 +9,7 @@ class CheckCreditForm(forms.Form):
 
 class AddCreditForm(forms.Form):
     credit = forms.CharField(widget=forms.NumberInput(attrs={'autofocus': 'autofocus'}))
+    cash = forms.BooleanField(required=False)
 
 
 class ChangeCreditForm(forms.ModelForm):

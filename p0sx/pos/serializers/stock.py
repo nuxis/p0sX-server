@@ -149,6 +149,8 @@ class PurchaseSerializer(serializers.Serializer):
             crew = get_object_or_404(User.objects.all(), card=card)
             if payment_method != 1 and crew.is_crew:
                 raise ValidationError('The user is marked as crew but payment method was not CREDIT')
+            if payment_method == 1 and not crew.is_crew:
+                raise ValidationError('Only users marked as crew can use payment method CREDIT')
             order = Order.create(
                 crew, cashier, authenticated_user, payment_method, message)
         else:

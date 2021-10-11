@@ -43,7 +43,7 @@
             {% for orderline in processing_orderlines %}
                 <div class="col s2">
                     <div class="card small green lighten-5 card-content black-text" onclick="window.location.href = '?done={{ orderline.id }}'">
-                        <span class="card-title white-text black">{{ orderline.order.id }} - {{ orderline.item }}</span><br>
+                        <span class="card-title white-text black">{{ orderline.id }} - {{ orderline.item }}</span><br>
                         Bestilt: {{ orderline.order.date|time:"H:i" }}, startet: {{ orderline.log.last.timestamp |time:"H:i" }}
                         {% if orderline.item.created_in_the_kitchen %}
                             <p>{{ orderline.item }} <br>
@@ -68,7 +68,7 @@
             {% for orderline in open_orderlines %}
                 <div class="col s2">
                     <div class="card small cyan lighten-5 card-content black-text" onclick="window.location.href = '?start={{ orderline.id }}'">
-                        <span class="card-title white-text black">{{ orderline.order.id }} - {{ orderline.item }}</span><br>
+                        <span class="card-title white-text black">{{ orderline.id }} - {{ orderline.item }}</span><br>
                         Bestilt: {{ orderline.order.date|time:"H:i" }}
                         {% if orderline.item.created_in_the_kitchen %}
                             <p>{{ orderline.item }} <br>

@@ -45,11 +45,11 @@
     <main>
         <div class="section">
             <div class="row">
-            {% for orderline in orderlines %}
+            {% for o in orderlines %}
                 <div class="col s2">
                     <div class="card small green lighten-1 card-content black-text">
                         <div class="lol">
-                        {{ orderline.orderline.id }}
+                        {{ o.id }}
                         </div>
                     </div>
                 </div>

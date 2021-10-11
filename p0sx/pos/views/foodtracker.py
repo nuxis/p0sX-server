@@ -128,7 +128,7 @@ def delivery_station(request):
 
 def delivery_screen(request):
     time_threshold = timezone.now() - timedelta(minutes=5)
-    orderlines = FoodLog.objects.filter(state=3).filter(timestamp__gte=time_threshold).order_by('timestamp')
+    orderlines = OrderLine.objects.filter(log__state=2).exclude(log__state=3)
 
     return render(request, 'pos/delivery_screen.djhtml', {
         'orderlines': orderlines

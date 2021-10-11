@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
-from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase
+from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase, PAYMENT_METHOD
 from pos.models.user import User
 
 
@@ -147,6 +147,8 @@ class PurchaseSerializer(serializers.Serializer):
 
         if card:
             crew = get_object_or_404(User.objects.all(), card=card)
+            if payment_method != 1 and crew.is_crew:
+                raise ValidationError('The user is marked as crew but payment method was not CREDIT')
             order = Order.create(
                 crew, cashier, authenticated_user, payment_method, message)
         else:

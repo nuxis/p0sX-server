@@ -17,7 +17,7 @@ PAYMENT_METHOD = (
     (1, 'CREDIT'),
     (2, 'CARD'),
     (3, 'VIPPS'),
-    (4, 'MCASH'),
+    (4, 'PREPAID'),
     (5, 'MOBILEPAY'),
     (6, 'IZETTLE'),
     (7, 'UNDO')

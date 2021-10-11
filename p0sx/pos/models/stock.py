@@ -111,7 +111,7 @@ class OrderLine(models.Model):
     price = models.IntegerField()
     order = models.ForeignKey(Order, related_name='orderlines', db_index=True, on_delete=models.CASCADE)
     state = models.SmallIntegerField(choices=ORDER_STATE, default=0)
-    message = models.CharField(max_length=255, blank=True)
+    message = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         s = self.item.name

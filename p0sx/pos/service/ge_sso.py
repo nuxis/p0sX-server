@@ -30,12 +30,15 @@ def user_has_ticket(user_id, timestamp, token):
         'timestamp': timestamp,
         'event_id': EVENT_ID
     }
-    req = requests.post(
-        url=url,
-        data=data
-    )
+    try:
+        req = requests.post(
+            url=url,
+            data=data
+        )
 
-    return int(req.content) > 0
+        return int(req.content) > 0
+    except:
+        return False
 
 def validate_token(user_id, timestamp, token):
     url = API_URL + '/validate/'
@@ -44,11 +47,13 @@ def validate_token(user_id, timestamp, token):
         'token': token,
         'timestamp': timestamp
     }
-    req = requests.post(
-        url=url,
-        data=data,
-        headers={'referer': 'https://lianleker.pp29.polarparty.no'}
-    )
-    result = req.json()
+    try:
+        req = requests.post(
+            url=url,
+            data=data
+        )
+        result = req.json()
+    except:
+        return False
 
     return result["status"]

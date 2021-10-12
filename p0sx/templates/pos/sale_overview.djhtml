@@ -16,7 +16,7 @@ Sale overview
         <tr>
             <th>Item:</th>
             <th>Sold</th>
-            <th>Cash</th>
+            <th>Prepaid</th>
             <th>Credit</th>
             <th>Total</th>
         </tr>
@@ -26,7 +26,7 @@ Sale overview
         <tr>
             <td>{{ item.name }}</td>
             <td>{{ item.sold }}</td>
-            <td>{{ item.cash }}</td>
+            <td>{{ item.prepaid }}</td>
             <td>{{ item.credit }}</td>
             <td>{{ item.total }}</td>
         </tr>
@@ -45,16 +45,16 @@ Sale overview
     </tr>
     <tr>
         <th>Shift:</th>
-        <th>Cash</th>
+        <th>Prepaid</th>
         <th>Credit</th>
         <th>Total</th>
     </tr>
     {% for shift in shifts %}
     <tr>
         <td>{{ shift.shift_name }}</td>
-        <td>{{ shift.cash }}</td>
+        <td>{{ shift.prepaid }}</td>
         <td>{{ shift.credit }}</td>
-        <td>{{ shift.credit|add:shift.cash }}</td>
+        <td>{{ shift.credit|add:shift.prepaid }}</td>
     </tr>
     {% endfor %}
     <tr>
@@ -62,13 +62,13 @@ Sale overview
     </tr>
     <tr>
         <th></th>
-        <th>Cash</th>
+        <th>Prepaid</th>
         <th>Credit</th>
         <th>Total</th>
     </tr>
     <tr>
         <th></th>
-        <td>{{ total.cash }}</td>
+        <td>{{ total.prepaid }}</td>
         <td>{{ total.credit }}</td>
         <td>{{ total.total }}</td>
     </tr>

@@ -127,7 +127,7 @@ def sale_overview(request):
                   sold=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
 
     items = Item.objects.all().values('name', 'category__name', 'id', 'price')
-    total = {'cash': 0, 'credit': 0, 'total': 0}
+    total = {'prepaid': 0, 'credit': 0, 'total': 0}
 
     overview = {}
 
@@ -138,13 +138,13 @@ def sale_overview(request):
         except IndexError:
             credit = {'sold': 0, 'total': 0}
         try:
-            cash = per_payment_method.filter(order__payment_method=0)[0]
+            prepaid = per_payment_method.filter(order__payment_method=4)[0]
         except IndexError:
-            cash = {'sold': 0, 'total': 0}
-        item['cash'] = cash['total']
+            prepaid = {'sold': 0, 'total': 0}
+        item['prepaid'] = prepaid['total']
         item['credit'] = credit['total']
-        item['sold'] = cash['sold'] + credit['sold']
-        item['total'] = item['cash'] + item['credit']
+        item['sold'] = prepaid['sold'] + credit['sold']
+        item['total'] = item['prepaid'] + item['credit']
 
         if item['price'] < 0:
             item['sold'] *= -1
@@ -154,7 +154,7 @@ def sale_overview(request):
         else:
             overview[item['category__name']] = [item]
 
-        total['cash'] += item['cash']
+        total['prepaid'] += item['prepaid']
         total['credit'] += item['credit']
         total['total'] += item['total']
 

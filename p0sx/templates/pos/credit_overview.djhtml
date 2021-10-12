@@ -54,13 +54,13 @@ Credit overview
             <td>
                 {{ user.card }}
             </td>
-            <td>
+            <td data-sort-value="{{ user.used }}">
                 {{ user.used }}
             </td>
-            <td>
+            <td data-sort-value="{{ user.left }}">
                 {{ user.left }}
             </td>
-            <td>
+            <td data-sort-value="{{ user.credit }}">
                 {{ user.credit }}
             </td>
         </tr>

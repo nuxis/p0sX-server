@@ -14,7 +14,7 @@ class ShiftSerializer(serializers.ModelSerializer):
     credit = serializers.SerializerMethodField()
     card = serializers.SerializerMethodField()
     vipps = serializers.SerializerMethodField()
-    mcash = serializers.SerializerMethodField()
+    prepaid = serializers.SerializerMethodField()
     mobilepay = serializers.SerializerMethodField()
     izettle = serializers.SerializerMethodField()
     undo = serializers.SerializerMethodField()
@@ -51,7 +51,7 @@ class ShiftSerializer(serializers.ModelSerializer):
     def get_vipps(self, obj):
         return self.accumulate_sum(obj, 3)
 
-    def get_mcash(self, obj):
+    def get_prepaid(self, obj):
         return self.accumulate_sum(obj, 4)
 
     def get_mobilepay(self, obj):

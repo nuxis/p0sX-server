@@ -37,7 +37,7 @@ Add credit stats
             <td>{{ update.timestamp|date:'Y-m-d H:i' }}</td>
             <td>{{ update.updated_by_user }}</td>
             <td>{{ update.user }}</td>
-            <td>{{ update.amount }}</td>
+            <td data-sort-value="{{ update.amount }}">{{ update.amount }}</td>
         </tr>
     {% endfor %}
     </tbody>
@@ -67,7 +67,7 @@ Add credit stats
         <tr>
             <td>{{ order.date|date:'Y-m-d H:i' }}</td>
             <td>{{ order.user }}</td>
-            <td>{{ order.sum }}</td>
+            <td data-sort-value="{{ order.sum }}">{{ order.sum }}</td>
         </tr>
     {% endfor %}
     </tbody>

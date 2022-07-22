@@ -41,7 +41,11 @@ def add_user_callback(request):
     except:
         return HttpResponseBadRequest("Failed to get user details from Geekevents")
 
-    card = ge_user['usercard'].split('||')[0]
+    card_string = ge_user['usercard']
+    if type(card_string) != str or not '||' in card_string:
+        return HttpResponseBadRequest("You do not have a badge number on your user, are you correctly registered?")
+
+    card = card_string.split('||')[0]
     first_name = ge_user['first_name']
     last_name = ge_user['last_name']
     phone = ge_user['phone']

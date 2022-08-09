@@ -3,7 +3,10 @@ from urllib.parse import urljoin
 
 from django.utils import timezone
 
+import json
 import requests
+
+from p0sx.settings.base import SITE_URL, SUMUP_CALLBACK_HOSTNAME, SUMUP_MERCHANT_CODE
 
 
 API_URL = 'https://api.sumup.com/'
@@ -61,6 +64,23 @@ def fetch_transaction_status(api_key, txid):
         return False
 
 
+def fetch_onlinetransaction_status(api_key, tid):
+    if api_key.token_expired:
+        api_key.refresh_current_token()
+    url = urljoin(API_URL, '/v0.1/checkouts/' + tid)
+    req = requests.get(
+        url=url,
+        headers={'Authorization': 'Bearer {}'.format(api_key.token)}
+    )
+    td = req.json()
+    print(td)
+    if 'status' in td:
+        if td['status'] == 'PAID':
+            return True
+    else:
+        return False
+
+
 def refresh_token(api_key):
     req = requests.post(
         url=urljoin(API_URL, 'token'),
@@ -76,4 +96,31 @@ def refresh_token(api_key):
     api_key.token_expiry = timezone.now() + timedelta(seconds=ret['expires_in'])
     api_key.refresh_token = ret['refresh_token']
     api_key.refresh_token_expiry = timezone.now() + timedelta(days=180)
+    print(ret['scope'])
     api_key.save()
+
+
+def create_checkout(api_key, tid, amount, phone):
+    if api_key.token_expired:
+        api_key.refresh_current_token()
+    req = requests.post(
+        url=urljoin(API_URL, '/v0.1/checkouts'),
+        headers={'Authorization': 'Bearer {}'.format(api_key.token)},
+        data={
+            'checkout_reference': str(tid),
+            'amount': amount,
+            'currency': 'NOK',
+            'merchant_code': SUMUP_MERCHANT_CODE,
+            'return_url': SUMUP_CALLBACK_HOSTNAME + 'callbackonline/' + str(tid),
+            'description': 'PolarPæng Online ' + phone
+            #'redirect_url': SITE_URL + 'littleadmin/sumup-return/'  # + str(tid)
+        }
+    )
+    ret = req.json()
+
+    if ret['id']:
+        txid = ret['id']
+        return txid
+
+    else:
+        return False

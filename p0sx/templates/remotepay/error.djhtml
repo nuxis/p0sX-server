@@ -1,0 +1,20 @@
+{% extends 'remotepay/paybase.djhtml' %}
+{% load static %}
+{% block content %}
+
+<div class="row">
+    <div class="col s12 m6 offset-m3"><h1 class="center-align">Fyll på PolarPæng</h1></div>
+</div>
+<div class="row">
+    <div class="col s12 m6 offset-m3 center-align">
+        <img src="{% static 'img/x.gif' %}">
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 m6 offset-m3">
+        <p>Beklager, men kortet ble ikke akseptert. Sjekk om du har dekning nok på kortet og prøv igjen. Dersom problemet vedvarer, ta kontakt med oss i inngangen på arrangementet. </p>
+        <p><a href="/pay/" class="btn waves-effect waves-light amber accent-3">Lad opp igjen</a></p>
+    </div>
+</div>
+
+{% endblock content %}

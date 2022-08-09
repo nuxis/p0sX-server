@@ -23,3 +23,13 @@ DATABASES = {
     }
 }
 
+# SumUp affiliate key. Create one on your SumUp account with application-id com.polarparty.p0sx
+SUMUP_AFFILIATE_KEY = 'b7231c79-0828-4f82-97d1-8f63234b5798'
+# SumUp callback hostname, must include http:// or https:// and port if required.
+SUMUP_CALLBACK_HOSTNAME = 'https://p0sx.eth0.no/'
+# SumUp Merchant code
+SUMUP_MERCHANT_CODE = 'MFD3L9DH'
+
+# GeekEvents event id for the current party
+GE_EVENT_ID = None
+GE_SSO_SUCCESS_REDIRECT = None

@@ -1,3 +1,4 @@
+from tabnanny import check
 import uuid
 from datetime import timedelta
 from urllib.parse import urlencode, urljoin
@@ -8,11 +9,13 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
-from pos.models.sumup import SumUpAPIKey, SumUpCard
-from pos.service.sumup import API_URL, fetch_transaction_status
+from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpOnline
+from pos.service.sumup import API_URL, fetch_onlinetransaction_status, fetch_transaction_status
 
+import json
 import requests
 
 
@@ -39,7 +42,7 @@ def sumup_callback(request, tid):
             tr.save()
 
         elif callback.get('smp-status') == 'success':
-            api_key = SumUpAPIKey.objects.get()
+            api_key = SumUpAPIKey.objects.last()
             txstatus = fetch_transaction_status(api_key, callback.get('smp-tx-code'))
             if txstatus is True:
                 tr.status = 2
@@ -48,6 +51,44 @@ def sumup_callback(request, tid):
                 tr.save()
                 tr.update_user()
     return HttpResponse('<script type="text/javascript">window.close()</script>')
+
+
+# {"id":"88b907dd-a6ca-441f-b264-b3d02a8d1f79","status":"SUCCESSFUL","event_type":"CHECKOUT_STATUS_CHANGED"}
+@csrf_exempt
+def sumup_callbackonline(request, tid):
+    callback = json.loads(request.body)
+    checkoutid = callback['id']
+    status = callback['status']
+
+    try:
+        tr = SumUpOnline.objects.get(id=tid, transaction_id=checkoutid, status=1)
+    
+    except:
+        print('DEBUG: Id:' + str(tid) + ' CheckoutId:' + checkoutid + ' combo not found!')
+        
+    if status == 'SUCCESSFUL':
+        api_key = SumUpAPIKey.objects.last()
+        transactionstatus = fetch_onlinetransaction_status(api_key, checkoutid)
+        if transactionstatus is True:
+            print('transaction checked and OK')
+            tr.status = 2
+            tr.transaction_comment = status
+            tr.save()
+            tr.update_user()
+
+        else:
+            print('transaction could not be confirmed ' + checkoutid)
+            tr.status = 3
+            tr.transaction_comment = 'NOT CONFIRMED'
+            tr.save()
+    
+    else:
+        print('transaction failed')
+        tr.status = 3
+        tr.transaction_comment = status
+        tr.save()
+
+    return HttpResponse('OK')
 
 
 def set_processing(request, transaction):
@@ -79,8 +120,8 @@ class SumUpAuthView(View):
         data = {
             'response_type': 'code',
             'state': instance.access_code_state,
-            'scope': 'transactions.history',
-            'redirect_uri': urljoin(settings.SITE_URL, reverse('littleadmin:sumup_return')),
+            'scope': 'transactions.history payments',
+            'redirect_uri': urljoin(settings.SUMUP_CALLBACK_HOSTNAME, reverse('littleadmin:sumup_return')),
             'client_id': instance.client_id,
         }
         url = urljoin(API_URL, 'authorize') + '?' + urlencode(data)

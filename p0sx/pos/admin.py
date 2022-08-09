@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, FoodLog, Ingredient, Item, ItemIngredient, Order, OrderLine
-from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpTerminal, SumUpTransaction
+from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpOnline, SumUpTerminal, SumUpTransaction
 from pos.models.user import CreditUpdate, User, GeekeventsToken
 
 
@@ -91,6 +91,11 @@ class ShiftAdmin(admin.ModelAdmin):
 class SumUpAPIKeyAdmin(admin.ModelAdmin):
     pass
 
+class SumUpOnlineAdmin(admin.ModelAdmin):
+    readonly_fields = ('id', 'created', 'timestamp', 'transaction_id', 'transaction_comment')
+    ordering = ('-created',)
+    list_display = ('user', 'amount', 'status', 'created', 'transaction_id', 'transaction_comment',)
+    pass
 
 class SumUpTerminalAdmin(admin.ModelAdmin):
     pass
@@ -149,5 +154,6 @@ admin.site.register(SumUpAPIKey, SumUpAPIKeyAdmin)
 admin.site.register(SumUpTerminal, SumUpTerminalAdmin)
 admin.site.register(SumUpTransaction, SumUpTransactionAdmin)
 admin.site.register(SumUpCard, SumUpCardAdmin)
+admin.site.register(SumUpOnline, SumUpOnlineAdmin)
 
 admin.site.register(FoodLog, FoodLogAdmin)

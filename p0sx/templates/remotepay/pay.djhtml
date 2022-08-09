@@ -1,0 +1,38 @@
+{% extends 'remotepay/paybase.djhtml' %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col s12 m6 offset-m3"><h1 class="center-align">Fyll på PolarPæng</h1></div>
+</div>
+
+<div class="row">
+    <div class="col s12 m6 offset-m3">
+        <p>Her kan du lade opp PolarPæng på ditt eller noen andres armbånd! </p>
+        <p>Støttede kort er VISA og MasterCard og transaksjonen blir gjort gjennom vår betalingsleverandør SumUp Limited. </p>
+        <p>Kortinformasjon lagt lagt inn på denne siden blir ikke lagret hos oss da dette går direkte til vår betalingsleverandør. </p>
+        <p>For å lade opp PolarPæng må du bruke telefonnummeret til personen som er registrert som bruker av PolarPæng. Av personvernhensyn kan vi ikke oppgi navn eller annen bekreftende informasjon på at du har skrevet inn riktig telefonnummer. Dersom vi ikke finner telefonnummeret i systemet vil du ikke få betalt.  </p>
+        <p>Minste beløp for påfylling er kr. 50,-, maks kr. 1000,-. Det kan fylles på et ubegrenset antall ganger. </p>
+        <p>Ved problemer med oppladingen, vennligst kontakt oss i inngangen til arrangementet, så vil vi hjelpe deg!</p>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 m6 offset-m3">
+        <form action="/pay/" method="POST">
+            {% csrf_token %}
+        <p>Hva er telefonnummeret til personen som skal ha oppladingen av PolarPæng? <br />
+            <div class="input-field">
+            <label for="{{ form.phone.id_for_label }}">Telefonnummer</label>
+            {{ form.phone }} </div>{% if error %}<i class="material-icons">error</i> <span class="red-text">Uffda, vi finner ikke telefonnummeret. Sjekk at du har skrevet riktig og prøv igjen. </span>{% endif %}</p>
+        <p>Hvor mye ønsker du å sette inn?<br />
+            <div class="input-field">
+            <label for="{{ form.amount.id_for_label }}">Beløp</label>
+            {{ form.amount }} </div></p>
+        <p><button class="btn waves-effect waves-light amber accent-4" type="submit" name="action">Gå videre</button></p>
+        {% if systemerror %}<p class="red-text">Beklager, det er en teknisk feil med systemet. Prøv igjen senere. </p>{% endif %}
+        </form>
+    </div>
+        
+</div>
+
+{% endblock content %}

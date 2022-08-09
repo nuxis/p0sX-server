@@ -6,7 +6,8 @@ from django.contrib.auth import views as auth_views
 from django.urls import path, reverse_lazy
 from django.views.generic.base import RedirectView
 
-from pos.views.foodtracker import active_orders, delivery_screen, delivery_station, production_station, production_station_single, production_station_exclude
+
+from pos.views.foodtracker import active_orders, delivery_screen, delivery_station, production_station, production_station_exclude, production_station_single
 from pos.views.littleadmin import (
     AddUserSumupCredit,
     add_credit_stats,
@@ -20,11 +21,16 @@ from pos.views.littleadmin import (
     fetch_credit_from_ge,
     sale_overview,
     scan_user_card,
-    verify_add_credit,
     update_ge_user,
+    verify_add_credit,
     verify_add_credit_cash
 )
+from pos.views.remotepay import pay, pay_callback, pay_success, pay_error, pay_hold
 from pos.views.shift import AllShiftsViewSet, CurrentShiftViewSet, NewShiftViewSet, ShiftViewSet
+from pos.views.sso import (
+    add_user,
+    add_user_callback
+)
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
                              DiscountViewSet,
@@ -32,13 +38,9 @@ from pos.views.stock import (CategoryViewSet,
                              OrderLineViewSet,
                              OrderViewSet,
                              PurchaseViewSet)
-from pos.views.sumup import SumUpAuthView, get_pending_transactions, set_processing, sumup_callback
+from pos.views.sumup import SumUpAuthView, get_pending_transactions, set_processing, sumup_callback, sumup_callbackonline
 from pos.views.user import UserViewSet
 
-from pos.views.sso import (
-    add_user,
-    add_user_callback
-)
 
 from rest_framework import routers
 
@@ -81,6 +83,7 @@ sso_url = [
     path('add_user_callback/', add_user_callback, name='add_user_callback')
 ]
 
+
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.SimpleRouter()
 router.register(r'user', UserViewSet)
@@ -102,10 +105,16 @@ urlpatterns = [
     url(r'^logout/$', auth_views.LogoutView.as_view(next_page='/login'), name='logout'),
     url(r'^admin/', admin.site.urls),
     url(r'^', include(router.urls)),
-    url(r'littleadmin/', include((littleadmin_url, "pos"), namespace="littleadmin")),
-    url(r'sso/', include((sso_url, "pos"), namespace="sso")),
+    url(r'littleadmin/', include((littleadmin_url, 'pos'), namespace='littleadmin')),
+    url(r'sso/', include((sso_url, 'pos'), namespace='sso')),
+    path('pay/', pay, name='pay'),
+    path('pay/callback/<uuid:checkoutid>', pay_callback, name='pay_callback'),
+    path('pay/success/', pay_success, name='pay_success'),
+    path('pay/hold/', pay_hold, name='pay_hold'),
+    path('pay/error/', pay_error, name='pay_error'),
     # url(r'callback/(?P<tid>\d+)', sumup_callback, name='sumup_callback')
     path('callback/<uuid:tid>', sumup_callback, name='sumup_callback'),
+    path('callbackonline/<uuid:tid>', sumup_callbackonline, name='sumup_callbackonline'),
     path('foodtracker/active/', active_orders, name='active_orders'),
     path('foodtracker/production_station/', production_station, name='production_station'),
     path('foodtracker/production_station/<int:category>/', production_station_single, name='production_station_single'),

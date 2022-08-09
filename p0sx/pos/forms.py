@@ -36,3 +36,8 @@ class AddUserForm(forms.ModelForm):
 class CreditStatsForm(forms.Form):
     from_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
     to_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+
+
+class RemotePayForm(forms.Form):
+    phone = forms.CharField(widget=forms.TextInput(attrs={'pattern': '[49]\d{7}', 'minlength': '8', 'maxlength': '8', 'oninvalid': 'this.setCustomValidity(\'Skriv inn et gyldig mobilnummer\')', 'oninput': 'this.setCustomValidity(\'\')'}))
+    amount = forms.CharField(widget=forms.TextInput(attrs={'pattern': '(5[0-9]|[6-9][0-9]|[1-9][0-9]{2}|1000)', 'oninvalid': 'this.setCustomValidity(\'Skriv inn et beløp mellom kr. 50,- og kr. 1000,-\')', 'oninput': 'this.setCustomValidity(\'\')'}))

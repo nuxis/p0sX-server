@@ -1,0 +1,25 @@
+{% extends 'remotepay/paybase.djhtml' %}
+{% load static %}
+{% block content %}
+
+<div class="row">
+    <div class="col s12 m6 offset-m3"><h1 class="center-align">Fyll på PolarPæng</h1></div>
+</div>
+<div class="row">
+    <div class="col s12 m6 offset-m3 center-align">
+        <img src="{% static 'img/q.gif' %}" width="200">
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 m6 offset-m3">
+        <p>Vennligst vent... </p>
+        <p>Dersom denne siden blir stående oppe veldig lenge, vennligst ta kontakt med oss i inngangen på arrangementet. </p>
+    </div>
+</div>
+<script>
+    setTimeout(function(){
+        window.location.reload();
+     }, 5000);
+</script>
+
+{% endblock content %}

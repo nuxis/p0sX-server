@@ -1,0 +1,45 @@
+{% extends 'remotepay/paybase.djhtml' %}
+
+{% block script %}
+
+{% endblock script %}
+
+{% block content %}
+<div class="row">
+    <div class="col s12 m6 offset-m3"><h1 class="center-align">Fyll på PolarPæng</h1></div>
+</div>
+<div class="row">
+    <div class="col s12 m6 offset-m3">
+        <p>Du lader nå opp kr. {{ amount }},- til bruker med mobilnummer {{ phone }}. </p>
+        <p><a href="/pay/" class="waves-effect waves-light btn red">Avbryt</a></p>
+    </div>
+</div>
+<div class="row">
+    <div class="col s12 m8 offset-m2">
+        <div id="sumup-card" class="card-panel grey lighten-3"></div>
+        <script type="text/javascript" src="https://gateway.sumup.com/gateway/ecom/card/v2/sdk.js"></script>
+<script type="text/javascript">
+  SumUpCard.mount({
+    checkoutId: "{{ txid }}",
+    locale: "nb-NO", 
+    amount: "{{ amount }}", 
+    currency: "NOK",
+    onResponse: function (type, body) {
+        
+        console.log("Type", type);
+        console.log("Body", body);
+
+        if(type === "success") {
+            window.location.href = "/pay/callback/{{ txid }}";
+        }
+        if(type === "error") {
+            window.location.href = "/pay/error/";
+        }
+        
+    },
+  });
+</script>
+    </div>
+</div>
+
+{% endblock content %}

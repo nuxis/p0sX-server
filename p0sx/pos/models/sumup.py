@@ -133,3 +133,41 @@ class SumUpCard(models.Model):
         self.status = 4
         self.save()
         return True
+
+
+class SumUpOnline(models.Model):
+
+    def __str__(self):
+        return '{} to {} with status {}'.format(self.amount, self.user, self.get_status_display())
+    SUMUP_STATUS = [
+        (0, 'CREATED'),
+        (1, 'PROCESSING'),
+        (2, 'SUCCESS'),
+        (3, 'FAILED'),
+        (4, 'COMPLETE'),
+    ]
+
+    id = models.UUIDField(default=uuid.uuid4, unique=True, primary_key=True)
+    user = models.ForeignKey(User, on_delete=models.PROTECT)
+    amount = models.DecimalField(max_digits=9, decimal_places=2)
+    status = models.SmallIntegerField(choices=SUMUP_STATUS, default=0)
+    transaction_id = models.CharField(max_length=64, null=True, blank=True)
+    transaction_comment = models.CharField(max_length=256, null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    @transaction.atomic
+    def update_user(self):
+        if not self.status == 2:
+            return False
+
+        user = self.user
+        user.credit += self.amount
+        user.save()
+
+        from pos.models.user import CreditUpdate
+        cu = CreditUpdate.sumup_create(user=self.user, amount=self.amount)
+        cu.save()
+        self.status = 4
+        self.save()
+        return True

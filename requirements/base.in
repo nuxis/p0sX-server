@@ -7,5 +7,5 @@ ipython
 https://github.com/kradalby/pyGE/archive/master/0.0.4.zip 
 django-environ
 pip-tools
-Pillow>=8.2
+Pillow>=7.1
 psycopg2

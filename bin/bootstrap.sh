@@ -21,28 +21,14 @@ else
   COMPOSE_SOURCE="$CODE_BASE/config/compose/dev.yaml"
 fi
 
-info "Creating symlinks for configuration where they do not exist..."
 if [ ! -h "docker-compose.yaml" ]
 then
-  ln -s "$COMPOSE_SOURCE" "$CODE_BASE/docker-compose.yaml"
   info "Created compose file from $COMPOSE_SOURCE"
-fi
-
-if [ ! -f "$CONFIG_DIR/local.env" ]
-then
-  info "Created $CONFIG_DIR/local.env"
-  echo "# Put local configuration that overrides other config here" >> $CONFIG_DIR/local.env
-fi
-
-
-if [ ! -h ".env" ]
-then
-  ln -s "$CONFIG_DIR/local.env" "$CODE_BASE/.env"
-  info "Linked .env to config/env/local.env"
+  ln -sf "$COMPOSE_SOURCE" "$CODE_BASE/docker-compose.yaml"
 fi
 
 # Generate secrets if not generated from before
-if [ -f "$CONFIG_DIR/generated.env" ]
+if [ -s "$CONFIG_DIR/generated.env" ]
 then
     info "$CONFIG_DIR/generated.env is not empty; not generating secrets"
 else

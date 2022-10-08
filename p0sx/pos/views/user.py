@@ -8,4 +8,4 @@ from rest_framework import viewsets
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CrewSerializer
-    filter_fields = ('card',)
+    filterset_fields = ['card']

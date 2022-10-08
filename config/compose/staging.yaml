@@ -8,8 +8,6 @@ x-env: &env
     - ./config/env/prod.env
     - ./config/env/generated.env
     - ./config/env/local.env
-  environment:
-    ENVIRONMENT: staging
 
 services:
   server:

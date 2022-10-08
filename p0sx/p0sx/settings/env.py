@@ -1,17 +1,11 @@
-from p0sx.settings.base import *
-
 import environ
-import sentry_sdk
-from sentry_sdk.integrations.celery import CeleryIntegration
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.redis import RedisIntegration
+from p0sx.settings.base import *
 
 env = environ.Env()
 
-ENVIRONMENT = env.str('ENVIRONMENT', default='dev')
 ALLOWED_HOSTS = env.str('ALLOWED_HOSTS').split(',')
 
-# SECURITY WARNING: keep the secret key used in' production secret!
+# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env.str('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -41,14 +35,3 @@ BROKER_URL = 'redis://{host}:{port}/{number}'.format(
 
 STATIC_ROOT = env.str('STATIC_ROOT')
 MEDIA_ROOT = env.str('MEDIA_ROOT')
-
-SENTRY_DSN = env.str('SENTRY_DSN', default=None)
-if SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        integrations=[DjangoIntegration(), RedisIntegration(), CeleryIntegration()],
-        traces_sample_rate=1.0,
-        environment=ENVIRONMENT,
-        send_default_pii=True,
-        release=VERSION
-    )

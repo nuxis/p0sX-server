@@ -13,10 +13,10 @@ function prod {
     echo Starting uwsgi
     exec uwsgi --chdir=/code/p0sx \
         --module=p0sx.wsgi:application \
-        --env DJANGO_SETTINGS_MODULE=p0sx.settings.env \
+        --env DJANGO_SETTINGS_MODULE=p0sx.settings.prod \
         --master --pidfile=/tmp/project-master.pid \
-        --socket=0.0.0.0:8000 \
-        --http=0.0.0.0:8001 \
+        --socket=0.0.0.0:8080 \
+        --http=0.0.0.0:8081 \
         --processes=5 \
         --harakiri=20 \
         --max-requests=5000 \
@@ -41,15 +41,6 @@ function shell {
     python manage.py shell_plus
 }
 
-function run_celery {
-    cd /code/p0sx
-    celery -A p0sx worker -l info -B
-}
-
-function test {
-  py.test
-}
-
 function compile-pip {
   echo "Compiling pip requirements"
   echo "Base requirements..."
@@ -58,6 +49,8 @@ function compile-pip {
   pip-compile requirements/lint.in --output-file requirements/lint.txt
   echo "Dev requirements..."
   pip-compile requirements/dev.in --output-file requirements/dev.txt
+  echo "Prod requirements..."
+  pip-compile requirements/prod.in --output-file requirements/prod.txt
 }
 
 "$@"

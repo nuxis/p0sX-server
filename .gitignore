@@ -1,10 +1,9 @@
-config/env/generated.env
+env/
 .env
 venv/
 collected_static/
 prod.py
 .tox/
-docker-compose.yaml
 # Created by https://www.gitignore.io/api/django,osx,linux,windows,idea,intellj,pycharm,vim,visualstudio
 
 ### Django ###
@@ -15,7 +14,6 @@ __pycache__/
 local_settings.py
 *.sqlite3
 media
-p0sx/celerybeat-schedule
 
 
 ### OSX ###

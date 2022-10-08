@@ -15,4 +15,3 @@ django-redis>=5,<6
 uwsgi
 pytest
 pytest-pythonpath
-sentry-sdk

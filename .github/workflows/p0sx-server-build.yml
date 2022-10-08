@@ -10,10 +10,6 @@ env:
   SECRET_KEY: "testingonetwoonetwo"
   SITE_URL: "localhost"
   DJANGO_SETTINGS_MODULE: "p0sx.settings.env"
-  CELERY_BROKER_HOST: "redis"
-  CELERY_BROKER_NUMBER: "0"
-  STATIC_ROOT: "/code/collected_static"
-  MEDIA_ROOT: "/code/media"
 
 jobs:
   build:
@@ -44,7 +40,7 @@ jobs:
       - name: Run migrations
         run: cd p0sx && python manage.py migrate
       - name: Run tests
-        run: py.test
+        run: cd p0sx && python manage.py test
       - name: Lint with flake8
         run: |
           pip install flake8

@@ -31,16 +31,6 @@ function devserver {
     python manage.py runserver_plus 0.0.0.0:8000
 }
 
-function manage {
-    cd /code/p0sx
-    python manage.py
-}
-
-function shell {
-    cd /code/p0sx
-    python manage.py shell_plus
-}
-
 function compile-pip {
   echo "Compiling pip requirements"
   echo "Base requirements..."

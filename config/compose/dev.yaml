@@ -16,9 +16,6 @@ services:
       - DJANGO_SETTINGS_MODULE=p0sx.settings.env
     image: p0sx-server
     command: devserver
-    depends_on:
-      - postgres
-      - redis
     volumes:
       - ".:/code"
       - "./media:/media"

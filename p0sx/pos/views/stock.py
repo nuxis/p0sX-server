@@ -39,7 +39,7 @@ class ItemViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    filter_fields = ('state',)
+    filterset_fields = ['state']
 
 
 class PurchaseViewSet(viewsets.ViewSet):

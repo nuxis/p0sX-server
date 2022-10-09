@@ -55,6 +55,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
+    'django_q',
 )
 
 MIDDLEWARE = [
@@ -157,3 +158,16 @@ SUMUP_MERCHANT_CODE = ''
 # GeekEvents event id for the current party
 GE_EVENT_ID = None
 GE_SSO_SUCCESS_REDIRECT = None
+
+Q_CLUSTER = {
+    'name': 'p0sX',
+    'workers': 1,
+    'recycle': 500,
+    'timeout': 60,
+    'compress': True,
+    'save_limit': 250,
+    'queue_limit': 500,
+    'cpu_affinity': 1,
+    'label': 'Django Q',
+    'orm': 'default'
+}

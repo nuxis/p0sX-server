@@ -4,6 +4,7 @@ from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, FoodLog, Ingredient, Item, ItemIngredient, Order, OrderLine
 from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpOnline, SumUpTerminal, SumUpTransaction
 from pos.models.user import CreditUpdate, User, GeekeventsToken
+from pos.models.printer import Printer
 
 
 class CreditUpdateAdmin(admin.ModelAdmin):
@@ -139,6 +140,10 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderLineInline]
 
 
+class PrinterAdmin(admin.ModelAdmin):
+    pass
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Item, ItemAdmin)
@@ -157,3 +162,5 @@ admin.site.register(SumUpCard, SumUpCardAdmin)
 admin.site.register(SumUpOnline, SumUpOnlineAdmin)
 
 admin.site.register(FoodLog, FoodLogAdmin)
+
+admin.site.register(Printer, PrinterAdmin)

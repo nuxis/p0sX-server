@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase, PAYMENT_METHOD
 from pos.models.user import User
 
+from django_q.tasks import async_task
 
 from rest_framework import serializers
 
@@ -146,13 +147,14 @@ class PurchaseSerializer(serializers.Serializer):
                 raise ValidationError('{} is not in stock'.format(item.name))
 
         if card:
-            crew = get_object_or_404(User.objects.all(), card=card)
-            if payment_method != 1 and crew.is_crew:
-                raise ValidationError('The user is marked as crew but payment method was not CREDIT')
-            if payment_method == 1 and not crew.is_crew:
-                raise ValidationError('Only users marked as crew can use payment method CREDIT')
+            user = get_object_or_404(User.objects.all(), card=card)
+            payment_method = 1 if user.is_crew else 4
+            #if payment_method != 1 and crew.is_crew:
+            #    raise ValidationError('The user is marked as crew but payment method was not CREDIT')
+            #if payment_method == 1 and not crew.is_crew:
+            #    raise ValidationError('Only users marked as crew can use payment method CREDIT')
             order = Order.create(
-                crew, cashier, authenticated_user, payment_method, message)
+                user, cashier, authenticated_user, payment_method, message)
         else:
             order = Order.create(
                 None, cashier, authenticated_user, payment_method, message)
@@ -187,6 +189,9 @@ class PurchaseSerializer(serializers.Serializer):
         if not prepared_order:
             order.state = 3
             order.save()
+        else:
+            async_task("pos.services.print_pickup_receipts", order.id,
+                       task_name='Pickup receipts for order {id}'.format(id=order.id))
 
         return Purchase(order, card, undo, cashier_card)
 

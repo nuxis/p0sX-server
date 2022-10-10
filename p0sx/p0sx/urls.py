@@ -33,6 +33,7 @@ from pos.views.sso import (
 )
 from pos.views.stock import (CategoryViewSet,
                              CreditCheckViewSet,
+                             PrintReceiptViewset,
                              DiscountViewSet,
                              ItemViewSet,
                              OrderLineViewSet,
@@ -97,6 +98,7 @@ router.register(r'all_shifts', AllShiftsViewSet, 'all_shifts')
 router.register(r'create_shift', NewShiftViewSet, 'create_shift')
 router.register(r'purchases', PurchaseViewSet, 'purchase')
 router.register(r'credit', CreditCheckViewSet, 'credit')
+router.register(r'receipt', PrintReceiptViewset, 'receipt')
 router.register(r'discounts', DiscountViewSet, 'discount')
 
 urlpatterns = [

@@ -172,7 +172,7 @@ Q_CLUSTER = {
     'orm': 'default'
 }
 
-EVENT_NAME = 'Polar Party 30: Challenge Accepted'
-COMPANY_NAME = 'Polar Interesseorganisasjon'
-COMPANY_ADDRESS = 'Foobargate 1 1234 Baz'
-COMPANY_ORG_NR = '81549300'
+EVENT_NAME = ''
+COMPANY_NAME = ''
+COMPANY_ADDRESS = ''
+COMPANY_ORG_NR = ''

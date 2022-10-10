@@ -15,6 +15,8 @@ from pos.serializers.stock import (CategorySerializer,
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
+from django_q.tasks import async_task
+
 
 class DiscountViewSet(viewsets.ModelViewSet):
     queryset = Discount.objects.all()
@@ -90,3 +92,12 @@ class CreditCheckViewSet(viewsets.ViewSet):
         queryset = CreditCheck(total, credit_limit)
         serializer = CreditCheckSerializer(queryset)
         return Response(serializer.data)
+
+
+class PrintReceiptViewset(viewsets.ViewSet):
+
+    @staticmethod
+    def retrieve(request, pk=None):
+        order_id = int(pk)
+        async_task("pos.services.print_receipt", order_id, task_name='Receipt for order {id}'.format(id=order_id))
+        return Response()

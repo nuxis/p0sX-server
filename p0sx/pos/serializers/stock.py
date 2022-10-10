@@ -131,7 +131,7 @@ class PurchaseSerializer(serializers.Serializer):
         card = validated_data.get('card')
 
         cashier_card = validated_data.get('cashier_card')
-        cashier = User.objects.get(card=cashier_card)
+        cashier = User.objects.get(card__iexact=cashier_card)
 
         authenticated_user = request.user
 
@@ -147,7 +147,7 @@ class PurchaseSerializer(serializers.Serializer):
                 raise ValidationError('{} is not in stock'.format(item.name))
 
         if card:
-            user = get_object_or_404(User.objects.all(), card=card)
+            user = get_object_or_404(User.objects.all(), card__iexact=card)
             payment_method = 1 if user.is_crew else 4
             #if payment_method != 1 and crew.is_crew:
             #    raise ValidationError('The user is marked as crew but payment method was not CREDIT')

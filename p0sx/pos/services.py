@@ -56,6 +56,8 @@ def print_pickup_receipts(order_id):
 
         printer.hw('INIT')
         for order_line in order_lines:
+            if not order_line.item.created_in_the_kitchen:
+                continue
             ingredients = order_line.ingredients.all()
             print_order(printer, order_line.id, order.date, order_line.message, order_line.item, ingredients)
     finally:

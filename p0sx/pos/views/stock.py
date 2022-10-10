@@ -82,7 +82,7 @@ class CreditCheckViewSet(viewsets.ViewSet):
     @staticmethod
     def retrieve(request, pk=None):
         users = User.objects.all()
-        user = get_object_or_404(users, card=pk)
+        user = get_object_or_404(users, card__iexact=pk)
         orders = Order.objects.filter(user=user)
         orderlines = OrderLine.objects.filter(order__in=orders)
 

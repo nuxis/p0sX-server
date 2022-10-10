@@ -51,7 +51,7 @@ def add_user_callback(request):
     phone = ge_user['phone']
     email = ge_user['email']
 
-    card_query = User.objects.filter(card=card)
+    card_query = User.objects.filter(card__iexact=card)
     if len(card_query) != 0:
         return HttpResponseBadRequest("A user with your ID is already registered")
 

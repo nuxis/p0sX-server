@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
         for id, data in crew.items():
             try:
-                crew = User.objects.get(card=data['user_card'])
+                crew = User.objects.get(card__iexact=data['user_card'])
             except ObjectDoesNotExist:
                 if not data['user_card']:
                     continue

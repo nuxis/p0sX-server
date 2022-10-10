@@ -87,7 +87,7 @@ sso_url = [
 
 # Routers provide an easy way of automatically determining the URL conf.
 router = routers.SimpleRouter()
-router.register(r'user', UserViewSet)
+router.register(r'user', UserViewSet, 'user')
 router.register(r'categories', CategoryViewSet)
 router.register(r'orderlines', OrderLineViewSet)
 router.register(r'items', ItemViewSet)

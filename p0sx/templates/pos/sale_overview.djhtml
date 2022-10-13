@@ -4,6 +4,12 @@ Sale overview
 {% endblock title %}
 {% block content %}
 
+<form action="" method="post">
+{% csrf_token %}
+{{ form.as_p  }}
+<button type="submit" class="waves-effect waves-light btn cyan">Go!</button>
+</form>
+
 <h4>Items</h4>
 <table>
     {% for category, items in overview.items %}
@@ -15,6 +21,8 @@ Sale overview
         </tr>
         <tr>
             <th>Item:</th>
+            <th>First sold:</th>
+            <th>Last sold:</th>
             <th>Sold</th>
             <th>Prepaid</th>
             <th>Credit</th>
@@ -25,6 +33,8 @@ Sale overview
         {% for item in items %}
         <tr>
             <td>{{ item.name }}</td>
+            <td>{{ item.first_sold|default_if_none:"Not sold" }}</td>
+            <td>{{ item.last_sold|default_if_none:"Not sold" }}</td>
             <td>{{ item.sold }}</td>
             <td>{{ item.prepaid }}</td>
             <td>{{ item.credit }}</td>

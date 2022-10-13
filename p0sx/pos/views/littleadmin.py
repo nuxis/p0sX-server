@@ -1,10 +1,9 @@
-import datetime
-
+from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
-from django.db.models import Case, IntegerField, Sum, When
+from django.db.models import Case, IntegerField, Sum, When, Max, Min
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse, reverse_lazy
@@ -12,7 +11,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
-from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm, CreditStatsForm
+from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm, TimeFilterForm
 from ..ge_importer import GeekEventsImporter
 from ..models.shift import Shift
 from ..models.stock import Item, Order, OrderLine
@@ -122,9 +121,24 @@ def credit_edit(request, card=None):
 
 @login_required
 def sale_overview(request):
-    order_lines = OrderLine.objects.all().values('item__id', 'order__payment_method')\
-        .annotate(total=Sum('price'),
-                  sold=Sum(Case(When(price__gt=0, then=1), default=-1, output_field=IntegerField())))
+    from_time = None
+    to_time = None
+
+    if request.POST:
+        form = TimeFilterForm(request.POST)
+        if form.is_valid():
+            from_time = form.cleaned_data['from_time']
+            to_time = form.cleaned_data['to_time']
+    else:
+        form = TimeFilterForm()
+
+    order_lines = OrderLine.objects.all().values('item__id', 'order__payment_method')
+    if from_time is not None and to_time is not None:
+        order_lines = order_lines.filter(order__date__gte=from_time).filter(order__date__lt=to_time)
+    order_lines = order_lines.annotate(total=Sum('price'),
+                  first_sold=Min('order__date'),
+                  last_sold=Max('order__date'),
+                  sold=Sum(Case(When(price__gte=0, then=1), default=-1, output_field=IntegerField())))
 
     items = Item.objects.all().values('name', 'category__name', 'id', 'price')
     total = {'prepaid': 0, 'credit': 0, 'total': 0}
@@ -133,14 +147,19 @@ def sale_overview(request):
 
     for item in items:
         per_payment_method = order_lines.filter(item_id=item['id'])
+        first_sold = per_payment_method.aggregate(Min('first_sold'))['first_sold__min']
+        last_sold = per_payment_method.aggregate(Max('last_sold'))['last_sold__max']
         try:
             credit = per_payment_method.filter(order__payment_method=1)[0]
         except IndexError:
-            credit = {'sold': 0, 'total': 0}
+            credit = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
         try:
             prepaid = per_payment_method.filter(order__payment_method=4)[0]
         except IndexError:
-            prepaid = {'sold': 0, 'total': 0}
+            prepaid = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
+
+        item['first_sold'] = first_sold
+        item['last_sold'] = last_sold
         item['prepaid'] = prepaid['total']
         item['credit'] = credit['total']
         item['sold'] = prepaid['sold'] + credit['sold']
@@ -159,7 +178,8 @@ def sale_overview(request):
         total['total'] += item['total']
 
     shifts = ShiftSerializer(Shift.objects.all(), many=True)
-    return render(request, 'pos/sale_overview.djhtml', {'overview': overview, 'shifts': shifts.data, 'total': total})
+    print(overview)
+    return render(request, 'pos/sale_overview.djhtml', {'overview': overview, 'shifts': shifts.data, 'total': total, 'form': form})
 
 
 @permission_required("pos.update_credit")
@@ -445,7 +465,7 @@ def group_credit_updates(date, group_by):
 @login_required()
 def add_credit_stats(request):
     if request.POST:
-        form = CreditStatsForm(request.POST)
+        form = TimeFilterForm(request.POST)
         if not form.is_valid():
             return redirect('littleadmin:add_credit_stats')
 
@@ -459,13 +479,13 @@ def add_credit_stats(request):
 
         total = sum([x.amount for x in updates])
 
-        form = CreditStatsForm(initial={'from_time': f"{from_time:%Y-%m-%dT%H:%M}", 'to_time': f"{to_time:%Y-%m-%dT%H:%M}"})
+        form = TimeFilterForm(initial={'from_time': f"{from_time:%Y-%m-%dT%H:%M}", 'to_time': f"{to_time:%Y-%m-%dT%H:%M}"})
     else:
         total = 0
         total_out = 0
         updates = []
         orders = []
-        form = CreditStatsForm()
+        form = TimeFilterForm()
 
     return render(request, 'pos/add_credit_stats.djhtml', {
         'updates': updates,

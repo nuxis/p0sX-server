@@ -33,9 +33,9 @@ class AddUserForm(forms.ModelForm):
         }
 
 
-class CreditStatsForm(forms.Form):
-    from_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
-    to_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}))
+class TimeFilterForm(forms.Form):
+    from_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=False)
+    to_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=False)
 
 
 class RemotePayForm(forms.Form):

@@ -178,7 +178,6 @@ def sale_overview(request):
         total['total'] += item['total']
 
     shifts = ShiftSerializer(Shift.objects.all(), many=True)
-    print(overview)
     return render(request, 'pos/sale_overview.djhtml', {'overview': overview, 'shifts': shifts.data, 'total': total, 'form': form})
 
 

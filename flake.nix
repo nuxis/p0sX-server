@@ -1,5 +1,5 @@
 {
-  description = "Application packaged using poetry2nix";
+  description = "p0sX server";
 
   inputs.flake-utils.url = "github:numtide/flake-utils";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

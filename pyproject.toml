@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "p0sx-server"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = ">=3.2,<4"
+django-filter = "^23.3"
+djangorestframework = "^3.14.0"
+django-extensions = "^3.2.3"
+werkzeug = "0.15.3"
+ipython = "^8.16.1"
+django-environ = "^0.11.2"
+django-q = "^1.3.9"
+escpos = "^2.0.0"
+pyge = {url = "https://github.com/kradalby/pyGE/archive/master/0.0.4.zip"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

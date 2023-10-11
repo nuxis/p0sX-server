@@ -149,7 +149,7 @@ def sale_overview_csv(request):
     )
 
     writer = csv.writer(response)
-    writer.writerow(["Name", "First sold", "Last sold", "Prepaid", "Credit", "Sold"])
+    writer.writerow(["Category", "Name", "First sold", "Last sold", "Prepaid", "Credit", "Sold"])
     for item in items:
         per_payment_method = order_lines.filter(item_id=item['id'])
         first_sold = per_payment_method.aggregate(Min('first_sold'))['first_sold__min']
@@ -163,7 +163,7 @@ def sale_overview_csv(request):
         except IndexError:
             prepaid = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
 
-        writer.writerow([item['name'], first_sold, last_sold, prepaid['total'], credit['total'], prepaid['sold'] + credit['sold']])
+        writer.writerow([item['category__name'], item['name'], first_sold, last_sold, prepaid['total'], credit['total'], prepaid['sold'] + credit['sold']])
 
     return response
 

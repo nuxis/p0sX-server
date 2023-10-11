@@ -41,7 +41,11 @@ Sale overview
     <tbody>
         {% for item in items %}
         <tr>
-            <td>{{ item.name }}</td>
+            {% if forloop.last %}
+                <th>{{ item.name }}</th>
+            {% else %}
+                <td>{{ item.name }}</td>
+            {% endif %}
             <td>{{ item.first_sold|default_if_none:"Not sold" }}</td>
             <td>{{ item.last_sold|default_if_none:"Not sold" }}</td>
             <td>{{ item.sold }}</td>

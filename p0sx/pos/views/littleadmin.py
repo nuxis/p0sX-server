@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime
 from django.conf import settings
 from django.contrib import messages
@@ -120,6 +121,53 @@ def credit_edit(request, card=None):
 
 
 @login_required
+def sale_overview_csv(request):
+    from_time = None
+    to_time = None
+
+    if request.POST:
+        form = TimeFilterForm(request.POST)
+        if form.is_valid():
+            from_time = form.cleaned_data['from_time']
+            to_time = form.cleaned_data['to_time']
+    else:
+        form = TimeFilterForm()
+
+    order_lines = OrderLine.objects.all().values('item__id', 'order__payment_method')
+    if from_time is not None and to_time is not None:
+        order_lines = order_lines.filter(order__date__gte=from_time).filter(order__date__lt=to_time)
+    order_lines = order_lines.annotate(total=Sum('price'),
+                  first_sold=Min('order__date'),
+                  last_sold=Max('order__date'),
+                  sold=Sum(Case(When(price__gte=0, then=1), default=-1, output_field=IntegerField())))
+
+    items = Item.objects.all().values('name', 'category__name', 'id', 'price')
+
+    response = HttpResponse(
+        content_type="text/csv",
+        headers={"Content-Disposition": 'attachment; filename="sale_overview.csv"'},
+    )
+
+    writer = csv.writer(response)
+    writer.writerow(["Name", "First sold", "Last sold", "Prepaid", "Credit", "Sold"])
+    for item in items:
+        per_payment_method = order_lines.filter(item_id=item['id'])
+        first_sold = per_payment_method.aggregate(Min('first_sold'))['first_sold__min']
+        last_sold = per_payment_method.aggregate(Max('last_sold'))['last_sold__max']
+        try:
+            credit = per_payment_method.filter(order__payment_method=1)[0]
+        except IndexError:
+            credit = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
+        try:
+            prepaid = per_payment_method.filter(order__payment_method=4)[0]
+        except IndexError:
+            prepaid = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
+
+        writer.writerow([item['name'], first_sold, last_sold, prepaid['total'], credit['total'], prepaid['sold'] + credit['sold']])
+
+    return response
+
+@login_required
 def sale_overview(request):
     from_time = None
     to_time = None
@@ -177,8 +225,29 @@ def sale_overview(request):
         total['credit'] += item['credit']
         total['total'] += item['total']
 
+    category_totals = []
+
+    for category_name, category_items in overview.items():
+        category_total = {}
+        category_total['name'] = "Total"
+        category_total['prepaid'] = 0
+        category_total['credit'] = 0
+        category_total['sold'] = 0
+        category_total['total'] = 0
+        for category_item in category_items:
+            print(category_item)
+            category_total['prepaid'] = category_total['prepaid'] + category_item['prepaid']
+            category_total['credit'] = category_total['credit'] + category_item['credit']
+            category_total['sold'] = category_total['sold'] + category_item['sold']
+            category_total['total'] = category_total['total'] + category_item['total']
+        category_items.append(category_total)
+        
+        category_total_copy = category_total.copy();
+        category_total_copy['name'] = category_name
+        category_totals.append(category_total_copy)
+
     shifts = ShiftSerializer(Shift.objects.all(), many=True)
-    return render(request, 'pos/sale_overview.djhtml', {'overview': overview, 'shifts': shifts.data, 'total': total, 'form': form})
+    return render(request, 'pos/sale_overview.djhtml', {'overview': overview, 'categories': category_totals, 'shifts': shifts.data, 'total': total, 'form': form})
 
 
 @permission_required("pos.update_credit")

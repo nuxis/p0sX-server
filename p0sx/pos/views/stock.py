@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 
 
-from pos.models.stock import Category, CreditCheck, Discount, Item, Order, OrderLine, Purchase
+from pos.models.stock import Category, CreditCheck, Discount, Item, Order, OrderLine, Purchase, PaymentMethod
 from pos.models.user import User
 from pos.serializers.stock import (CategorySerializer,
                                    CreditCheckSerializer,
@@ -48,15 +48,12 @@ class PurchaseViewSet(viewsets.ViewSet):
 
     def list(self, request):
         orders = Order.objects.all()
-        queryset = []
-        for order in orders:
-            queryset.append(Purchase(order))
+        queryset = [Purchase(o) for o in orders]
         serializer = PurchaseSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        orders = Order.objects.all()
-        order = get_object_or_404(orders, pk=pk)
+        order = get_object_or_404(Order, pk=pk)
         queryset = Purchase(order)
         serializer = PurchaseSerializer(queryset)
         return Response(serializer.data)
@@ -87,9 +84,8 @@ class CreditCheckViewSet(viewsets.ViewSet):
         orderlines = OrderLine.objects.filter(order__in=orders)
 
         total = sum(ol.price for ol in orderlines)
-        credit_limit = user.credit
 
-        queryset = CreditCheck(total, credit_limit)
+        queryset = CreditCheck(total, user)
         serializer = CreditCheckSerializer(queryset)
         return Response(serializer.data)
 

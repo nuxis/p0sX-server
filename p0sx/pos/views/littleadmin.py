@@ -149,7 +149,7 @@ def sale_overview_csv(request):
     )
 
     writer = csv.writer(response)
-    writer.writerow(["Category", "Name", "First sold", "Last sold", "Prepaid", "Credit", "Sold"])
+    writer.writerow(["Category", "Name", "First sold", "Last sold", "Prepaid", "Credit", "Card", "Sold"])
     for item in items:
         per_payment_method = order_lines.filter(item_id=item['id'])
         first_sold = per_payment_method.aggregate(Min('first_sold'))['first_sold__min']
@@ -163,7 +163,12 @@ def sale_overview_csv(request):
         except IndexError:
             prepaid = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
 
-        writer.writerow([item['category__name'], item['name'], first_sold, last_sold, prepaid['total'], credit['total'], prepaid['sold'] + credit['sold']])
+        try:
+            card = per_payment_method.filter(order__payment_method=2)[0]
+        except IndexError:
+            card = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
+
+        writer.writerow([item['category__name'], item['name'], first_sold, last_sold, prepaid['total'], credit['total'], card['total'], prepaid['sold'] + credit['sold'] + card['sold']])
 
     return response
 
@@ -189,7 +194,7 @@ def sale_overview(request):
                   sold=Sum(Case(When(price__gte=0, then=1), default=-1, output_field=IntegerField())))
 
     items = Item.objects.all().values('name', 'category__name', 'id', 'price')
-    total = {'prepaid': 0, 'credit': 0, 'total': 0}
+    total = {'prepaid': 0, 'credit': 0, 'card': 0, 'total': 0}
 
     overview = {}
 
@@ -205,13 +210,18 @@ def sale_overview(request):
             prepaid = per_payment_method.filter(order__payment_method=4)[0]
         except IndexError:
             prepaid = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
+        try:
+            card = per_payment_method.filter(order__payment_method=2)[0]
+        except IndexError:
+            card = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
 
         item['first_sold'] = first_sold
         item['last_sold'] = last_sold
         item['prepaid'] = prepaid['total']
         item['credit'] = credit['total']
-        item['sold'] = prepaid['sold'] + credit['sold']
-        item['total'] = item['prepaid'] + item['credit']
+        item['card'] = card['total']
+        item['sold'] = prepaid['sold'] + credit['sold'] + card['sold']
+        item['total'] = item['prepaid'] + item['credit'] + item['card']
 
         if item['price'] < 0:
             item['sold'] *= -1
@@ -223,6 +233,7 @@ def sale_overview(request):
 
         total['prepaid'] += item['prepaid']
         total['credit'] += item['credit']
+        total['card'] += item['card']
         total['total'] += item['total']
 
     category_totals = []
@@ -232,12 +243,14 @@ def sale_overview(request):
         category_total['name'] = "Total"
         category_total['prepaid'] = 0
         category_total['credit'] = 0
+        category_total['card'] = 0
         category_total['sold'] = 0
         category_total['total'] = 0
         for category_item in category_items:
             print(category_item)
             category_total['prepaid'] = category_total['prepaid'] + category_item['prepaid']
             category_total['credit'] = category_total['credit'] + category_item['credit']
+            category_total['card'] = category_total['card'] + category_item['card']
             category_total['sold'] = category_total['sold'] + category_item['sold']
             category_total['total'] = category_total['total'] + category_item['total']
         category_items.append(category_total)

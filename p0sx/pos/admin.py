@@ -5,6 +5,7 @@ from pos.models.stock import Category, Discount, FoodLog, Ingredient, Item, Item
 from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpOnline, SumUpTerminal, SumUpTransaction
 from pos.models.user import CreditUpdate, User, GeekeventsToken
 from pos.models.printer import Printer
+from pos.models.sumup_cloud import SumupReader
 
 
 class CreditUpdateAdmin(admin.ModelAdmin):
@@ -135,14 +136,16 @@ class FoodLogInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = ('user', 'payment_method', 'cashier', 'authenticated_user')
-    list_display = ('id', 'user', 'date', 'sum', 'state')
+    readonly_fields = ('user', 'payment_method', 'cashier', 'authenticated_user', 'payment_state', 'payment_reference')
+    list_display = ('id', 'user', 'date', 'sum', 'state', 'payment_state', 'payment_method')
     inlines = [OrderLineInline]
 
 
 class PrinterAdmin(admin.ModelAdmin):
     pass
 
+class SumupReaderAdmin(admin.ModelAdmin):
+    pass
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
@@ -164,3 +167,5 @@ admin.site.register(SumUpOnline, SumUpOnlineAdmin)
 admin.site.register(FoodLog, FoodLogAdmin)
 
 admin.site.register(Printer, PrinterAdmin)
+
+admin.site.register(SumupReader, SumupReaderAdmin)

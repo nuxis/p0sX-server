@@ -40,7 +40,7 @@ from pos.views.stock import (CategoryViewSet,
                              OrderLineViewSet,
                              OrderViewSet,
                              PurchaseViewSet)
-from pos.views.sumup import SumUpAuthView, get_pending_transactions, set_processing, sumup_callback, sumup_callbackonline
+from pos.views.sumup import SumUpAuthView, get_pending_transactions, set_processing, sumup_callback, sumup_callbackonline, sumup_ordercallback
 from pos.views.user import UserViewSet
 
 
@@ -119,6 +119,7 @@ urlpatterns = [
     # url(r'callback/(?P<tid>\d+)', sumup_callback, name='sumup_callback')
     path('callback/<uuid:tid>', sumup_callback, name='sumup_callback'),
     path('callbackonline/<uuid:tid>', sumup_callbackonline, name='sumup_callbackonline'),
+    path('order-callback/<int:order_id>', sumup_ordercallback, name='sumup_ordercallback'),
     path('foodtracker/active/', active_orders, name='active_orders'),
     path('foodtracker/production_station/', production_station, name='production_station'),
     path('foodtracker/production_station/<int:category>/', production_station_single, name='production_station_single'),

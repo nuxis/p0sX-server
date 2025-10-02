@@ -1,4 +1,3 @@
-from tabnanny import check
 import uuid
 from datetime import timedelta
 from urllib.parse import urlencode, urljoin
@@ -12,12 +11,17 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import View
 
+from django_q.tasks import async_task
+
+from pos.models.stock import Order, PaymentState, OrderState
 from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpOnline
-from pos.service.sumup import API_URL, fetch_onlinetransaction_status, fetch_transaction_status
+from pos.service.sumup import API_URL, fetch_onlinetransaction_status, fetch_transaction_status, get_sumup_transaction
 
 import json
 import requests
+import logging
 
+logger = logging.getLogger(__name__)
 
 @permission_required('pos.update_credit')
 def get_pending_transactions(request):
@@ -89,6 +93,39 @@ def sumup_callbackonline(request, tid):
         tr.save()
 
     return HttpResponse('OK')
+
+
+@csrf_exempt
+def sumup_ordercallback(request, order_id):
+    callback = json.loads(request.body)
+    transaction_id = callback['payload']['client_transaction_id']
+    logger.debug(callback)
+    status = callback['payload']['status']
+
+    try:
+        order = Order.objects.get(pk=order_id, payment_reference=transaction_id)
+        transaction = get_sumup_transaction(transaction_id)
+        logger.debug(transaction)
+        transaction_status = None if transaction is None else transaction['status']
+        if transaction_status == 'SUCCESSFUL':
+            order.payment_state = PaymentState.Paid
+            if order.state == OrderState.Open:
+                async_task("pos.services.print_pickup_receipts", order.id,
+                           task_name='Pickup receipts for order {id}'.format(id=order.id))
+            order.save()
+        elif transaction_status == 'FAILED':
+            order.payment_state = PaymentState.Failed
+            order.save()
+        elif transaction_status == 'CANCELLED':
+            order.payment_state = PaymentState.Cancelled
+            order.save()
+        elif transaction_status == 'PENDING':
+            logger.info(f"Payment for order {order_id} is still pending...")
+
+        return HttpResponse('OK')
+    except:
+        logger.error(f"pk: {order_id} client_transaction_id: '{transaction_id}' failed to get order")
+        return HttpResponse(status=500)
 
 
 def set_processing(request, transaction):

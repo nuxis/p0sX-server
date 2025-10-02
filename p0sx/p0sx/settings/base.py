@@ -55,7 +55,7 @@ INSTALLED_APPS = (
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
-    'django_q',
+    'django_q'
 )
 
 MIDDLEWARE = [
@@ -150,10 +150,12 @@ SITE_URL = ''
 
 # SumUp affiliate key. Create one on your SumUp account with application-id com.polarparty.p0sx
 SUMUP_AFFILIATE_KEY = ''
-# SumUp callback hostname, must include http:// or https:// and port if required.
+# SumUp callback hostname, must include https:// and port if required.
 SUMUP_CALLBACK_HOSTNAME = ''
 # SumUp Merchant code
 SUMUP_MERCHANT_CODE = ''
+
+SUMUP_BEARER_TOKEN = ''
 
 # GeekEvents event id for the current party
 GE_EVENT_ID = None

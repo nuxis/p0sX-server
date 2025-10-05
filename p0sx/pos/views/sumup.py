@@ -157,7 +157,7 @@ class SumUpAuthView(View):
         data = {
             'response_type': 'code',
             'state': instance.access_code_state,
-            'scope': 'transactions.history payments',
+           # 'scope': 'transactions.history payments',
             'redirect_uri': urljoin(settings.SUMUP_CALLBACK_HOSTNAME, reverse('littleadmin:sumup_return')),
             'client_id': instance.client_id,
         }

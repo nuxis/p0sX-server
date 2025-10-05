@@ -4,7 +4,7 @@ djangorestframework
 django-extensions
 Werkzeug==0.15.3
 ipython
-https://github.com/kradalby/pyGE/archive/master/0.0.4.zip 
+https://github.com/kradalby/pyGE/archive/master/0.0.5.zip
 django-environ
 django-q
 escpos

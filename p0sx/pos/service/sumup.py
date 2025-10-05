@@ -144,7 +144,7 @@ def init_order_card_payment(order, reader_id):
     """
     payload = {
         "total_amount": {"value": int(order.sum * 100), "currency": "NOK", "minor_unit": 2},
-        "description": f"{EVENT_NAME} ordre {order.pk}",
+        "description": f"{EVENT_NAME} p0sX ordre {order.pk}",
         "return_url":  SUMUP_CALLBACK_HOSTNAME + '/order-callback/' + str(order.pk),
     }
     url = f"https://api.sumup.com/v0.1/merchants/{SUMUP_MERCHANT_CODE}/readers/{reader_id}/checkout"

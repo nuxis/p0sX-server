@@ -5,9 +5,9 @@ Kortbetaling
 {% block content %}
 <h1>Fullfør kortbetaling med terminalen</h1>
 
-  <div class="progress">
-      <div class="indeterminate"></div>
-  </div>
+<div class="progress">
+  <div class="indeterminate"></div>
+</div>
 
 <p>Transaksjons-ID: {{ tid }} Status: {{ status }} 
 </p>

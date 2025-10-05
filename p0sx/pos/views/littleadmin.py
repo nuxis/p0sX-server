@@ -1,5 +1,5 @@
 import csv
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
@@ -7,21 +7,18 @@ from django.db import transaction
 from django.db.models import Case, IntegerField, Sum, When, Max, Min
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, reverse_lazy
-from django.utils import timezone
-from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView
+from django.urls import reverse_lazy
 
 from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm, TimeFilterForm
 from ..ge_importer import GeekEventsImporter
 from ..models.shift import Shift
-from ..models.stock import Item, Order, OrderLine
-from ..models.sumup import SumUpAPIKey, SumUpCard, SumUpTransaction
+from ..models.stock import Item, Order, OrderLine, PaymentState
 from ..models.user import CreditUpdate, GeekeventsToken, User
+from ..models.sumup_cloud import SumupTransaction, SumupReader
 from ..serializers.shift import ShiftSerializer
 
-from pos.service.ge_sso import get_user
-
+from ..service.ge_sso import get_user
+from ..service.sumup import init_credit_fill_payment
 
 def check_credit(request):
     if request.POST:
@@ -34,7 +31,7 @@ def check_credit(request):
             if not user:
                 return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
 
-            orders = Order.objects.filter(user_id=user[0].id).order_by('-date')[0:3]
+            orders = Order.objects.filter(user_id=user[0].pk).order_by('-date')[0:3]
 
             return render(request, 'pos/credit_check.djhtml', {
                 'form': CheckCreditForm(),
@@ -239,13 +236,7 @@ def sale_overview(request):
     category_totals = []
 
     for category_name, category_items in overview.items():
-        category_total = {}
-        category_total['name'] = "Total"
-        category_total['prepaid'] = 0
-        category_total['credit'] = 0
-        category_total['card'] = 0
-        category_total['sold'] = 0
-        category_total['total'] = 0
+        category_total = {'name': "Total", 'prepaid': 0, 'credit': 0, 'card': 0, 'sold': 0, 'total': 0}
         for category_item in category_items:
             category_total['prepaid'] = category_total['prepaid'] + category_item['prepaid']
             category_total['credit'] = category_total['credit'] + category_item['credit']
@@ -254,7 +245,7 @@ def sale_overview(request):
             category_total['total'] = category_total['total'] + category_item['total']
         category_items.append(category_total)
         
-        category_total_copy = category_total.copy();
+        category_total_copy = category_total.copy()
         category_total_copy['name'] = category_name
         category_totals.append(category_total_copy)
 
@@ -356,6 +347,12 @@ def add_user_credit(request, card=None):
             cash = form.cleaned_data['cash']
             user = get_object_or_404(User, card__iexact=card)
 
+            try:
+                sumup_reader = SumupReader.objects.get(user=request.user)
+            except SumupReader.DoesNotExist:
+                messages.error(request,"The logged in user has no payment terminal associated with it.")
+                return redirect('littleadmin:add_user_credit', card)
+
             if user.is_crew:
                 messages.error(request, "You cannot change the credit of Crew")
                 return redirect('littleadmin:scan_user_card')
@@ -369,12 +366,12 @@ def add_user_credit(request, card=None):
                 messages.error(request, "The maximum credit that can be added at once is 1000. Add multiple times if more is needed")
                 return redirect('littleadmin:add_user_credit', card)
 
-            if(cash):
-                return redirect('littleadmin:verify_add_credit_cash', user.id, amount)
+            if cash:
+                return redirect('littleadmin:verify_add_credit_cash', user.pk, amount)
 
-
-            transaction = SumUpCard.objects.create(user=user, amount=amount, authorized_user=request.user)
-            tid = transaction.id
+            sumup_transaction = SumupTransaction.objects.create(user=user, amount=amount, authenticated_user=request.user)
+            tid = sumup_transaction.pk
+            init_credit_fill_payment(sumup_transaction, sumup_reader.reader_id)
 
             return redirect('littleadmin:verify_add_credit', tid)
         else:
@@ -387,67 +384,7 @@ def add_user_credit(request, card=None):
             return redirect('littleadmin:scan_user_card')
 
         form = AddCreditForm()
-        sumup_url = reverse('littleadmin:add_user_credit_sumup', kwargs={'card': card})
-        return render(request, 'pos/add_credit.djhtml', {'form': form, 'target': user, 'sumup_url': sumup_url})
-
-
-def check_sumup_status(request, tid):
-    obj = SumUpCard.objects.get(pk=tid)
-    return HttpResponse(obj.status)
-
-
-class AddUserSumupCredit(TemplateView):
-    UPDATE_SECONDS = 300
-
-    template_name = 'pos/add_credit_sumup.djhtml'
-    transaction = None
-    user = None
-
-    @method_decorator(login_required)
-    @method_decorator(permission_required('pos.update_credit'))
-    def dispatch(self, *args, **kwargs):
-        self.user = get_object_or_404(User, card__iexact=kwargs.get('card', None))
-        self.transaction = SumUpTransaction.objects.all().filter(handled=False, pk=kwargs.get('transaction_id',
-                                                                                              0)).first()
-        return super().dispatch(*args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['user'] = self.user
-        for key in SumUpAPIKey.objects.all():
-            key.get_unhandled_transactions(self.UPDATE_SECONDS)
-        context['available'] = SumUpTransaction.objects.all().filter(
-            timestamp__gte=timezone.now() - datetime.timedelta(seconds=self.UPDATE_SECONDS),
-            status='SUCCESSFUL', handled=False
-        )
-        context['seconds'] = self.UPDATE_SECONDS
-        context['url'] = self.request.path
-        context['form'] = CheckCreditForm()
-        context['trans'] = self.transaction
-        return context
-
-    def get(self, *args, **kwargs):
-        if kwargs.get('verify', None):
-            self.template_name = 'pos/add_credit_sumup_confirm.djhtml'
-        return super().get(*args, **kwargs)
-
-    def post(self, *args, **kwargs):
-        if not self.transaction:
-            # Crewmember must input badge ID
-            self.transaction = get_object_or_404(
-                SumUpTransaction,
-                pk=self.request.POST.get('transaction_id', None),
-                handled=False
-            )
-            return HttpResponse(reverse('littleadmin:add_user_credit_sumup_verify', kwargs={
-                'card': self.user.card,
-                'transaction_id': self.transaction.pk,
-            }))
-        self.crew_badge_id = self.request.POST.get('card', None)
-        self.crew_member = get_object_or_404(User, card__iexact=self.crew_badge_id)
-        self.transaction.use_on_user(self.user, self.crew_member)
-        messages.success(self.request, f"Success! Credit set to {self.user.left}")
-        return redirect('littleadmin:scan_user_card')
+        return render(request, 'pos/add_credit.djhtml', {'form': form, 'target': user, 'sumup_url': None})
 
 
 @permission_required('pos.update_credit')
@@ -477,19 +414,19 @@ def add_user(request, card=None):
 @permission_required('pos.update_credit')
 def verify_add_credit(request, tid=''):
 
-    transaction = SumUpCard.objects.get(pk=tid)
-    if transaction.status == 4:
-        messages.success(request, str(transaction.amount) + ' added to ' + str(transaction.user))
+    sumup_transaction = SumupTransaction.objects.get(pk=tid)
+    if sumup_transaction.payment_state == PaymentState.Paid:
+        messages.success(request, str(sumup_transaction.amount) + ' added to ' + str(sumup_transaction.user))
         return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
 
-    if transaction.status == 3:
+    if sumup_transaction.payment_state == PaymentState.Failed or sumup_transaction.payment_state == PaymentState.Cancelled:
         messages.error(request, 'Transaction failed')
         return HttpResponseRedirect(reverse_lazy('littleadmin:scan_user_card'))
 
     else:
         return render(request, 'pos/verify_add_credit.djhtml', {
             'tid': tid,
-            'status': transaction.get_status_display()
+            'status': sumup_transaction.get_payment_state_display(),
         })
 
 
@@ -527,17 +464,17 @@ def verify_add_credit_cash(request, user='', amount=''):
 
 def group_credit_updates(date, group_by):
     times = [
-        datetime.timedelta(hours=0),
-        datetime.timedelta(hours=6),
-        datetime.timedelta(hours=12),
-        datetime.timedelta(hours=18)
+        timedelta(hours=0),
+        timedelta(hours=6),
+        timedelta(hours=12),
+        timedelta(hours=18)
     ]
     seconds = (date.hour * 60 * 60) + (date.minute * 60) + date.second
     seconds /= group_by.total_seconds()
 
     index = int(seconds)
 
-    timestamp = datetime.datetime.combine(date.date(), datetime.datetime.min.time()) + times[index]
+    timestamp = datetime.combine(date.date(), datetime.min.time()) + times[index]
 
     return timestamp
 
@@ -581,7 +518,8 @@ def update_ge_user(request):
     if ge_id is not None:
         user = GeekeventsToken.objects.get(ge_user_id=ge_id)
         if not user:
-            return;
+            messages.error(request, f"Failed to find user")
+            return redirect('/littleadmin/update_ge_user')
         ge_user = get_user(user.ge_user_id, user.timestamp, user.token)
         user.user.card = ge_user['usercard'].split('||')[0]
         user.user.first_name = ge_user['first_name']
@@ -591,7 +529,7 @@ def update_ge_user(request):
         user.user.save()
         return redirect('/littleadmin/update_ge_user')
 
-    users = GeekeventsToken.objects.all();
+    users = GeekeventsToken.objects.all()
 
     return render(request, 'pos/update_ge_user.djhtml', {
         'users': users

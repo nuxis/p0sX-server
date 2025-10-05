@@ -3,10 +3,9 @@ from django import forms
 
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, FoodLog, Ingredient, Item, ItemIngredient, Order, OrderLine
-from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpOnline, SumUpTerminal, SumUpTransaction
 from pos.models.user import CreditUpdate, User, GeekeventsToken
 from pos.models.printer import Printer
-from pos.models.sumup_cloud import SumupReader
+from pos.models.sumup_cloud import SumupReader, SumupTransaction
 from pos.service.sumup import pair_sumup_reader
 
 class CreditUpdateAdmin(admin.ModelAdmin):
@@ -171,6 +170,9 @@ class SumupReaderAdmin(admin.ModelAdmin):
 
         super().save_model(request, obj, form, change)  # Call the original save_model
 
+class SumupTransactionAdmin(admin.ModelAdmin):
+    readonly_fields = ('user', 'authenticated_user', 'payment_state', 'payment_reference', 'amount')
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
@@ -183,14 +185,9 @@ admin.site.register(ItemIngredient, ItemIngredientAdmin)
 admin.site.register(Discount, DiscountAdmin)
 admin.site.register(CreditUpdate, CreditUpdateAdmin)
 
-admin.site.register(SumUpAPIKey, SumUpAPIKeyAdmin)
-admin.site.register(SumUpTerminal, SumUpTerminalAdmin)
-admin.site.register(SumUpTransaction, SumUpTransactionAdmin)
-admin.site.register(SumUpCard, SumUpCardAdmin)
-admin.site.register(SumUpOnline, SumUpOnlineAdmin)
-
 admin.site.register(FoodLog, FoodLogAdmin)
 
 admin.site.register(Printer, PrinterAdmin)
 
 admin.site.register(SumupReader, SumupReaderAdmin)
+admin.site.register(SumupTransaction, SumupTransactionAdmin)

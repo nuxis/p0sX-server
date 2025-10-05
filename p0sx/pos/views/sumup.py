@@ -1,106 +1,23 @@
-import uuid
-from datetime import timedelta
-from urllib.parse import urlencode, urljoin
-
-from django.conf import settings
-from django.contrib.auth.decorators import permission_required
-from django.http import HttpResponse, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
-from django.utils import timezone
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import View
+from django.db import transaction as django_transaction, IntegrityError
 
 from django_q.tasks import async_task
 
-from pos.models.stock import Order, PaymentState, OrderState
-from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpOnline
-from pos.service.sumup import API_URL, fetch_onlinetransaction_status, fetch_transaction_status, get_sumup_transaction
+from ..models.stock import Order, PaymentState, OrderState
+from ..models.sumup_cloud import SumupTransaction
+from ..service.sumup import get_sumup_transaction
 
 import json
-import requests
 import logging
 
 logger = logging.getLogger(__name__)
-
-@permission_required('pos.update_credit')
-def get_pending_transactions(request):
-    transactions = SumUpCard.objects.filter(status=0)
-    key = settings.SUMUP_AFFILIATE_KEY
-    callback = settings.SUMUP_CALLBACK_HOSTNAME
-    return render(request, 'pos/sumupcard.djhtml', {
-        'transactions': transactions,
-        'key': key,
-        'url': callback
-    })
-
-
-def sumup_callback(request, tid):
-    callback = request.GET
-    tr = SumUpCard.objects.get(id=tid, status=1)
-    if tr:
-        if callback.get('smp-status') == 'failed':
-            tr.status = 3
-            tr.transaction_id = callback.get('smp-tx-code')
-            tr.transaction_comment = callback.get('smp-message')
-            tr.save()
-
-        elif callback.get('smp-status') == 'success':
-            api_key = SumUpAPIKey.objects.last()
-            txstatus = fetch_transaction_status(api_key, callback.get('smp-tx-code'))
-            if txstatus is True:
-                tr.status = 2
-                tr.transaction_id = callback.get('smp-tx-code')
-                tr.transaction_comment = callback.get('smp-message')
-                tr.save()
-                tr.update_user()
-    return HttpResponse('<script type="text/javascript">window.close()</script>')
-
-
-# {"id":"88b907dd-a6ca-441f-b264-b3d02a8d1f79","status":"SUCCESSFUL","event_type":"CHECKOUT_STATUS_CHANGED"}
-@csrf_exempt
-def sumup_callbackonline(request, tid):
-    callback = json.loads(request.body)
-    checkoutid = callback['id']
-    status = callback['status']
-
-    try:
-        tr = SumUpOnline.objects.get(id=tid, transaction_id=checkoutid, status=1)
-    
-    except:
-        print('DEBUG: Id:' + str(tid) + ' CheckoutId:' + checkoutid + ' combo not found!')
-        
-    if status == 'SUCCESSFUL':
-        api_key = SumUpAPIKey.objects.last()
-        transactionstatus = fetch_onlinetransaction_status(api_key, checkoutid)
-        if transactionstatus is True:
-            print('transaction checked and OK')
-            tr.status = 2
-            tr.transaction_comment = status
-            tr.save()
-            tr.update_user()
-
-        else:
-            print('transaction could not be confirmed ' + checkoutid)
-            tr.status = 3
-            tr.transaction_comment = 'NOT CONFIRMED'
-            tr.save()
-    
-    else:
-        print('transaction failed')
-        tr.status = 3
-        tr.transaction_comment = status
-        tr.save()
-
-    return HttpResponse('OK')
-
 
 @csrf_exempt
 def sumup_ordercallback(request, order_id):
     callback = json.loads(request.body)
     transaction_id = callback['payload']['client_transaction_id']
     logger.debug(callback)
-    status = callback['payload']['status']
 
     try:
         order = Order.objects.get(pk=order_id, payment_reference=transaction_id)
@@ -127,60 +44,38 @@ def sumup_ordercallback(request, order_id):
         logger.error(f"pk: {order_id} client_transaction_id: '{transaction_id}' failed to get order")
         return HttpResponse(status=500)
 
+@csrf_exempt
+def sumup_creditcallback(request, transaction_id):
+    callback = json.loads(request.body)
+    client_transaction_id = callback['payload']['client_transaction_id']
+    logger.debug(callback)
 
-def set_processing(request, transaction):
-    tr = SumUpCard.objects.get(id=transaction)
-    tr.status = 1
-    tr.save()
-    return HttpResponse('OK')
+    try:
+        transaction = SumupTransaction.objects.get(pk=transaction_id, payment_reference=client_transaction_id)
+        sumup_transaction = get_sumup_transaction(client_transaction_id)
+        logger.debug(sumup_transaction)
+        transaction_status = None if sumup_transaction is None else sumup_transaction['status']
+        if transaction_status == 'SUCCESSFUL':
+            try:
+                with django_transaction.atomic():
+                    transaction.payment_state = PaymentState.Paid
+                    if not transaction.used:
+                        transaction.used = True
+                        transaction.user.credit += transaction.amount
+                        transaction.user.save()
+                    transaction.save()
+            except IntegrityError:
+                return HttpResponse(status=500)
+        elif transaction_status == 'FAILED':
+            transaction.payment_state = PaymentState.Failed
+            transaction.save()
+        elif transaction_status == 'CANCELLED':
+            transaction.payment_state = PaymentState.Cancelled
+            transaction.save()
+        elif transaction_status == 'PENDING':
+            logger.info(f"Payment for transaction {transaction_id} is still pending...")
 
-
-class SumUpAuthView(View):
-
-    def dispatch(self, *args, **kwargs):
-        self.action = kwargs.pop('action', None)
-        self.instance_id = kwargs.get('instance_id', None)
-        if not self.action:
-            return HttpResponseBadRequest()
-        return super().dispatch(*args, **kwargs)
-
-    def get(self, *args, **kwargs):
-        func = getattr(self, self.action, None)
-        if not func:
-            return HttpResponseBadRequest()
-        return func(*args, **kwargs)
-
-    def init(self, *args, **kwargs):
-        instance = get_object_or_404(SumUpAPIKey, pk=self.instance_id)
-        instance.access_code_state = uuid.uuid4()
-        instance.save()
-        data = {
-            'response_type': 'code',
-            'state': instance.access_code_state,
-           # 'scope': 'transactions.history payments',
-            'redirect_uri': urljoin(settings.SUMUP_CALLBACK_HOSTNAME, reverse('littleadmin:sumup_return')),
-            'client_id': instance.client_id,
-        }
-        url = urljoin(API_URL, 'authorize') + '?' + urlencode(data)
-        return redirect(url)
-
-    def sumup_return(self, *args, **kwargs):
-        code = self.request.GET['code']
-        state = self.request.GET['state']
-        instance = get_object_or_404(SumUpAPIKey, access_code_state=state)
-        req = requests.post(
-            url=urljoin(API_URL, 'token'),
-            data={
-                'grant_type': 'authorization_code',
-                'client_id': instance.client_id,
-                'client_secret': instance.client_secret,
-                'code': code
-            }
-        )
-        ret = req.json()
-        instance.token = ret['access_token']
-        instance.token_expiry = timezone.now() + timedelta(seconds=ret['expires_in'])
-        instance.refresh_token = ret['refresh_token']
-        instance.refresh_token_expiry = timezone.now() + timedelta(days=180)
-        instance.save()
         return HttpResponse('OK')
+    except:
+        logger.error(f"pk: {transaction_id} client_transaction_id: '{client_transaction_id}' failed to get transaction")
+        return HttpResponse(status=500)

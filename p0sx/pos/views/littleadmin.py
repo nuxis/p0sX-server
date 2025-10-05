@@ -247,7 +247,6 @@ def sale_overview(request):
         category_total['sold'] = 0
         category_total['total'] = 0
         for category_item in category_items:
-            print(category_item)
             category_total['prepaid'] = category_total['prepaid'] + category_item['prepaid']
             category_total['credit'] = category_total['credit'] + category_item['credit']
             category_total['card'] = category_total['card'] + category_item['card']

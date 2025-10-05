@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User as DjangoUser
 from django.db import models
 
+from pos.service.sumup import delete_sumup_reader
 
 class SumupReader(models.Model):
     name = models.CharField(max_length=255)
@@ -9,6 +10,10 @@ class SumupReader(models.Model):
 
     def __str__(self):
         return self.name
+
+    def delete(self, *args, **kwargs):
+        delete_sumup_reader(self.reader_id)
+        super().delete(*args, **kwargs)
 
     class Meta:
         verbose_name = 'SumUp Card Reader'

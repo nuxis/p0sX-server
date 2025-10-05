@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django import forms
 
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, FoodLog, Ingredient, Item, ItemIngredient, Order, OrderLine
@@ -6,7 +7,7 @@ from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpOnline, SumUpTerminal,
 from pos.models.user import CreditUpdate, User, GeekeventsToken
 from pos.models.printer import Printer
 from pos.models.sumup_cloud import SumupReader
-
+from pos.service.sumup import pair_sumup_reader
 
 class CreditUpdateAdmin(admin.ModelAdmin):
     readonly_fields = ('timestamp', 'amount', 'user', 'updated_by_user', 'geekevents_id')
@@ -144,8 +145,32 @@ class OrderAdmin(admin.ModelAdmin):
 class PrinterAdmin(admin.ModelAdmin):
     pass
 
+
+class SumupReaderAdminForm(forms.ModelForm):
+    pairing_code = forms.CharField(max_length=255, required=True)
+
+    class Meta:
+        model = SumupReader
+        fields = ('name', 'user', 'reader_id') # Include all model fields, or specify a subset
+
 class SumupReaderAdmin(admin.ModelAdmin):
-    pass
+    form = SumupReaderAdminForm
+    readonly_fields = ('reader_id',)
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+
+        if obj:
+            del form.base_fields['pairing_code']
+
+        return form
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.reader_id = pair_sumup_reader(form.cleaned_data.get('name'), form.cleaned_data.get('pairing_code'))
+
+        super().save_model(request, obj, form, change)  # Call the original save_model
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Ingredient, IngredientAdmin)

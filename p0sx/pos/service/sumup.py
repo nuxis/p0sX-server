@@ -163,3 +163,21 @@ def get_sumup_transaction(transaction_id):
     if response.status_code == 200:
         return response.json()
     return None
+
+def pair_sumup_reader(name, pairing_code):
+    payload = {
+        "name": name,
+        "pairing_code": pairing_code
+    }
+    url = f"https://api.sumup.com/v0.1/merchants/{SUMUP_MERCHANT_CODE}/readers"
+    headers = {"Authorization": f"Bearer {SUMUP_BEARER_TOKEN}"}
+    response = requests.post(url, headers=headers, json=payload)
+    if response.status_code == 201:
+        return response.json()["id"]
+    return None
+
+def delete_sumup_reader(reader_id):
+    url = f"https://api.sumup.com/v0.1/merchants/{SUMUP_MERCHANT_CODE}/readers/{reader_id}"
+    headers = {"Authorization": f"Bearer {SUMUP_BEARER_TOKEN}"}
+    response = requests.delete(url, headers=headers)
+    return response.status_code

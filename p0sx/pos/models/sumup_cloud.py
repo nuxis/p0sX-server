@@ -24,7 +24,7 @@ class SumupReader(models.Model):
 
 class SumupTransaction(models.Model):
     user = models.ForeignKey(User, related_name='transaction_user', on_delete=models.CASCADE)
-    authenticated_user = models.ForeignKey(User, related_name='transaction_authorized_user', on_delete=models.CASCADE)
+    authenticated_user = models.ForeignKey(DjangoUser, related_name='transaction_authorized_user', on_delete=models.CASCADE)
     amount = models.IntegerField()
     payment_state = models.SmallIntegerField(default=PaymentState.Pending, choices=PAYMENT_STATE)
     payment_reference = models.CharField(max_length=256, blank=True, null=True)

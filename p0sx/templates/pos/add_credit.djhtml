@@ -26,8 +26,8 @@ label[for=id_cash]
     <form action="" method="post">
         {% csrf_token %}
         {{ form }}
-        <button type="submit" class="waves-effect waves-light btn cyan">Save with SumUp</button>
-        <button type="submit" name="cash" value="true" class="waves-effect waves-light btn cyan">Save with CASH</button>
+        <button type="submit" class="waves-effect waves-light btn-large cyan">Save with SumUp</button>
+        <button type="submit" name="cash" value="true" class="waves-effect waves-light btn-large cyan">Save with CASH</button>
     </form>
 
     <script>

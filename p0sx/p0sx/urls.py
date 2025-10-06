@@ -57,7 +57,7 @@ littleadmin_url = [
     url(r'add_user_credit/(?P<card>\w+)$', add_user_credit, name='add_user_credit'),
     url(r'add_user/(?P<card>\w+)', add_user, name='add_user'),
     url(r'verify_add_credit_cash/(?P<user>\d+)/(?P<amount>\d+)', verify_add_credit_cash, name='verify_add_credit_cash'),
-    path('verify_add_credit/<uuid:tid>', verify_add_credit, name='verify_add_credit'),
+    path('verify_add_credit/<int:tid>', verify_add_credit, name='verify_add_credit'),
     url(r'add_credit_stats', add_credit_stats, name='add_credit_stats'),
     path('update_ge_user/', update_ge_user, name='update_ge_user'),
 ]

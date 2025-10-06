@@ -417,7 +417,7 @@ def verify_add_credit(request, tid=''):
     sumup_transaction = SumupTransaction.objects.get(pk=tid)
     if sumup_transaction.payment_state == PaymentState.Paid:
         messages.success(request, str(sumup_transaction.amount) + ' added to ' + str(sumup_transaction.user))
-        return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
+        return HttpResponseRedirect(reverse_lazy('littleadmin:scan_user_card'))
 
     if sumup_transaction.payment_state == PaymentState.Failed or sumup_transaction.payment_state == PaymentState.Cancelled:
         messages.error(request, 'Transaction failed')

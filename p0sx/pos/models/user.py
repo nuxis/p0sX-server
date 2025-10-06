@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User as DjangoUser
 from django.db import models
 
-from .stock import Order
+from .stock import Order, PaymentMethod
 
 
 class CreditUpdate(models.Model):
@@ -42,7 +42,7 @@ class User(models.Model):
 
     @property
     def used(self):
-        orders = Order.objects.filter(user_id=self.id)
+        orders = Order.objects.filter(user_id=self.id).exclude(payment_method=PaymentMethod.Card)
         return sum([order.sum for order in orders])
 
     @property

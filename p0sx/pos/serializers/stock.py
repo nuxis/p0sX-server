@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.db import transaction
 
 from pos.models.stock import Category, Discount, Ingredient, Item, ItemIngredient, Order, OrderLine, Purchase, OrderState, PaymentMethod, PaymentState
 from pos.models.user import User
@@ -197,44 +198,48 @@ class PurchaseSerializer(serializers.Serializer):
             except SumupReader.DoesNotExist:
                 raise APIException()
 
-        order = Order.create(user, cashier, authenticated_user, payment_method, message)
-        order.payment_state = PaymentState.Pending if payment_method == PaymentMethod.Card else PaymentState.Paid
-        order.save()
+        try:
+            with transaction.atomic():
+                order = Order.create(user, cashier, authenticated_user, payment_method, message)
+                order.payment_state = PaymentState.Pending if payment_method == PaymentMethod.Card else PaymentState.Paid
+                order.save()
 
-        prepared_order = False
+                prepared_order = False
 
-        for line_dict in order_lines:
-            ingredients = line_dict.get('ingredients')
-            item = line_dict.get('item')
-            message = line_dict.get('message')
+                for line_dict in order_lines:
+                    ingredients = line_dict.get('ingredients')
+                    item = line_dict.get('item')
+                    message = line_dict.get('message')
 
-            price = item.price + sum(i.price for i in ingredients)
-            price = price * -1 if undo else price
+                    price = item.price + sum(i.price for i in ingredients)
+                    price = price * -1 if undo else price
 
-            line = OrderLine.create(item, order, price, message)
-            line.save()
-            if len(ingredients):
-                line.ingredients.set((i.pk for i in ingredients))
-                line.save()
+                    line = OrderLine.create(item, order, price, message)
+                    line.save()
+                    if len(ingredients):
+                        line.ingredients.set((i.pk for i in ingredients))
+                        line.save()
 
-            if line.item.created_in_the_kitchen and not undo:
-                prepared_order = True
-            else:
-                line.state = OrderState.Archived
-                line.save()
+                    if line.item.created_in_the_kitchen and not undo:
+                        prepared_order = True
+                    else:
+                        line.state = OrderState.Archived
+                        line.save()
 
-        # Set the order to ARCHIVED if its not going to the kitchen
-        if not prepared_order:
-            order.state = OrderState.Archived
-            order.save()
+                # Set the order to ARCHIVED if its not going to the kitchen
+                if not prepared_order:
+                    order.state = OrderState.Archived
+                    order.save()
 
-        if order.payment_method == PaymentMethod.Card:
-            sumup.init_order_card_payment(order, reader_id=sumup_reader.reader_id)
-        elif prepared_order:
-            async_task("pos.services.print_pickup_receipts", order.id,
-                       task_name='Pickup receipts for order {id}'.format(id=order.id))
+                if order.payment_method == PaymentMethod.Card:
+                    sumup.init_order_card_payment(order, reader_id=sumup_reader.reader_id)
+                elif prepared_order:
+                    async_task("pos.services.print_pickup_receipts", order.id,
+                               task_name='Pickup receipts for order {id}'.format(id=order.id))
 
-        return Purchase(order)
+                return Purchase(order)
+        except:
+            raise ValidationError("Purchase failed")
 
     def update(self, instance, validated_data):
         pass

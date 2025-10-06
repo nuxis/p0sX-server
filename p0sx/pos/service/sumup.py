@@ -1,5 +1,5 @@
 import requests
-
+from django.core.exceptions import ValidationError
 from django.conf import settings
 
 
@@ -17,10 +17,12 @@ def init_order_card_payment(order, reader_id):
     url = f"https://api.sumup.com/v0.1/merchants/{settings.SUMUP_MERCHANT_CODE}/readers/{reader_id}/checkout"
     headers = {"Authorization": f"Bearer {settings.SUMUP_BEARER_TOKEN}"}
     response = requests.post(url, headers=headers, json=payload)
-    if response.status_code == 201:
-        order.payment_reference = response.json()["data"]["client_transaction_id"]
-        order.save()
-    return response.json()
+
+    if response.status_code != 201:
+        raise ValidationError(f"Unexpected status code from SumUp {response.status_code}")
+    order.payment_reference = response.json()["data"]["client_transaction_id"]
+    order.save()
+
 
 def init_credit_fill_payment(transaction, reader_id):
     """
@@ -34,10 +36,12 @@ def init_credit_fill_payment(transaction, reader_id):
     url = f"https://api.sumup.com/v0.1/merchants/{settings.SUMUP_MERCHANT_CODE}/readers/{reader_id}/checkout"
     headers = {"Authorization": f"Bearer {settings.SUMUP_BEARER_TOKEN}"}
     response = requests.post(url, headers=headers, json=payload)
-    if response.status_code == 201:
-        transaction.payment_reference = response.json()["data"]["client_transaction_id"]
-        transaction.save()
-    return response.json()
+
+    if response.status_code != 201:
+        raise ValidationError(f"Unexpected status code from SumUp {response.status_code}")
+    transaction.payment_reference = response.json()["data"]["client_transaction_id"]
+    transaction.save()
+
 
 def get_sumup_transaction(transaction_id):
     headers = {"Authorization": f"Bearer {settings.SUMUP_BEARER_TOKEN}"}

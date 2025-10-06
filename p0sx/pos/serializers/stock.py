@@ -179,7 +179,7 @@ class PurchaseSerializer(serializers.Serializer):
             #if payment_method == 1 and not crew.is_crew:
             #    raise ValidationError('Only users marked as crew can use payment method CREDIT')
 
-            user_orders = Order.objects.filter(user=user)
+            user_orders = Order.objects.filter(user=user).exclude(payment_method=PaymentMethod.Card)
             user_order_lines = OrderLine.objects.filter(order__in=user_orders)
 
             total = sum(ol.price for ol in user_order_lines)

@@ -80,7 +80,7 @@ class CreditCheckViewSet(viewsets.ViewSet):
     def retrieve(request, pk=None):
         users = User.objects.all()
         user = get_object_or_404(users, card__iexact=pk)
-        orders = Order.objects.filter(user=user)
+        orders = Order.objects.filter(user=user).exclude(payment_method=PaymentMethod.Card)
         orderlines = OrderLine.objects.filter(order__in=orders)
 
         total = sum(ol.price for ol in orderlines)

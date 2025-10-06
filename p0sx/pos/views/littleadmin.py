@@ -12,7 +12,7 @@ from django.urls import reverse_lazy
 from ..forms import AddCreditForm, AddUserForm, ChangeCreditForm, CheckCreditForm, TimeFilterForm
 from ..ge_importer import GeekEventsImporter
 from ..models.shift import Shift
-from ..models.stock import Item, Order, OrderLine, PaymentState
+from ..models.stock import Item, Order, OrderLine, PaymentState, PaymentMethod
 from ..models.user import CreditUpdate, GeekeventsToken, User
 from ..models.sumup_cloud import SumupTransaction, SumupReader
 from ..serializers.shift import ShiftSerializer
@@ -65,7 +65,7 @@ def get_order_details(orders):
 
 @login_required
 def credit_overview(request):
-    bought = OrderLine.objects.all().exclude(order__user__isnull=True).values('order__user').annotate(used=Sum('price'))
+    bought = OrderLine.objects.all().exclude(order__user__isnull=True, order__payment_method=PaymentMethod.Card).values('order__user').annotate(used=Sum('price'))
     users = User.objects.all().values()
     for user in users:
         for b in bought:
@@ -369,9 +369,14 @@ def add_user_credit(request, card=None):
             if cash:
                 return redirect('littleadmin:verify_add_credit_cash', user.pk, amount)
 
-            sumup_transaction = SumupTransaction.objects.create(user=user, amount=amount, authenticated_user=request.user)
-            tid = sumup_transaction.pk
-            init_credit_fill_payment(sumup_transaction, sumup_reader.reader_id)
+            try:
+                with transaction.atomic():
+                    sumup_transaction = SumupTransaction.objects.create(user=user, amount=amount, authenticated_user=request.user)
+                    tid = sumup_transaction.pk
+                    init_credit_fill_payment(sumup_transaction, sumup_reader.reader_id)
+            except:
+                messages.error(request, "Failed to add credit transaction")
+                return redirect('littleadmin:add_user_credit', card)
 
             return redirect('littleadmin:verify_add_credit', tid)
         else:

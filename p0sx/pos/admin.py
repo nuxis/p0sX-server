@@ -171,7 +171,7 @@ class SumupReaderAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)  # Call the original save_model
 
 class SumupTransactionAdmin(admin.ModelAdmin):
-    readonly_fields = ('user', 'authenticated_user', 'payment_state', 'payment_reference', 'amount')
+    readonly_fields = ('user', 'authenticated_user', 'payment_state', 'payment_reference', 'amount', 'used')
 
 
 admin.site.register(User, UserAdmin)

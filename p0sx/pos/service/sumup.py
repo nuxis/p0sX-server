@@ -28,7 +28,7 @@ def init_credit_fill_payment(transaction, reader_id):
     """
     payload = {
         "total_amount": {"value": int(transaction.amount * 100), "currency": "NOK", "minor_unit": 2},
-        "description": f"{settings.EVENT_NAME} p0sX ordre {transaction.pk}",
+        "description": f"{settings.EVENT_NAME} P0sX påfyll for {transaction.user.card} - {transaction.pk}",
         "return_url":  settings.SUMUP_CALLBACK_HOSTNAME + '/credit-callback/' + str(transaction.pk),
     }
     url = f"https://api.sumup.com/v0.1/merchants/{settings.SUMUP_MERCHANT_CODE}/readers/{reader_id}/checkout"

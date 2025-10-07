@@ -65,7 +65,7 @@ def get_order_details(orders):
 
 @login_required
 def credit_overview(request):
-    bought = OrderLine.objects.all().exclude(order__user__isnull=True, order__payment_method=PaymentMethod.Card).values('order__user').annotate(used=Sum('price'))
+    bought = OrderLine.objects.all().exclude(order__user__isnull=True).exclude(order__payment_method=PaymentMethod.Card).values('order__user').annotate(used=Sum('price'))
     users = User.objects.all().values()
     for user in users:
         for b in bought:
@@ -130,7 +130,7 @@ def sale_overview_csv(request):
     else:
         form = TimeFilterForm()
 
-    order_lines = OrderLine.objects.all().values('item__id', 'order__payment_method')
+    order_lines = OrderLine.objects.filter(order__payment_state=PaymentState.Paid).values('item__id', 'order__payment_method')
     if from_time is not None and to_time is not None:
         order_lines = order_lines.filter(order__date__gte=from_time).filter(order__date__lt=to_time)
     order_lines = order_lines.annotate(total=Sum('price'),
@@ -152,16 +152,16 @@ def sale_overview_csv(request):
         first_sold = per_payment_method.aggregate(Min('first_sold'))['first_sold__min']
         last_sold = per_payment_method.aggregate(Max('last_sold'))['last_sold__max']
         try:
-            credit = per_payment_method.filter(order__payment_method=1)[0]
+            credit = per_payment_method.filter(order__payment_method=PaymentMethod.Credit)[0]
         except IndexError:
             credit = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
         try:
-            prepaid = per_payment_method.filter(order__payment_method=4)[0]
+            prepaid = per_payment_method.filter(order__payment_method=PaymentMethod.Prepaid)[0]
         except IndexError:
             prepaid = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
 
         try:
-            card = per_payment_method.filter(order__payment_method=2)[0]
+            card = per_payment_method.filter(order__payment_method=PaymentMethod.Card)[0]
         except IndexError:
             card = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
 
@@ -182,7 +182,7 @@ def sale_overview(request):
     else:
         form = TimeFilterForm()
 
-    order_lines = OrderLine.objects.all().values('item__id', 'order__payment_method')
+    order_lines = OrderLine.objects.filter(order__payment_state=PaymentState.Paid).values('item__id', 'order__payment_method')
     if from_time is not None and to_time is not None:
         order_lines = order_lines.filter(order__date__gte=from_time).filter(order__date__lt=to_time)
     order_lines = order_lines.annotate(total=Sum('price'),
@@ -200,15 +200,15 @@ def sale_overview(request):
         first_sold = per_payment_method.aggregate(Min('first_sold'))['first_sold__min']
         last_sold = per_payment_method.aggregate(Max('last_sold'))['last_sold__max']
         try:
-            credit = per_payment_method.filter(order__payment_method=1)[0]
+            credit = per_payment_method.filter(order__payment_method=PaymentMethod.Credit)[0]
         except IndexError:
             credit = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
         try:
-            prepaid = per_payment_method.filter(order__payment_method=4)[0]
+            prepaid = per_payment_method.filter(order__payment_method=PaymentMethod.Prepaid)[0]
         except IndexError:
             prepaid = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
         try:
-            card = per_payment_method.filter(order__payment_method=2)[0]
+            card = per_payment_method.filter(order__payment_method=PaymentMethod.Card)[0]
         except IndexError:
             card = {'sold': 0, 'total': 0, 'first_sold': None, 'last_sold': None}
 
@@ -501,7 +501,7 @@ def add_credit_stats(request):
                 to_time = form.cleaned_data['to_time']
 
         updates = CreditUpdate.objects.all()
-        orders = Order.objects.all()
+        orders = Order.objects.exclude(payment_method=PaymentMethod.Card)
         initial_value = {}
         if from_time is not None:
             updates = updates.filter(timestamp__gte=from_time)
@@ -513,9 +513,20 @@ def add_credit_stats(request):
             initial_value['to_time'] = f"{to_time:%Y-%m-%dT%H:%M}"
 
 
-        total_out = sum([x.sum for x in orders])
-
+        updates = list(updates)
         total = sum([x.amount for x in updates])
+        if from_time is None and to_time is None:
+            sumup_transactions = SumupTransaction.objects.filter(payment_state=PaymentState.Paid, used=True)
+            for t in sumup_transactions:
+                updates.append({
+                    'amount': t.amount,
+                    'timestamp': None,
+                    'updated_by_user': t.authenticated_user,
+                    'user': t.user
+                })
+            total += sum([x.amount for x in sumup_transactions])
+
+        total_out = sum([x.sum for x in orders])
 
         form = TimeFilterForm(initial=initial_value)
     else:

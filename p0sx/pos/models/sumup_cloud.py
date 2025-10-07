@@ -29,3 +29,6 @@ class SumupTransaction(models.Model):
     payment_state = models.SmallIntegerField(default=PaymentState.Pending, choices=PAYMENT_STATE)
     payment_reference = models.CharField(max_length=256, blank=True, null=True)
     used = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"SumUp transaction to add {self.amount} to {self.user} by {self.authenticated_user}"

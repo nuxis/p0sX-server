@@ -4,7 +4,7 @@ from .models.user import User
 
 
 class CheckCreditForm(forms.Form):
-    card = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'autofocus': 'autofocus'}))
+    card = forms.CharField(max_length=100, widget=forms.PasswordInput(attrs={'autofocus': 'autofocus', 'autocomplete': 'off'}))
 
 
 class AddCreditForm(forms.Form):
@@ -36,6 +36,11 @@ class AddUserForm(forms.ModelForm):
 class TimeFilterForm(forms.Form):
     from_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=False)
     to_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=False)
+
+
+class CsvTimeFilterForm(forms.Form):
+    from_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=True)
+    to_time = forms.DateTimeField(input_formats=['%Y-%m-%dT%H:%M'], widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}), required=True)
 
 
 class RemotePayForm(forms.Form):

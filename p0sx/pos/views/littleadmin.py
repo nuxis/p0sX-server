@@ -31,7 +31,7 @@ def check_credit(request):
             if not user:
                 return HttpResponseRedirect(reverse_lazy('littleadmin:check'))
 
-            orders = Order.objects.filter(user_id=user[0].pk).order_by('-date')[0:3]
+            orders = Order.objects.filter(user_id=user[0].pk).exclude(payment_method=PaymentMethod.Card).order_by('-date')[0:3]
 
             return render(request, 'pos/credit_check.djhtml', {
                 'form': CheckCreditForm(),
@@ -264,7 +264,8 @@ def scan_user_card(request):
             user = User.objects.filter(card__iexact=card)
 
             if not user:
-                return redirect('littleadmin:add_user', card=card)
+                messages.error(request, "User not found")
+                return redirect('littleadmin:scan_user_card')
 
             return redirect('littleadmin:add_user_credit', card=card)
         else:
@@ -294,7 +295,7 @@ def fetch_credit_from_ge(request):
             return render(request, 'pos/import_geekevents.djhtml', {'items': [], 'form': CheckCreditForm()})
 
         importer = GeekEventsImporter(settings.GEEKEVENTS_TOKEN, settings.GEEKEVENTS_ITEM_ID)
-        items = []
+
         try:
             items = importer.get_unfetched_items()
         except:
@@ -347,12 +348,6 @@ def add_user_credit(request, card=None):
             cash = form.cleaned_data['cash']
             user = get_object_or_404(User, card__iexact=card)
 
-            try:
-                sumup_reader = SumupReader.objects.get(user=request.user)
-            except SumupReader.DoesNotExist:
-                messages.error(request,"The logged in user has no payment terminal associated with it.")
-                return redirect('littleadmin:add_user_credit', card)
-
             if user.is_crew:
                 messages.error(request, "You cannot change the credit of Crew")
                 return redirect('littleadmin:scan_user_card')
@@ -365,9 +360,18 @@ def add_user_credit(request, card=None):
             if amount > 1000:
                 messages.error(request, "The maximum credit that can be added at once is 1000. Add multiple times if more is needed")
                 return redirect('littleadmin:add_user_credit', card)
+            if amount <= 0:
+                messages.error(request,"The minimum credit that can be added at is 1")
+                return redirect('littleadmin:add_user_credit', card)
 
             if cash:
                 return redirect('littleadmin:verify_add_credit_cash', user.pk, amount)
+
+            try:
+                sumup_reader = SumupReader.objects.get(user=request.user)
+            except SumupReader.DoesNotExist:
+                messages.error(request, "The logged in user has no payment terminal associated with it.")
+                return redirect('littleadmin:add_user_credit', card)
 
             try:
                 with transaction.atomic():
@@ -487,21 +491,33 @@ def group_credit_updates(date, group_by):
 @login_required()
 def add_credit_stats(request):
     if request.POST:
-        form = TimeFilterForm(request.POST)
-        if not form.is_valid():
-            return redirect('littleadmin:add_credit_stats')
+        from_time = None
+        to_time = None
 
-        from_time = form.cleaned_data['from_time']
-        to_time = form.cleaned_data['to_time']
+        if request.POST:
+            form = TimeFilterForm(request.POST)
+            if form.is_valid():
+                from_time = form.cleaned_data['from_time']
+                to_time = form.cleaned_data['to_time']
 
-        updates = CreditUpdate.objects.filter(timestamp__lte=to_time, timestamp__gte=from_time)
-        orders = Order.objects.filter(date__lte=to_time, date__gte=from_time)
+        updates = CreditUpdate.objects.all()
+        orders = Order.objects.all()
+        initial_value = {}
+        if from_time is not None:
+            updates = updates.filter(timestamp__gte=from_time)
+            orders = orders.filter(date__gte=from_time)
+            initial_value['from_time'] = f"{from_time:%Y-%m-%dT%H:%M}"
+        if to_time is not None:
+            updates = updates.filter(timestamp__lte=to_time)
+            orders = orders.filter(date__lte=to_time)
+            initial_value['to_time'] = f"{to_time:%Y-%m-%dT%H:%M}"
+
 
         total_out = sum([x.sum for x in orders])
 
         total = sum([x.amount for x in updates])
 
-        form = TimeFilterForm(initial={'from_time': f"{from_time:%Y-%m-%dT%H:%M}", 'to_time': f"{to_time:%Y-%m-%dT%H:%M}"})
+        form = TimeFilterForm(initial=initial_value)
     else:
         total = 0
         total_out = 0

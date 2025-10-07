@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django import forms
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, FoodLog, Ingredient, Item, ItemIngredient, Order, OrderLine
@@ -59,12 +61,22 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 class ItemAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'price', 'active')
 
 
 class OrderLineAdmin(admin.ModelAdmin):
     readonly_fields = ('ingredients', 'item', 'price')
-    list_display = ('item', 'order', 'state')
+    list_display = ('id', 'item', 'price', 'order_link', 'state')
+
+    def order_link(self, obj):
+        if obj.order is None:
+            return '-'
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse("admin:pos_order_change", args=(obj.order.pk,)),
+            obj.order
+        ))
+
+    order_link.short_description = 'order'
 
 
 class OrderLineInline(admin.TabularInline):
@@ -87,23 +99,6 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class ShiftAdmin(admin.ModelAdmin):
-    pass
-
-
-class SumUpAPIKeyAdmin(admin.ModelAdmin):
-    pass
-
-class SumUpOnlineAdmin(admin.ModelAdmin):
-    readonly_fields = ('id', 'created', 'timestamp', 'transaction_id', 'transaction_comment')
-    ordering = ('-created',)
-    list_display = ('user', 'amount', 'status', 'created', 'transaction_id', 'transaction_comment',)
-    pass
-
-class SumUpTerminalAdmin(admin.ModelAdmin):
-    pass
-
-
-class SumUpTransactionAdmin(admin.ModelAdmin):
     pass
 
 
@@ -136,9 +131,20 @@ class FoodLogInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
+    search_fields = ('id', 'user__card')
     readonly_fields = ('user', 'payment_method', 'cashier', 'authenticated_user', 'payment_state', 'payment_reference')
-    list_display = ('id', 'user', 'date', 'sum', 'state', 'payment_state', 'payment_method')
+    list_display = ('id', 'user_link', 'date', 'sum', 'state', 'payment_state', 'payment_method')
     inlines = [OrderLineInline]
+
+    def user_link(self, obj):
+        if obj.user is None:
+            return '-'
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse("admin:pos_user_change", args=(obj.user.pk,)),
+            obj.user
+        ))
+
+    user_link.short_description = 'user'
 
 
 class PrinterAdmin(admin.ModelAdmin):
@@ -172,7 +178,17 @@ class SumupReaderAdmin(admin.ModelAdmin):
 
 class SumupTransactionAdmin(admin.ModelAdmin):
     readonly_fields = ('user', 'authenticated_user', 'payment_state', 'payment_reference', 'amount', 'used')
+    list_display = ('id', 'user_link', 'amount', 'payment_state', 'used')
 
+    def user_link(self, obj):
+        if obj.user is None:
+            return '-'
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse("admin:pos_user_change", args=(obj.user.pk,)),
+            obj.user
+        ))
+
+    user_link.short_description = 'user'
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Ingredient, IngredientAdmin)

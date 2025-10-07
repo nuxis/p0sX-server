@@ -144,7 +144,6 @@ class OrderLine(models.Model):
         s = self.item.name
 
         actual_ingredients = self.ingredients.all()
-        print(actual_ingredients)
         if len(actual_ingredients) > 0:
             s += ' med '
             s += ', '.join([str(item).lower() for item in actual_ingredients])

@@ -186,10 +186,7 @@ class PurchaseSerializer(serializers.Serializer):
             total = sum(ol.price for ol in user_order_lines)
             credit_left = user.credit - total
             if credit_left < order_total:
-                if user.is_crew:
-                    raise ValidationError('Not enough credit left on card')
-                else:
-                    payment_method = PaymentMethod.Card
+                payment_method = PaymentMethod.Card
 
         sumup_reader = None
         if payment_method == PaymentMethod.Card:

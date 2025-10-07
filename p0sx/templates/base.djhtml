@@ -68,11 +68,11 @@
         </div>
         {% if messages %}
             <div class="container">
-                <ul>
                 {% for message in messages %}
-                    <li><b>{{message}}</b></li>
+                    <div class="card-panel white-text {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}red darken-2 {% else %} cyan {% endif %} ">
+                        <h5>{{message}}</h5>
+                    </div>
                 {% endfor %}
-                </ul>
             </div>
         {% endif %}
         

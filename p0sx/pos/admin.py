@@ -1,11 +1,14 @@
 from django.contrib import admin
+from django import forms
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from pos.models.shift import Shift
 from pos.models.stock import Category, Discount, FoodLog, Ingredient, Item, ItemIngredient, Order, OrderLine
-from pos.models.sumup import SumUpAPIKey, SumUpCard, SumUpOnline, SumUpTerminal, SumUpTransaction
 from pos.models.user import CreditUpdate, User, GeekeventsToken
 from pos.models.printer import Printer
-
+from pos.models.sumup_cloud import SumupReader, SumupTransaction
+from pos.service.sumup import pair_sumup_reader
 
 class CreditUpdateAdmin(admin.ModelAdmin):
     readonly_fields = ('timestamp', 'amount', 'user', 'updated_by_user', 'geekevents_id')
@@ -58,12 +61,22 @@ class IngredientAdmin(admin.ModelAdmin):
 
 
 class ItemAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'price', 'active')
 
 
 class OrderLineAdmin(admin.ModelAdmin):
     readonly_fields = ('ingredients', 'item', 'price')
-    list_display = ('item', 'order', 'state')
+    list_display = ('id', 'item', 'price', 'order_link', 'state')
+
+    def order_link(self, obj):
+        if obj.order is None:
+            return '-'
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse("admin:pos_order_change", args=(obj.order.pk,)),
+            obj.order
+        ))
+
+    order_link.short_description = 'order'
 
 
 class OrderLineInline(admin.TabularInline):
@@ -86,23 +99,6 @@ class CategoryAdmin(admin.ModelAdmin):
 
 
 class ShiftAdmin(admin.ModelAdmin):
-    pass
-
-
-class SumUpAPIKeyAdmin(admin.ModelAdmin):
-    pass
-
-class SumUpOnlineAdmin(admin.ModelAdmin):
-    readonly_fields = ('id', 'created', 'timestamp', 'transaction_id', 'transaction_comment')
-    ordering = ('-created',)
-    list_display = ('user', 'amount', 'status', 'created', 'transaction_id', 'transaction_comment',)
-    pass
-
-class SumUpTerminalAdmin(admin.ModelAdmin):
-    pass
-
-
-class SumUpTransactionAdmin(admin.ModelAdmin):
     pass
 
 
@@ -135,14 +131,64 @@ class FoodLogInline(admin.TabularInline):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    readonly_fields = ('user', 'payment_method', 'cashier', 'authenticated_user')
-    list_display = ('id', 'user', 'date', 'sum', 'state')
+    search_fields = ('id', 'user__card')
+    readonly_fields = ('user', 'payment_method', 'cashier', 'authenticated_user', 'payment_state', 'payment_reference')
+    list_display = ('id', 'user_link', 'date', 'sum', 'state', 'payment_state', 'payment_method')
     inlines = [OrderLineInline]
+
+    def user_link(self, obj):
+        if obj.user is None:
+            return '-'
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse("admin:pos_user_change", args=(obj.user.pk,)),
+            obj.user
+        ))
+
+    user_link.short_description = 'user'
 
 
 class PrinterAdmin(admin.ModelAdmin):
     pass
 
+
+class SumupReaderAdminForm(forms.ModelForm):
+    pairing_code = forms.CharField(max_length=255, required=True)
+
+    class Meta:
+        model = SumupReader
+        fields = ('name', 'user', 'reader_id') # Include all model fields, or specify a subset
+
+class SumupReaderAdmin(admin.ModelAdmin):
+    form = SumupReaderAdminForm
+    readonly_fields = ('reader_id',)
+
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+
+        if obj:
+            del form.base_fields['pairing_code']
+
+        return form
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.reader_id = pair_sumup_reader(form.cleaned_data.get('name'), form.cleaned_data.get('pairing_code'))
+
+        super().save_model(request, obj, form, change)  # Call the original save_model
+
+class SumupTransactionAdmin(admin.ModelAdmin):
+    readonly_fields = ('user', 'authenticated_user', 'payment_state', 'payment_reference', 'amount', 'used')
+    list_display = ('id', 'user_link', 'amount', 'payment_state', 'used')
+
+    def user_link(self, obj):
+        if obj.user is None:
+            return '-'
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse("admin:pos_user_change", args=(obj.user.pk,)),
+            obj.user
+        ))
+
+    user_link.short_description = 'user'
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
@@ -155,12 +201,9 @@ admin.site.register(ItemIngredient, ItemIngredientAdmin)
 admin.site.register(Discount, DiscountAdmin)
 admin.site.register(CreditUpdate, CreditUpdateAdmin)
 
-admin.site.register(SumUpAPIKey, SumUpAPIKeyAdmin)
-admin.site.register(SumUpTerminal, SumUpTerminalAdmin)
-admin.site.register(SumUpTransaction, SumUpTransactionAdmin)
-admin.site.register(SumUpCard, SumUpCardAdmin)
-admin.site.register(SumUpOnline, SumUpOnlineAdmin)
-
 admin.site.register(FoodLog, FoodLogAdmin)
 
 admin.site.register(Printer, PrinterAdmin)
+
+admin.site.register(SumupReader, SumupReaderAdmin)
+admin.site.register(SumupTransaction, SumupTransactionAdmin)
